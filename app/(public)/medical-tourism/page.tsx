@@ -169,7 +169,7 @@ export default function MedicalTourismPage() {
           <PlaneIcon aria-hidden className="size-3.5" />
           For international patients — demo platform
         </span>
-        <h1 id="mt-hero-heading" className="text-3xl font-semibold tracking-tight sm:text-4xl">
+        <h1 id="mt-hero-heading" className="text-3xl font-bold tracking-tight text-balance sm:text-4xl">
           Explore care options in India and plan your visit — with clear demo
           boundaries
         </h1>
@@ -182,7 +182,7 @@ export default function MedicalTourismPage() {
           data.
         </p>
         <div className="flex flex-col gap-2 sm:flex-row">
-          <Button size="lg" render={<Link href={ROUTES.public.internationalPatientEnquiry} />}>
+          <Button size="lg" variant="cta" className="rounded-full px-6 font-semibold shadow-sm" render={<Link href={ROUTES.public.internationalPatientEnquiry} />}>
             <MessagesSquareIcon data-icon="inline-start" aria-hidden />
             Start an enquiry
           </Button>

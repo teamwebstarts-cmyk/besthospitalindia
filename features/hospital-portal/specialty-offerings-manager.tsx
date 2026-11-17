@@ -117,7 +117,7 @@ export function SpecialtyOfferingsManager({
 
   return (
     <div className={cn("space-y-4", className)}>
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Specialties */}
         <Card>
           <CardHeader>

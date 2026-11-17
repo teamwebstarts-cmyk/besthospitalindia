@@ -292,7 +292,7 @@ export function TeamManager({ members, currentUserId, className }: TeamManagerPr
           </CardDescription>
         </CardHeader>
         <CardContent className="gap-4">
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="flex min-w-0 flex-col gap-1.5">
               <Label htmlFor="invite-name">
                 Name <span aria-hidden className="text-destructive">*</span>

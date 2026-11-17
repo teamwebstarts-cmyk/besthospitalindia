@@ -39,7 +39,6 @@ import {
   formatDate,
   formatDateTime,
   patientDisplayName,
-  reviewsForDoctor,
   specialtyLabel,
   treatmentLabel,
 } from "@/features/doctor-portal"
@@ -120,7 +119,6 @@ export default function DoctorDashboardPage() {
   const openConsultations = consultations.filter((e) =>
     OPEN_CONSULTATION_STATUSES.has(e.status),
   )
-  const doctorReviews = reviewsForDoctor(doctor.id)
   const per = doctor.ratings.per
   const mer = doctor.ratings.mer
   const hasAppointments = appointmentQueue.length > 0

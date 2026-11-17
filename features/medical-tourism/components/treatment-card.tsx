@@ -76,7 +76,7 @@ export function TreatmentCard({
           View details
           <span className="sr-only"> for {treatment.name}</span>
         </Button>
-        <Button size="sm" render={<Link href={enquiryHref} />}>
+        <Button size="sm" variant="cta" className="rounded-full px-4 font-semibold" render={<Link href={enquiryHref} />}>
           Enquire
           <ArrowRightIcon data-icon="inline-end" aria-hidden />
           <span className="sr-only"> about {treatment.name} as an international patient</span>

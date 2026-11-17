@@ -327,7 +327,7 @@ export function DoctorAssociationManager({
           </CardDescription>
         </CardHeader>
         <CardContent className="gap-4">
-          <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_11rem_9rem]">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_11rem_9rem]">
             <div className="relative">
               <SearchIcon
                 aria-hidden

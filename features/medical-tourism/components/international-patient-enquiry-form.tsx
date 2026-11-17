@@ -828,7 +828,7 @@ export function InternationalPatientEnquiryForm({
       </Card>
 
       <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:justify-end">
-        <Button type="submit" size="lg" disabled={submitting}>
+        <Button type="submit" size="lg" variant="cta" className="rounded-full px-6 font-semibold shadow-sm" disabled={submitting}>
           {submitting ? "Recording demo enquiry…" : "Submit demo enquiry"}
         </Button>
       </div>

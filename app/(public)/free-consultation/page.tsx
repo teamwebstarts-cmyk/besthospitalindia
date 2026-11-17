@@ -38,7 +38,7 @@ export default function FreeConsultationPage() {
       <header className="flex flex-col gap-4">
         <IufInitiativeBanner />
         <div className="flex flex-col gap-2">
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+          <h1 className="text-3xl font-bold tracking-tight text-balance sm:text-4xl">
             Free consultation — ask before you decide
           </h1>
           <p className="max-w-3xl text-sm text-balance text-muted-foreground sm:text-base">

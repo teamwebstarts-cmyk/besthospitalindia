@@ -115,7 +115,9 @@ export function GlobalSearch({
             className="pl-9"
           />
         </div>
-        <Button type="submit">{submitLabel}</Button>
+        <Button type="submit" variant="cta" className="font-semibold shadow-sm">
+          {submitLabel}
+        </Button>
       </div>
     </form>
   )

@@ -201,7 +201,7 @@ export function AuthEntryCard({ className }: AuthEntryCardProps) {
                   </p>
                 ) : null}
               </div>
-              <Button type="submit" className="w-full">
+              <Button type="submit" variant="cta" className="w-full rounded-full font-semibold shadow-sm">
                 Send one-time code (demo)
               </Button>
               <p className="text-xs text-muted-foreground">
@@ -270,7 +270,7 @@ export function AuthEntryCard({ className }: AuthEntryCardProps) {
                 >
                   Change email / mobile
                 </Button>
-                <Button type="submit" className="flex-1">
+                <Button type="submit" variant="cta" className="flex-1 rounded-full font-semibold shadow-sm">
                   Verify & continue
                 </Button>
               </div>

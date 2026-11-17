@@ -116,7 +116,7 @@ export default function HospitalPortalDashboardPage() {
 
       {/* KPI row — every value is computed from the same scoped selectors the
           queues use, so totals always reconcile. */}
-      <section aria-label="Key numbers" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section aria-label="Key numbers" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <DashboardKpi
           label="Open enquiries"
           value={String(openEnquiryList.length)}
@@ -150,7 +150,7 @@ export default function HospitalPortalDashboardPage() {
       {/* Verification + completion attention strip */}
       <section
         aria-label="Verification and profile attention"
-        className="grid gap-4 lg:grid-cols-2"
+        className="grid grid-cols-1 gap-4 lg:grid-cols-2"
       >
         <div className="rounded-xl bg-card p-6 shadow-xs ring-1 ring-foreground/10">
           <h2 className="font-heading text-base font-semibold">Profile completion (demo)</h2>
@@ -170,7 +170,7 @@ export default function HospitalPortalDashboardPage() {
               style={{ width: `${completion.percent}%` }}
             />
           </div>
-          <ul className="mt-4 grid gap-1.5 text-sm sm:grid-cols-2">
+          <ul className="mt-4 grid grid-cols-1 gap-1.5 text-sm sm:grid-cols-2">
             {completion.checks.map((check) => (
               <li key={check.label} className="flex items-center gap-2">
                 <span
@@ -234,7 +234,7 @@ export default function HospitalPortalDashboardPage() {
       </section>
 
       {/* Action queues */}
-      <section aria-label="Action queues" className="grid gap-4 lg:grid-cols-2">
+      <section aria-label="Action queues" className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <QueueList
           title="Enquiries needing action"
           items={enquiryItems}

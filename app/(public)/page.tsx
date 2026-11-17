@@ -1,4 +1,9 @@
 import type { Metadata } from "next"
+import Link from "next/link"
+import {
+  CircleCheckIcon,
+  ShieldCheckIcon,
+} from "lucide-react"
 
 import { ContentLinkGroup } from "@/features/content/content-link-group"
 import { JourneySteps } from "@/features/content/journey-steps"
@@ -24,6 +29,7 @@ import { DoctorCard } from "@/features/providers/components/doctor-card"
 import { HospitalCard } from "@/features/providers/components/hospital-card"
 import { GlobalSearch } from "@/features/discovery/global-search"
 import { FACILITY_CATEGORY_LABELS } from "@/features/discovery/facility-meta"
+import { Button } from "@/components/ui/button"
 import { doctorById, facilities, hospitals, specialties } from "@/data"
 import { searchDoctors, searchHospitals } from "@/lib/search"
 import { ROUTES } from "@/constants/routes"
@@ -142,7 +148,7 @@ export default function HomePage() {
     <div className="pb-16">
       {/* ------------------------------------------------ hero + search */}
       <section
-        className="border-b bg-muted/30 py-10 sm:py-14"
+        className="border-b bg-gradient-to-br from-primary/[0.08] via-background to-cta/[0.05] py-10 sm:py-14 lg:py-16"
         aria-label="Search the platform"
       >
         <div className="grid items-start gap-8 lg:grid-cols-[1.15fr_1fr]">
@@ -164,8 +170,9 @@ export default function HomePage() {
             trustLine={`${hospitalCount} demo hospitals · ${doctorCount} demo doctors · ${cityCount} demo cities`}
           />
           <aside className="hidden lg:block" aria-hidden>
-            <div className="flex h-full flex-col justify-end gap-3 rounded-2xl border bg-card p-6 shadow-xs">
-              <p className="text-sm font-semibold tracking-wide text-primary uppercase">
+            <div className="flex h-full flex-col justify-center gap-4 rounded-xl border bg-card p-8 shadow-lg ring-1 ring-foreground/5">
+              <p className="flex items-center gap-2 text-sm font-semibold tracking-wide text-primary uppercase">
+                <ShieldCheckIcon aria-hidden className="size-4" />
                 Independent ratings, honestly shown
               </p>
               <p className="text-sm leading-relaxed text-muted-foreground">
@@ -174,6 +181,25 @@ export default function HomePage() {
                 expertise. Where no approved score exists, you will see “Not yet
                 rated” — never a zero.
               </p>
+              <ul className="grid gap-2.5 text-sm">
+                {[
+                  `${hospitalCount} demo hospitals across ${cityCount} demo cities`,
+                  `${doctorCount} demo doctors with independent PER + MER modules`,
+                ].map((line) => (
+                  <li key={line} className="flex items-center gap-2 text-foreground/90">
+                    <CircleCheckIcon aria-hidden className="size-4 shrink-0 text-primary" />
+                    {line}
+                  </li>
+                ))}
+              </ul>
+              <Button
+                variant="cta"
+                className="mt-1 w-full rounded-full px-6 text-base font-semibold shadow-md"
+                render={<Link href={ROUTES.public.freeConsultation} />}
+              >
+                Get a FREE Consultation
+                <span aria-hidden>→</span>
+              </Button>
               <p className="text-xs text-muted-foreground">
                 All figures on this page are fictional demo values.
               </p>
@@ -182,7 +208,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <div className="mt-12 space-y-16">
+      <div className="mt-16 space-y-20">
         {/* ------------------------------------------------ specialty tiles */}
         <HomeSectionHeading
           title="Browse by specialty"
@@ -244,13 +270,20 @@ export default function HomePage() {
             href: ROUTES.public.howItWorks,
           }}
         />
-        <JourneySteps steps={patientJourneySteps} />
+        {/* Reference-matched light-blue process zone: the how-it-works,
+            medical-tourism and consultation cluster sits on a soft primary
+            tint with white cards inside (presentational wrapper only). */}
+        <div className="rounded-3xl bg-primary/[0.045] p-4 ring-1 ring-primary/10 sm:p-6 lg:p-8">
+          <div className="space-y-16">
+            <JourneySteps steps={patientJourneySteps} />
 
-        {/* ------------------------------------------------ medical tourism */}
-        <MedicalTourismBlock />
+            {/* ------------------------------------------------ medical tourism */}
+            <MedicalTourismBlock />
 
-        {/* ------------------------------------------------ IUF CTA */}
-        <IufConsultationCta />
+            {/* ------------------------------------------------ IUF CTA */}
+            <IufConsultationCta />
+          </div>
+        </div>
 
         {/* ------------------------------------------------ trust values */}
         <HomeSectionHeading

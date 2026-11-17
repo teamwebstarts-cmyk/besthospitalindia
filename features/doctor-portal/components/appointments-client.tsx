@@ -40,9 +40,8 @@ import { DataTable, type DataTableColumn } from "@/components/shared/data-table"
 import { EmptyState } from "@/components/shared/empty-state"
 import { StatusBadge } from "@/components/shared/status-badge"
 import { ROUTES } from "@/constants/routes"
+import { formatDate, formatDateTime } from "@/features/doctor-portal/format"
 import {
-  formatDate,
-  formatDateTime,
   patientDisplayName,
   treatmentLabel,
 } from "@/features/doctor-portal/selectors"
@@ -78,7 +77,7 @@ export type AppointmentsAction =
   | { type: "reschedule"; id: string; date: string; note: string }
   | { type: "dismiss-notice" }
 
-const TERMINAL_STATUSES = new Set<AppointmentStatus>(["cancelled", "completed", "rejected"])
+const TERMINAL_STATUSES = new Set<AppointmentStatus>(["cancelled", "completed"])
 
 function nowIso(): string {
   return new Date().toISOString()
@@ -189,7 +188,7 @@ function matchesFilter(record: AppointmentRecord, filter: StatusFilter): boolean
     case "cancelled":
       return changed
         ? record.change?.status === "cancelled"
-        : request.status === "cancelled" || request.status === "rejected"
+        : request.status === "cancelled"
     case "completed":
       return request.status === "completed"
     default:

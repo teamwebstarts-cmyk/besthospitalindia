@@ -38,7 +38,7 @@ export default function DoctorHospitalsPage() {
       />
 
       {doctor ? (
-        <HospitalAssociationsClient doctor={doctor} associated={associated} />
+        <HospitalAssociationsClient associated={associated} />
       ) : (
         <p role="alert" className="rounded-lg border px-4 py-3 text-sm text-muted-foreground">
           Demo profile fixture could not be resolved. The portal session identity is missing

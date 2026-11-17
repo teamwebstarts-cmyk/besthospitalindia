@@ -145,7 +145,9 @@ function DoctorQueryForm({ currentQuery, preserved }: { currentQuery: string; pr
         aria-label="Search doctors by name, specialty or hospital"
         className="w-full sm:max-w-none"
       />
-      <Button type="submit">Search</Button>
+      <Button type="submit" variant="cta" className="font-semibold shadow-sm">
+        Search
+      </Button>
     </form>
   )
 }

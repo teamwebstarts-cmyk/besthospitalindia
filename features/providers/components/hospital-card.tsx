@@ -6,10 +6,14 @@
  * pattern — image/logo, name, city, category, specialties, verification state,
  * separate rating modules, CTA.
  *
- * PER and CER render as two compact but visually distinct, independent
- * modules — never a combined score. Missing scores render "Not yet rated",
- * never 0/5. Identity, location and category data come from the typed
- * `Hospital` fixture; specialty names resolve through the shared lookup maps.
+ * A16 visual alignment: media-left horizontal composition per the reference
+ * listing-card pattern (image left ~30%, content right; stacked image-top on
+ * mobile). Blue provider name, specialty chips, separate PER/CER modules and
+ * a conversion-red CTA. PER and CER render as two compact but visually
+ * distinct, independent modules — never a combined score. Missing scores
+ * render "Not yet rated", never 0/5. Identity, location and category data
+ * come from the typed `Hospital` fixture; specialty names resolve through the
+ * shared lookup maps.
  */
 
 import Image from "next/image"
@@ -77,72 +81,81 @@ export function HospitalCard({ hospital, className }: HospitalCardProps) {
   const hiddenSpecialtyCount = specialtyNames.length - visibleSpecialties.length
 
   return (
-    <Card className={cn("h-full", className)}>
+    <Card className={cn("h-full flex-row overflow-hidden p-0", className)}>
       {hospital.image ? (
-        <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted">
+        <div className="relative hidden w-44 shrink-0 bg-muted sm:block" aria-hidden>
           <Image
             src={hospital.image}
             alt=""
             fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            sizes="(max-width: 640px) 0px, (max-width: 1024px) 176px, 176px"
             className="object-cover"
             unoptimized
           />
         </div>
       ) : null}
-      <CardContent className="gap-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 space-y-1">
-            <h3 className="font-heading text-base leading-snug font-semibold text-foreground">{hospital.name}</h3>
-            <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm text-muted-foreground">
-              <span className="inline-flex items-center gap-1">
-                <MapPinIcon aria-hidden className="size-3.5" />
-                {hospital.city}, {hospital.state}
-              </span>
-              <span aria-hidden>·</span>
-              <span>{hospital.facilityType}</span>
-            </p>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <CardContent className="gap-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 space-y-1">
+              <h3 className="font-heading text-base leading-snug font-semibold text-primary">
+                <Link
+                  href={profileHref}
+                  className="transition-colors outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
+                >
+                  {hospital.name}
+                </Link>
+              </h3>
+              <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm text-muted-foreground">
+                <span className="inline-flex items-center gap-1">
+                  <MapPinIcon aria-hidden className="size-3.5" />
+                  {hospital.city}, {hospital.state}
+                </span>
+                <span aria-hidden>·</span>
+                <span>{hospital.facilityType}</span>
+              </p>
+            </div>
+            <VerificationBadge status={hospital.verificationStatus} className="shrink-0" />
           </div>
-          <VerificationBadge status={hospital.verificationStatus} className="shrink-0" />
-        </div>
 
-        {visibleSpecialties.length > 0 ? (
-          <ul className="flex flex-wrap gap-1.5" aria-label="Specialties">
-            {visibleSpecialties.map((name) => (
-              <li key={name}>
-                <Badge variant="outline" className="text-muted-foreground">
-                  {name}
-                </Badge>
-              </li>
-            ))}
-            {hiddenSpecialtyCount > 0 ? (
-              <li>
-                <Badge variant="outline" className="text-muted-foreground">
-                  +{hiddenSpecialtyCount} more
-                </Badge>
-              </li>
-            ) : null}
-          </ul>
-        ) : null}
+          {visibleSpecialties.length > 0 ? (
+            <ul className="flex flex-wrap gap-1.5" aria-label="Specialties">
+              {visibleSpecialties.map((name) => (
+                <li key={name}>
+                  <Badge variant="outline" className="text-muted-foreground">
+                    {name}
+                  </Badge>
+                </li>
+              ))}
+              {hiddenSpecialtyCount > 0 ? (
+                <li>
+                  <Badge variant="outline" className="text-muted-foreground">
+                    +{hiddenSpecialtyCount} more
+                  </Badge>
+                </li>
+              ) : null}
+            </ul>
+          ) : null}
 
-        <div>
-          <p className="sr-only">Independent ratings for {hospital.name} — experience and clinical expertise, shown separately</p>
-          <div className="flex gap-2" data-slot="hospital-card-ratings">
-            <HospitalCardRatingModule rating={hospital.ratings.per} />
-            <HospitalCardRatingModule rating={hospital.ratings.cer} />
+          <div>
+            <p className="sr-only">Independent ratings for {hospital.name} — experience and clinical expertise, shown separately</p>
+            <div className="flex gap-2" data-slot="hospital-card-ratings">
+              <HospitalCardRatingModule rating={hospital.ratings.per} />
+              <HospitalCardRatingModule rating={hospital.ratings.cer} />
+            </div>
           </div>
-        </div>
+        </CardContent>
 
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <Badge variant="outline" className="text-muted-foreground">
-            Demo profile — fictional data
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t bg-muted/30 px-(--card-spacing) py-3">
+          <Badge variant="outline" className="min-w-0 max-w-full text-muted-foreground">
+            <span className="truncate">Demo profile — fictional data</span>
           </Badge>
-          <Button size="sm" render={<Link href={profileHref} />}>
+          <Button variant="cta" size="sm" className="rounded-full px-4 font-semibold" render={<Link href={profileHref} />}>
             View profile
             <span className="sr-only"> for {hospital.name}</span>
           </Button>
         </div>
-      </CardContent>
+      </div>
     </Card>
   )
 }

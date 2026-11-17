@@ -13,11 +13,11 @@ export interface SectionHeadingProps {
 }
 
 const headingClasses: Record<NonNullable<SectionHeadingProps["as"]>, string> = {
-  h1: "text-2xl font-semibold tracking-tight sm:text-3xl",
-  h2: "text-xl font-semibold tracking-tight sm:text-2xl",
+  h1: "text-3xl font-bold tracking-tight sm:text-4xl",
+  h2: "text-2xl font-bold tracking-tight sm:text-3xl",
   h3: "text-lg font-semibold tracking-tight",
   h4: "text-base font-semibold",
-}
+    }
 
 /**
  * Section heading with optional description and right-aligned action slot.

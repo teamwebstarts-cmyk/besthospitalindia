@@ -176,7 +176,7 @@ export function DocumentChecklistManager({ hospital, todayISO, className }: Docu
       ) : null}
 
       {/* Summary strip */}
-      <div className="grid gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
         <SummaryTile label="Verified" value={summary.verified} tone="success" />
         <SummaryTile label="In review / submitted" value={summary.pendingReview} tone="warning" />
         <SummaryTile label="Expiring ≤ 90 days" value={summary.expiring} tone="warning" />
@@ -288,7 +288,7 @@ export function DocumentChecklistManager({ hospital, todayISO, className }: Docu
           </CardDescription>
         </CardHeader>
         <CardContent className="gap-4">
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="flex min-w-0 flex-col gap-1.5">
               <Label htmlFor="doc-name">
                 Document name <span aria-hidden className="text-destructive">*</span>

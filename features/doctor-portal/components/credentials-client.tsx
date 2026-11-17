@@ -37,7 +37,6 @@ import {
 import { EmptyState } from "@/components/shared/empty-state"
 import { StatusBadge } from "@/components/shared/status-badge"
 import { VerificationBadge } from "@/features/providers/components/verification-badge"
-import { formatDate } from "@/features/doctor-portal/format"
 import { cn } from "@/lib/utils"
 import { maxLength, required, validate } from "@/lib/validation"
 import type { Doctor, VerificationStatus } from "@/types"

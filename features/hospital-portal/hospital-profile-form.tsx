@@ -154,7 +154,7 @@ export function HospitalProfileForm({ hospitalId, initialValues, className }: Ho
           </CardDescription>
         </CardHeader>
         <CardContent className="gap-5">
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex min-w-0 flex-col gap-1.5 sm:col-span-2">
               <Label htmlFor="hp-name">
                 Hospital name <span aria-hidden className="text-destructive">*</span>

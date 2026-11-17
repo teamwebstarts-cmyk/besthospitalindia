@@ -339,7 +339,7 @@ export function EnquiryQueueManager({
 
                 <section aria-label="Local progress" className="space-y-3 text-sm">
                   <p className="font-medium text-foreground">Local progress (demo)</p>
-                  <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div className="flex min-w-0 flex-col gap-1.5">
                       <label
                         htmlFor="enquiry-status"

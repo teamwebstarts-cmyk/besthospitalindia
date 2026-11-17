@@ -112,7 +112,7 @@ export default async function TreatmentDetailPage({ params }: TreatmentPageProps
         </Badge>
         <h1
           id="treatment-overview-heading"
-          className="text-3xl font-semibold tracking-tight sm:text-4xl"
+          className="text-3xl font-bold tracking-tight text-balance sm:text-4xl"
         >
           {treatment.name}
         </h1>

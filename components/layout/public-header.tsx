@@ -6,7 +6,9 @@ import { usePathname } from "next/navigation"
 import {
   EllipsisIcon,
   HeartPulseIcon,
+  MailIcon,
   MenuIcon,
+  PhoneIcon,
 } from "lucide-react"
 
 import {
@@ -69,7 +71,7 @@ function DesktopNavLinks({ links }: { links: NavLink[] }) {
               href={link.href}
               aria-current={isPathActive(pathname, link.href) ? "page" : undefined}
               className={cn(
-                "inline-flex h-9 items-center rounded-md px-2.5 text-sm font-medium whitespace-nowrap transition-colors hover:bg-muted hover:text-foreground aria-[current=page]:bg-muted aria-[current=page]:text-foreground"
+                "inline-flex h-9 items-center rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors outline-none hover:bg-primary/5 hover:text-primary focus-visible:ring-3 focus-visible:ring-ring/50 aria-[current=page]:bg-primary/5 aria-[current=page]:font-semibold aria-[current=page]:text-primary"
               )}
             >
               {link.label}
@@ -154,8 +156,8 @@ function MobileNav({ links }: { links: NavLink[] }) {
           </ul>
         </nav>
         <div className="flex flex-col gap-2 border-t p-4">
-          <Button render={<Link href="/free-consultation" onClick={close} />}>
-            Free Consultation
+          <Button variant="cta" className="rounded-full font-semibold" render={<Link href="/free-consultation" onClick={close} />}>
+            Get a FREE Consultation
           </Button>
           <Button variant="outline" render={<Link href="/auth" onClick={close} />}>
             Sign in
@@ -163,6 +165,43 @@ function MobileNav({ links }: { links: NavLink[] }) {
         </div>
       </SheetContent>
     </Sheet>
+  )
+}
+
+/**
+ * Utility strip above the main header on desktop — matches the reference
+ * pattern of a slim brand-blue bar carrying contact channels and the primary
+ * conversion CTA. Hidden on mobile (reference behaviour); purely additive.
+ */
+function HeaderUtilityBar() {
+  return (
+    <div className="hidden bg-primary text-primary-foreground lg:block">
+      <div className="mx-auto flex h-10 w-full max-w-7xl items-center justify-between gap-4 px-4 text-xs sm:px-6 lg:px-8">
+        <ul className="flex items-center gap-5" aria-label="Contact channels">
+          <li className="flex items-center gap-1.5">
+            <PhoneIcon aria-hidden className="size-3.5" />
+            <a
+              href="tel:+910000000000"
+              className="font-medium transition-colors hover:text-primary-foreground/80"
+            >
+              +91 (0) 00000 00000
+            </a>
+          </li>
+          <li className="flex items-center gap-1.5">
+            <MailIcon aria-hidden className="size-3.5" />
+            <a
+              href="mailto:hello@besthospitalindia.example"
+              className="font-medium transition-colors hover:text-primary-foreground/80"
+            >
+              hello@besthospitalindia.example
+            </a>
+          </li>
+        </ul>
+        <p className="text-primary-foreground/80">
+          International Urban Forum Supported Initiative
+        </p>
+      </div>
+    </div>
   )
 }
 
@@ -185,6 +224,7 @@ export function PublicHeader({ links = publicNav, className }: PublicHeaderProps
         className
       )}
     >
+      <HeaderUtilityBar />
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         <div className="flex min-w-0 items-center gap-4">
           <BrandLink />
@@ -193,16 +233,17 @@ export function PublicHeader({ links = publicNav, className }: PublicHeaderProps
         <div className="flex shrink-0 items-center gap-1.5">
           <HeaderMoreMenu links={links} />
           <Button
+            variant="cta"
             size="sm"
-            className="hidden sm:inline-flex"
+            className="hidden rounded-full px-4 font-semibold shadow-sm sm:inline-flex"
             render={<Link href="/free-consultation" />}
           >
-            Free Consultation
+            Get a FREE Consultation
           </Button>
           <Button
             variant="outline"
             size="sm"
-            className="hidden sm:inline-flex"
+            className="hidden md:inline-flex"
             render={<Link href="/auth" />}
           >
             Sign in

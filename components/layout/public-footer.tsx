@@ -13,13 +13,15 @@ export interface PublicFooterProps {
 
 /**
  * Public site footer: brand blurb, grouped link columns from
- * `constants/navigation.ts`, demo-only notice and copyright.
+ * `constants/navigation.ts`, demo-only notice and copyright. Solid brand-blue
+ * surface matching the measured reference footer (pixel-probed `#005697`):
+ * brand column + link columns + legal row on a primary band.
  */
 export function PublicFooter({ className }: PublicFooterProps) {
   return (
-    <footer className={cn("border-t bg-background", className)}>
-      <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_repeat(3,minmax(0,1fr))] lg:gap-8">
+    <footer className={cn("bg-primary text-primary-foreground", className)}>
+      <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-14">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))] lg:gap-8">
           <div className="space-y-4">
             <Link href="/" className="flex w-fit items-center gap-2" aria-label="BestHospitalIndia home">
               <span
@@ -32,30 +34,39 @@ export function PublicFooter({ className }: PublicFooterProps) {
                 BestHospitalIndia
               </span>
             </Link>
-            <p className="max-w-sm text-sm text-balance text-muted-foreground">
+            <p className="max-w-sm text-sm text-pretty text-background/70">
               Discover hospitals, doctors and facilities across India, compare
               treatment options and request a free consultation.
             </p>
-            <ul className="flex flex-col gap-2 text-sm text-muted-foreground">
+            <ul className="flex flex-col gap-2 text-sm text-background/70">
               <li className="flex items-center gap-2">
                 <MailIcon aria-hidden className="size-4" />
-                <span>hello@besthospitalindia.example</span>
+                <a
+                  href="mailto:hello@besthospitalindia.example"
+                  className="transition-colors hover:text-background"
+                >
+                  hello@besthospitalindia.example
+                </a>
               </li>
               <li className="flex items-center gap-2">
                 <PhoneIcon aria-hidden className="size-4" />
-                <span>+91 (0) 00000 00000</span>
+                <a href="tel:+910000000000" className="transition-colors hover:text-background">
+                  +91 (0) 00000 00000
+                </a>
               </li>
             </ul>
           </div>
           {footerGroups.map((group) => (
             <nav key={group.heading} aria-label={group.heading} className="space-y-3">
-              <h2 className="text-sm font-semibold text-foreground">{group.heading}</h2>
-              <ul className="flex flex-col gap-2">
+              <h2 className="text-sm font-semibold tracking-wide text-background uppercase">
+                {group.heading}
+              </h2>
+              <ul className="flex flex-col gap-2.5">
                 {group.links.map((link) => (
                   <li key={`${group.heading}-${link.href}`}>
                     <Link
                       href={link.href}
-                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                      className="text-sm text-background/70 transition-colors hover:text-background"
                     >
                       {link.label}
                     </Link>
@@ -65,11 +76,11 @@ export function PublicFooter({ className }: PublicFooterProps) {
             </nav>
           ))}
         </div>
-        <div className="mt-10 space-y-3 border-t pt-6">
-          <p className="text-xs leading-relaxed text-balance text-muted-foreground">
+        <div className="mt-12 space-y-3 border-t border-background/15 pt-6">
+          <p className="text-xs leading-relaxed text-pretty text-background/60">
             {DEMO_NOTICE}
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-background/60">
             © {new Date().getFullYear()} BestHospitalIndia. All rights reserved.
           </p>
         </div>

@@ -241,7 +241,7 @@ export default async function DoctorProfilePage({ params }: DoctorProfilePagePro
           </Avatar>
           <div className="min-w-0 flex-1 space-y-2">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+              <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                 {doctor.name}
               </h1>
               <VerificationBadge status={doctor.verificationStatus} />
@@ -257,7 +257,7 @@ export default async function DoctorProfilePage({ params }: DoctorProfilePagePro
               Fictional demo profile — all names, registrations and ratings are demo data.
             </p>
             <div className="flex flex-wrap gap-2 pt-1">
-              <Button render={<Link href={ROUTES.public.freeConsultation} />}>
+              <Button variant="cta" className="rounded-full px-5 font-semibold shadow-sm" render={<Link href={ROUTES.public.freeConsultation} />}>
                 Request free consultation
               </Button>
               <Button variant="outline" render={<Link href="#ratings" />}>
@@ -383,7 +383,7 @@ export default async function DoctorProfilePage({ params }: DoctorProfilePagePro
                 Submit a free consultation request and the demo coordination team will follow up.
                 No real booking is created — this is a mock flow.
               </p>
-              <Button className="w-full" render={<Link href={ROUTES.public.freeConsultation} />}>
+              <Button variant="cta" className="w-full rounded-full font-semibold shadow-sm" render={<Link href={ROUTES.public.freeConsultation} />}>
                 Request free consultation
               </Button>
             </CardContent>

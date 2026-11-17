@@ -29,7 +29,6 @@ import { EmptyState } from "@/components/shared/empty-state"
 import { StatusBadge } from "@/components/shared/status-badge"
 import { VerificationBadge } from "@/features/providers/components/verification-badge"
 import { HospitalCardRatingModule } from "@/features/providers/components/hospital-card"
-import { ROUTES } from "@/constants/routes"
 import { hospitalDisplayName } from "@/features/doctor-portal/selectors"
 import { searchHospitals } from "@/lib/search"
 import { cn } from "@/lib/utils"
@@ -68,10 +67,9 @@ function HospitalRow({ hospital }: { hospital: Hospital }) {
 }
 
 export function HospitalAssociationsClient({
-  doctor,
   associated,
   className,
-}: HospitalAssociationsClientProps) {
+}: Omit<HospitalAssociationsClientProps, "doctor">) {
   const [query, setQuery] = useState("")
   const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([])
   const [notice, setNotice] = useState<string | null>(null)

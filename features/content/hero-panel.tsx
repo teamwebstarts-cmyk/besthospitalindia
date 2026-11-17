@@ -35,7 +35,7 @@ export function HeroSearchPanel({
         <p className="text-sm font-semibold tracking-wide text-primary uppercase">
           International Urban Forum Supported Initiative
         </p>
-        <h1 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl lg:text-5xl">
+        <h1 className="text-4xl leading-[1.2] font-bold tracking-tight text-balance sm:text-[2.75rem] sm:leading-[1.2]">
           {heading}
         </h1>
         <p className="max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
@@ -43,7 +43,7 @@ export function HeroSearchPanel({
         </p>
       </div>
       {searchSlot ? (
-        <div className="rounded-2xl border bg-card/90 p-4 shadow-lg backdrop-blur sm:p-5">
+        <div className="rounded-xl border bg-card p-4 shadow-md sm:p-5">
           {searchSlot}
         </div>
       ) : null}

@@ -123,7 +123,7 @@ export function SettingsManager({ userName, userEmail, className }: SettingsMana
 
   return (
     <div className={className}>
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Notification preferences */}
         <Card>
           <CardHeader>
@@ -228,7 +228,7 @@ export function SettingsManager({ userName, userEmail, className }: SettingsMana
           </CardDescription>
         </CardHeader>
         <CardContent className="gap-4">
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="flex min-w-0 flex-col gap-1.5">
               <Label htmlFor="current-password">Current password</Label>
               <Input

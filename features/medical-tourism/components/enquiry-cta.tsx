@@ -62,7 +62,7 @@ export function EnquiryCta({
         </p>
       </div>
       <div className="flex shrink-0 flex-col items-stretch gap-2 sm:items-end">
-        <Button size="lg" render={<Link href={enquiryHref} />}>
+        <Button size="lg" variant="cta" className="rounded-full font-semibold shadow-sm" render={<Link href={enquiryHref} />}>
           <MessagesSquareIcon data-icon="inline-start" aria-hidden />
           Start an enquiry
         </Button>

@@ -117,7 +117,7 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0 space-y-2">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{hospital.name}</h1>
+              <h1 className="text-3xl font-bold tracking-tight text-balance sm:text-4xl">{hospital.name}</h1>
               <VerificationBadge status={hospital.verificationStatus} />
             </div>
             <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm text-muted-foreground">
@@ -133,7 +133,7 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button render={<Link href={consultationHref} />}>
+            <Button variant="cta" className="rounded-full px-5 font-semibold shadow-sm" render={<Link href={consultationHref} />}>
               <CalendarCheckIcon data-icon="inline-start" />
               Request appointment
               <span className="sr-only"> at {hospital.name}</span>
@@ -361,7 +361,7 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
                 Submit an enquiry and the demo coordination team will respond. This demo performs no real booking or
                 submission.
               </p>
-              <Button className="w-full" render={<Link href={consultationHref} />}>
+              <Button variant="cta" className="w-full rounded-full font-semibold shadow-sm" render={<Link href={consultationHref} />}>
                 <CalendarCheckIcon data-icon="inline-start" />
                 Start free consultation request
               </Button>

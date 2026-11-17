@@ -1,14 +1,13 @@
 import type { Metadata } from "next"
 
-import { PortalShell } from "@/components/layout/portal-shell"
-import { PortalUserChip } from "@/features/doctor-portal/components/portal-user-chip"
-import { doctorPortalNav } from "@/constants/navigation"
+import { DoctorPortalShell } from "@/features/doctor-portal/doctor-portal-shell"
 
 /**
  * Doctor Portal layout (A10) — wraps every /doctor-portal route in the shared
- * A00 PortalShell: Doctor nav rail (desktop) + Sheet drawer (mobile) + topbar
- * with the demo-portal notice. No `src/` (G-13); layout follows the existing
- * route-group convention of (public)/(auth).
+ * A00 PortalShell via the DoctorPortalShell client wrapper: Doctor nav rail
+ * (desktop) + Sheet drawer (mobile) + topbar with the demo-portal notice.
+ * No `src/` (G-13); layout follows the existing route-group convention of
+ * (public)/(auth) and the A09 hospital portal pattern.
  *
  * Mock access posture (10-routing-and-layouts.md): portal guards are mock-only
  * and must be labelled demo-only — the shell topbar renders the "Demo portal —
@@ -26,6 +25,7 @@ export const metadata: Metadata = {
   },
   description:
     "BestHospitalIndia doctor partner portal (demo): manage your demo profile, hospital associations, availability, appointment requests, consultations, credentials, reviews and settings. Mock data only.",
+  robots: { index: false, follow: false },
 }
 
 export default function DoctorPortalLayout({
@@ -33,14 +33,5 @@ export default function DoctorPortalLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  return (
-    <PortalShell
-      items={doctorPortalNav}
-      title="Doctor Portal"
-      description="Demo partner workspace — fictional data only"
-      actions={<PortalUserChip />}
-    >
-      {children}
-    </PortalShell>
-  )
+  return <DoctorPortalShell>{children}</DoctorPortalShell>
 }

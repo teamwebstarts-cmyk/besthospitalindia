@@ -99,7 +99,7 @@ export default async function TreatmentsPage({
 
       {/* Header */}
       <section aria-labelledby="treatments-heading" className="space-y-3">
-        <h1 id="treatments-heading" className="text-3xl font-semibold tracking-tight sm:text-4xl">
+        <h1 id="treatments-heading" className="text-3xl font-bold tracking-tight text-balance sm:text-4xl">
           Treatments
         </h1>
         <p className="max-w-3xl text-base text-muted-foreground">

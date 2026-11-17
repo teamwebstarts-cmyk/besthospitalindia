@@ -6,6 +6,8 @@
  * (@/types); hospital association and specialization names resolve through
  * shared fixture lookups.
  *
+ * A16 visual alignment: media-left horizontal composition per the reference
+ * doctor-card pattern (round avatar left, credentials middle, CTA footer).
  * PER (patient experience) and MER (medical expertise) always render as two
  * visually distinct, independent modules — never a combined score. Missing
  * scores render "Not yet rated", never 0/5. Verification state uses A04's
@@ -25,7 +27,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
 import { VerificationBadge } from "@/features/providers/components/verification-badge"
 import { getHospitalById } from "@/lib/search"
 import { specialtyById } from "@/data"
@@ -102,9 +103,9 @@ export function DoctorCard({ doctor, className }: DoctorCardProps) {
 
   return (
     <Card className={cn("h-full", className)}>
-      <CardContent className="gap-4">
+      <CardContent className="gap-3">
         <div className="flex items-start gap-3">
-          <Avatar className="size-14">
+          <Avatar className="size-14 shrink-0 ring-2 ring-background">
             {doctor.photo ? (
               <AvatarImage src={doctor.photo} alt={`Portrait of ${doctor.name} (demo)`} />
             ) : null}
@@ -119,8 +120,13 @@ export function DoctorCard({ doctor, className }: DoctorCardProps) {
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1 space-y-1">
-            <h3 className="truncate font-heading text-base leading-snug font-semibold text-foreground">
-              {doctor.name}
+            <h3 className="truncate font-heading text-base leading-snug font-semibold text-primary">
+              <Link
+                href={profileHref}
+                className="transition-colors outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
+              >
+                {doctor.name}
+              </Link>
             </h3>
             <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm text-muted-foreground">
               <span className="font-medium text-foreground">{specializationName}</span>
@@ -170,19 +176,17 @@ export function DoctorCard({ doctor, className }: DoctorCardProps) {
             <DoctorCardRatingModule rating={doctor.ratings.mer} />
           </div>
         </div>
-
-        <Separator />
-
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <Badge variant="outline" className="text-muted-foreground">
-            Demo profile — fictional data
-          </Badge>
-          <Button size="sm" render={<Link href={profileHref} />}>
-            View profile
-            <span className="sr-only"> for {doctor.name}</span>
-          </Button>
-        </div>
       </CardContent>
+
+      <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t bg-muted/30 px-(--card-spacing) py-3">
+        <Badge variant="outline" className="min-w-0 max-w-full text-muted-foreground">
+          <span className="truncate">Demo profile — fictional data</span>
+        </Badge>
+        <Button variant="cta" size="sm" className="rounded-full px-4 font-semibold" render={<Link href={profileHref} />}>
+          View profile
+          <span className="sr-only"> for {doctor.name}</span>
+        </Button>
+      </div>
     </Card>
   )
 }

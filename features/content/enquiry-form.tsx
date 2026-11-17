@@ -363,7 +363,7 @@ export function EnquiryForm({
         })}
 
         <div className="space-y-3">
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" variant="cta" className="rounded-full px-6 font-semibold shadow-sm" disabled={isSubmitting}>
             <SendIcon aria-hidden />
             {isSubmitting ? "Submitting…" : submitLabel}
           </Button>

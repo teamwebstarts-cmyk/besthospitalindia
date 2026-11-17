@@ -238,7 +238,7 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
                   action={{ label: "Back to page 1", href: BASE_PATH }}
                 />
               ) : (
-                <ul className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3" aria-label="Hospital results">
+                <ul className="grid gap-5 lg:grid-cols-2 xl:grid-cols-2" aria-label="Hospital results">
                   {items.map((hospital) => (
                     <li key={hospital.id} className="min-w-0">
                       <HospitalCard hospital={hospital} />

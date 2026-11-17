@@ -240,24 +240,28 @@ export interface IufConsultationCtaProps {
   className?: string
 }
 
-/** IUF-branded consultation CTA (FR-019 identity; scope owned by A07). */
+/**
+ * IUF-branded consultation CTA (FR-019 identity; scope owned by A07).
+ * Styled as the reference's full-width conversion strip: strong red surface,
+ * white copy, pill CTA — the page's single dominant "money action" band.
+ */
 export function IufConsultationCta({ className }: IufConsultationCtaProps) {
   return (
     <div
       className={cn(
-        "flex flex-col gap-4 rounded-2xl border border-primary/25 bg-primary/5 p-6 sm:flex-row sm:items-center sm:justify-between lg:p-8",
+        "flex flex-col gap-4 rounded-2xl bg-cta p-6 text-cta-foreground shadow-md sm:flex-row sm:items-center sm:justify-between sm:p-8",
         className
       )}
     >
       <div className="space-y-2">
-        <p className="flex items-center gap-2 text-sm font-semibold tracking-wide text-primary uppercase">
+        <p className="flex items-center gap-2 text-sm font-semibold tracking-wide uppercase opacity-90">
           <SparklesIcon aria-hidden className="size-4" />
           International Urban Forum Supported Initiative
         </p>
         <h2 className="text-2xl font-semibold tracking-tight">
           Request a free consultation (demo)
         </h2>
-        <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
+        <p className="max-w-xl text-sm leading-relaxed opacity-90">
           The consultation flow is an IUF-supported initiative on the platform.
           Scope, eligibility and cost boundaries are described on the
           consultation page before any request is made. This demo does not
@@ -266,10 +270,12 @@ export function IufConsultationCta({ className }: IufConsultationCtaProps) {
       </div>
       <Button
         size="lg"
+        variant="cta-outline"
+        className="shrink-0 rounded-full border-cta-foreground/40 bg-cta-foreground px-6 font-semibold text-cta shadow-sm hover:bg-cta-foreground/90 hover:text-cta"
         render={<Link href={ROUTES.public.freeConsultation} />}
-        className="shrink-0"
       >
         Start free consultation
+        <span aria-hidden>→</span>
       </Button>
     </div>
   )
