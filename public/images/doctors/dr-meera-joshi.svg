@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160" role="img" aria-label="Demo doctor placeholder">
+  <rect width="160" height="160" fill="#e8f0f7"/>
+  <circle cx="80" cy="62" r="30" fill="#c7d9ea"/>
+  <path d="M30 150c6-34 26-48 50-48s44 14 50 48z" fill="#9db8d0"/>
+  <path d="M70 108h20v14l10 4-10 4v14H70v-14l-10-4 10-4z" fill="#4a7ba6"/>
+  <text x="80" y="152" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#f5f9fc">DEMO</text>
+</svg>

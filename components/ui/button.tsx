@@ -1,5 +1,6 @@
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
+import { isValidElement } from "react"
 import { cn } from "cn"
 
 const buttonVariants = cva(
@@ -43,12 +44,25 @@ function Button({
   className,
   variant = "default",
   size = "default",
+  render,
   ...props
 }: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+  // When the polymorphic `render` target is not a native <button> (e.g. a
+  // Next.js <Link> or <a>), Base UI needs `nativeButton: false` — otherwise it
+  // warns on every render and button-specific semantics (type/disabled) leak
+  // onto the anchor (A15 / BUG-012). Detection is shared here so every call
+  // site that does `render={<Link …/>}` is healed at once.
+  const renderIsNativeButton =
+    isValidElement(render) &&
+    typeof render.type === "string" &&
+    render.type.toLowerCase() === "button"
+
   return (
     <ButtonPrimitive
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
+      nativeButton={render === undefined ? undefined : renderIsNativeButton}
+      render={render}
       {...props}
     />
   )

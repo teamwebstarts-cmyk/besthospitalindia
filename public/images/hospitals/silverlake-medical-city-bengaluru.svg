@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" role="img" aria-label="Demo hospital placeholder">
+  <rect width="640" height="360" fill="#e8f0f7"/>
+  <rect x="0" y="280" width="640" height="80" fill="#d7e4f0"/>
+  <rect x="180" y="120" width="280" height="160" fill="#f5f9fc" stroke="#9db8d0" stroke-width="2"/>
+  <rect x="220" y="160" width="60" height="120" fill="#c7d9ea"/>
+  <rect x="360" y="160" width="60" height="120" fill="#c7d9ea"/>
+  <rect x="296" y="120" width="48" height="40" fill="#9db8d0"/>
+  <path d="M312 132h16v10h10v16h-10v10h-16v-10h-10v-16h10z" fill="#4a7ba6"/>
+  <circle cx="120" cy="70" r="24" fill="#c7d9ea"/>
+  <path d="M104 74c8-10 24-10 32 0" stroke="#4a7ba6" stroke-width="3" fill="none"/>
+  <text x="320" y="322" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#4a6a8a">Demo hospital placeholder  fictional facility</text>
+</svg>
