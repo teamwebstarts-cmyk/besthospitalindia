@@ -26,8 +26,12 @@ export type ConsultationMode = 'in_person' | 'video' | 'phone';
  */
 export interface AppointmentRequest {
   id: string;
-  /** References Patient.id (PROPOSED entity). */
+  /** References Patient.id (PROPOSED entity); browser-local requests use a demo id. */
   patientId: string;
+  /** Optional contact details captured by browser-local demo booking. */
+  patientName?: string;
+  patientEmail?: string;
+  patientPhone?: string;
   providerType: ProviderRefType;
   providerId: string;
   /** Treatment ID (see data/treatments.ts); optional for general consultation. */

@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 
 import { AdminCasePageHeader } from "@/features/admin/cases/admin-case-page-header"
-import { AdminAppointmentManager } from "@/features/admin/cases/admin-appointment-manager"
+import { AdminAppointmentsFeed } from "@/features/appointments/appointment-feeds"
 import { appointments } from "@/data"
 
 /**
@@ -19,7 +19,7 @@ import { appointments } from "@/data"
 export const metadata: Metadata = {
   title: "Appointments",
   description:
-    "Admin appointment queue: review requests, update scheduling status and cancel (fictional demo data, no booking).",
+    "Admin appointment queue: review appointment requests across all hospitals and doctors. Demo data only.",
   robots: { index: false, follow: false },
 }
 
@@ -27,7 +27,7 @@ export default function AdminAppointmentsPage() {
   return (
     <div className="space-y-6 py-6">
       <AdminCasePageHeader compact label="Appointments" />
-      <AdminAppointmentManager requests={appointments} />
+      <AdminAppointmentsFeed initialRequests={appointments} />
     </div>
   )
 }

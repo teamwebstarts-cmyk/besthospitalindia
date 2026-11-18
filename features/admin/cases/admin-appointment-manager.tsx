@@ -58,6 +58,7 @@ import {
   SearchIcon,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { updateDemoAppointmentRequest } from "@/features/appointments/demo-appointment-store"
 import type { AppointmentRequest, AppointmentStatus } from "@/types"
 
 export interface AdminAppointmentManagerProps {
@@ -149,7 +150,7 @@ export function AdminAppointmentManager({
           request.id,
           request.concern,
           request.preferredTimeNote ?? "",
-          patient?.name ?? "",
+          patient?.name ?? request.patientName ?? "",
           patient?.country ?? "",
           providerLabel,
           treatment,
@@ -215,6 +216,11 @@ export function AdminAppointmentManager({
     await delay()
     const previous = statusById[activeRequest.id] ?? activeRequest.status
     setStatusById((current) => ({ ...current, [activeRequest.id]: nextStatus }))
+    updateDemoAppointmentRequest(activeRequest.id, {
+      status: nextStatus,
+      updatedAt: new Date().toISOString(),
+      ...(actionNote.trim() ? { note: `Demo admin note: ${actionNote.trim()}` } : {}),
+    })
     if (actionNote.trim()) {
       setNoteById((current) => ({
         ...current,
@@ -255,7 +261,7 @@ export function AdminAppointmentManager({
         const patient = patientById[request.patientId]
         return (
           <span className="min-w-0">
-            <span className="block truncate text-foreground">{patient?.name ?? "Demo patient"}</span>
+            <span className="block truncate text-foreground">{patient?.name ?? request.patientName ?? "Demo patient"}</span>
             <span className="block truncate text-xs text-muted-foreground">
               {patient?.country ?? "—"} · {patient?.preferredLanguage ?? "—"}
             </span>
@@ -459,7 +465,7 @@ export function AdminAppointmentManager({
                 <div className="flex justify-between gap-3">
                   <dt className="text-muted-foreground">Patient</dt>
                   <dd className="text-right font-medium">
-                    {patientById[activeRequest.patientId]?.name ?? "Demo patient"}
+                    {patientById[activeRequest.patientId]?.name ?? activeRequest.patientName ?? "Demo patient"}
                   </dd>
                 </div>
                 <div className="flex justify-between gap-3">

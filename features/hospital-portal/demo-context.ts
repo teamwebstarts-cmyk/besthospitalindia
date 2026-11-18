@@ -104,15 +104,13 @@ export function openEnquiries(): PatientEnquiry[] {
  * order.
  */
 export function demoAppointments(): AppointmentRequest[] {
-  const associatedDoctorIds = new Set(
-    getRelatedDoctors(DEMO_HOSPITAL_ID).map((doctor) => doctor.id),
+  // A patient booking a doctor is routed to that doctor only. Hospitals see
+  // only requests explicitly addressed to their own hospital profile.
+  return appointments.filter(
+    (appointment) =>
+      appointment.providerType === "hospital" &&
+      appointment.providerId === DEMO_HOSPITAL_ID,
   );
-  return appointments.filter((appointment) => {
-    if (appointment.providerType === "hospital") {
-      return appointment.providerId === DEMO_HOSPITAL_ID;
-    }
-    return associatedDoctorIds.has(appointment.providerId);
-  });
 }
 
 /** Requests the partner still has to answer (requested / under_review). */

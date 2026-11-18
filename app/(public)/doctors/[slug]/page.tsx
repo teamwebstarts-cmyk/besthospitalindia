@@ -39,7 +39,7 @@ import { EmptyState } from "@/components/shared/empty-state"
 import { SectionHeading } from "@/components/shared/section-heading"
 import { StatusBadge } from "@/components/shared/status-badge"
 import { doctors, reviewsForProvider, specialtyById } from "@/data"
-import { hospitalProfileHref, ROUTES } from "@/constants/routes"
+import { appointmentRequestHref, hospitalProfileHref, ROUTES } from "@/constants/routes"
 import { getDoctorBySlug, getHospitalById, getTreatmentById } from "@/lib/search"
 import { RatingPanel } from "@/features/ratings/rating-panel"
 import { VerificationBadge } from "@/features/providers/components/verification-badge"
@@ -257,8 +257,8 @@ export default async function DoctorProfilePage({ params }: DoctorProfilePagePro
               Credentials and ratings are shown as recorded through our verification and assessment workflows.
             </p>
             <div className="flex flex-wrap gap-2 pt-1">
-              <Button variant="cta" className="rounded-full px-5 font-semibold shadow-sm" render={<Link href={ROUTES.public.freeConsultation} />}>
-                Request free consultation
+              <Button variant="cta" className="rounded-full px-5 font-semibold shadow-sm" render={<Link href={appointmentRequestHref("doctor", doctor.id)} />}>
+                Request appointment
               </Button>
               <Button variant="outline" render={<Link href="#ratings" />}>
                 View ratings
@@ -380,11 +380,11 @@ export default async function DoctorProfilePage({ params }: DoctorProfilePagePro
             <CardContent className="gap-3">
               <SectionHeading as="h3" title="Request a consultation" className="block" />
               <p className="text-sm text-muted-foreground">
-                Submit a free consultation request and our coordination team will follow up.
+                Send an appointment request directly to this doctor. The request is not confirmed until the doctor accepts it.
                 A request is not a confirmed appointment until the provider confirms.
               </p>
-              <Button variant="cta" className="w-full rounded-full font-semibold shadow-sm" render={<Link href={ROUTES.public.freeConsultation} />}>
-                Request free consultation
+              <Button variant="cta" className="w-full rounded-full font-semibold shadow-sm" render={<Link href={appointmentRequestHref("doctor", doctor.id)} />}>
+                Request appointment
               </Button>
             </CardContent>
           </Card>

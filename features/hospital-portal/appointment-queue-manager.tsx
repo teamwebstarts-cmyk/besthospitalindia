@@ -50,6 +50,7 @@ import { doctorById, patientById, treatmentById } from "@/data"
 import type { AppointmentRequest, AppointmentStatus, ConsultationMode } from "@/types"
 import { CalendarDaysIcon, CircleAlertIcon, CircleCheckBigIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { updateDemoAppointmentRequest } from "@/features/appointments/demo-appointment-store"
 
 export interface AppointmentQueueManagerProps {
   /** Scoped appointment requests for the demo hospital (fixture order). */
@@ -163,6 +164,12 @@ export function AppointmentQueueManager({
     if (noteParts.length > 0) {
       setNoteById((current) => ({ ...current, [activeRequest.id]: noteParts.join(" · ") }))
     }
+    updateDemoAppointmentRequest(activeRequest.id, {
+      status: nextStatus,
+      preferredDate: actionMode === "reject" ? activeRequest.preferredDate : scheduledDate,
+      note: noteParts.length > 0 ? noteParts.join(" · ") : activeRequest.note,
+      updatedAt: new Date().toISOString(),
+    })
     setHistoryById((current) => ({
       ...current,
       [activeRequest.id]: [
@@ -191,7 +198,7 @@ export function AppointmentQueueManager({
         return (
           <span className="min-w-0">
             <span className="block truncate font-medium text-foreground">
-              {patient?.name ?? "Demo patient"}
+              {patient?.name ?? request.patientName ?? "Demo patient"}
             </span>
             <span className="block truncate text-xs text-muted-foreground">
               {patient?.country ?? "—"} · {patient?.preferredLanguage ?? "—"}
@@ -413,7 +420,7 @@ export function AppointmentQueueManager({
                 <div className="flex justify-between gap-3">
                   <dt className="text-muted-foreground">Patient</dt>
                   <dd className="text-right font-medium">
-                    {patientById[activeRequest.patientId]?.name ?? "Demo patient"}
+                    {patientById[activeRequest.patientId]?.name ?? activeRequest.patientName ?? "Demo patient"}
                   </dd>
                 </div>
                 <div className="flex justify-between gap-3">

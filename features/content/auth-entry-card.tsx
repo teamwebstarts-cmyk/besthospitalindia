@@ -26,7 +26,7 @@ const roles: readonly {
   {
     id: "patient",
     label: "Patient",
-    description: "Find providers, raise enquiries and track requests.",
+    description: "Browse providers and request an appointment without a patient dashboard.",
     icon: UserRoundIcon,
   },
   {
@@ -288,8 +288,7 @@ export function AuthEntryCard({ className }: AuthEntryCardProps) {
                   You’re signed in
                 </h2>
                 <p className="text-sm leading-relaxed text-muted-foreground">
-                  Your code was verified. Open your patient dashboard to manage
-                  enquiries, appointments and saved providers.
+                  Your code was verified. Browse hospitals or doctors and submit an appointment request directly. This MVP has no separate patient dashboard.
                 </p>
               </div>
               <div className="flex flex-col justify-center gap-2 sm:flex-row">
@@ -302,7 +301,8 @@ export function AuthEntryCard({ className }: AuthEntryCardProps) {
                 >
                   Start over
                 </Button>
-                <Button render={<Link href="/patient" />}>Go to dashboard</Button>
+                <Button render={<Link href="/doctors" />}>Browse doctors</Button>
+                <Button variant="outline" render={<Link href="/hospitals" />}>Browse hospitals</Button>
                 <Button variant="outline" render={<Link href="/" />}>
                   Back to homepage
                 </Button>
