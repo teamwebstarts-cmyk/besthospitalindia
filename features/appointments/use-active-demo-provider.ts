@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import type { ProviderRefType } from "@/types"
 import {
   DEMO_APPOINTMENTS_CHANGED_EVENT,
@@ -18,14 +18,17 @@ export function useActiveDemoProvider(
   availableIds: readonly string[],
 ) {
   const [providerId, setProviderId] = useState(fallbackId)
-  const availableIdsRef = useRef(availableIds)
-  availableIdsRef.current = availableIds
+  const availableIdsKey = availableIds.join("|")
+  const availableIdSet = useMemo(
+    () => new Set(availableIdsKey.split("|")),
+    [availableIdsKey],
+  )
 
   useEffect(() => {
     const refresh = () => {
       const storedId = readDemoAppointmentSnapshot().activeProviders[providerType]
       setProviderId(
-        storedId && availableIdsRef.current.includes(storedId)
+        storedId && availableIdSet.has(storedId)
           ? storedId
           : fallbackId,
       )
@@ -37,15 +40,15 @@ export function useActiveDemoProvider(
       window.removeEventListener(DEMO_APPOINTMENTS_CHANGED_EVENT, refresh)
       window.removeEventListener("storage", refresh)
     }
-  }, [providerType, fallbackId])
+  }, [providerType, fallbackId, availableIdSet])
 
   const selectProvider = useCallback(
     (nextId: string) => {
-      if (!availableIdsRef.current.includes(nextId)) return
+      if (!availableIdSet.has(nextId)) return
       setActiveDemoProvider(providerType, nextId)
       setProviderId(nextId)
     },
-    [providerType],
+    [providerType, availableIdSet],
   )
 
   return { providerId, selectProvider }

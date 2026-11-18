@@ -118,7 +118,7 @@ export function AppointmentRequestForm({ provider, treatments, backHref }: Appoi
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="rounded-lg border bg-muted/40 p-4"><p className="text-xs text-muted-foreground">Demo reference number</p><p className="mt-1 text-2xl font-semibold tracking-tight">{reference}</p><p className="mt-2 text-sm text-muted-foreground">Status: Request received</p></div>
-        <Alert><InfoIcon /><AlertTitle>What happens next</AlertTitle><AlertDescription>This request now appears in the selected provider's appointment queue and the Admin appointment list in this browser. The provider must review and confirm it.</AlertDescription></Alert>
+        <Alert><InfoIcon /><AlertTitle>What happens next</AlertTitle><AlertDescription>This request now appears in the selected provider&apos;s appointment queue and the Admin appointment list in this browser. The provider must review and confirm it.</AlertDescription></Alert>
         <p className="text-xs text-muted-foreground">Demo only: the request is saved in this browser's local storage. No real booking, email, SMS or notification is created.</p>
         <div className="flex flex-col gap-2 sm:flex-row">
           <Button className="flex-1" render={<Link href={provider.type === "doctor" ? "/doctor-portal" : "/hospital-portal"} />}>

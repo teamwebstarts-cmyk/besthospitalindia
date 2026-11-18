@@ -1,6 +1,4 @@
 import type { Metadata } from "next"
-import Link from "next/link"
-
 import { JourneySteps } from "@/features/content/journey-steps"
 import { TestimonialCard } from "@/features/content/testimonial-card"
 import { FaqList } from "@/features/content/faq-list"
@@ -24,7 +22,6 @@ import {
 import { DoctorCard } from "@/features/providers/components/doctor-card"
 import { HospitalCard } from "@/features/providers/components/hospital-card"
 import { FACILITY_CATEGORY_LABELS } from "@/features/discovery/facility-meta"
-import { Button } from "@/components/ui/button"
 import { doctorById, facilities, hospitals, specialties } from "@/data"
 import { searchDoctors, searchHospitals } from "@/lib/search"
 import { ROUTES } from "@/constants/routes"

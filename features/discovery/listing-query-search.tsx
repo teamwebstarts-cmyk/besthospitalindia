@@ -43,14 +43,8 @@ export function ListingQuerySearch({
 }: ListingQuerySearchProps) {
   const router = useRouter()
   const [query, setQuery] = React.useState(initialQuery)
-  const filterValuesRef = React.useRef(filterValues)
-  const extraParamsRef = React.useRef(extraParams)
-  filterValuesRef.current = filterValues
-  extraParamsRef.current = extraParams
-
-  React.useEffect(() => {
-    setQuery(initialQuery)
-  }, [initialQuery])
+  const filterValuesKey = JSON.stringify(filterValues)
+  const extraParamsKey = JSON.stringify(extraParams ?? {})
 
   React.useEffect(() => {
     const trimmed = query.trim()
@@ -58,18 +52,32 @@ export function ListingQuerySearch({
     if (trimmed === currentTrimmed) return
 
     const timeoutId = window.setTimeout(() => {
-      const valuesWithoutQuery = { ...filterValuesRef.current }
+      const valuesWithoutQuery = {
+        ...(JSON.parse(filterValuesKey) as DiscoveryFilterValues),
+      }
       delete valuesWithoutQuery.q
+      const preservedParams = JSON.parse(extraParamsKey) as Record<
+        string,
+        string | undefined
+      >
 
       const href = `${basePath}${buildFilterQueryString(valuesWithoutQuery, {
-        ...extraParamsRef.current,
+        ...preservedParams,
         ...(trimmed ? { q: trimmed } : {}),
       })}`
       router.replace(href)
     }, debounceMs)
 
     return () => window.clearTimeout(timeoutId)
-  }, [basePath, debounceMs, initialQuery, query, router])
+  }, [
+    basePath,
+    debounceMs,
+    extraParamsKey,
+    filterValuesKey,
+    initialQuery,
+    query,
+    router,
+  ])
 
   return (
     <form

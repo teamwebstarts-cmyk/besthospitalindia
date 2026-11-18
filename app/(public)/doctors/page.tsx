@@ -43,7 +43,6 @@ import {
   readFilterValues,
   toFilterValueList,
   type DiscoveryFacet,
-  type DiscoveryFilterValues,
 } from "@/features/discovery/types"
 import type { VerificationStatus } from "@/types"
 
