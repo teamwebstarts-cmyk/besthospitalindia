@@ -61,6 +61,9 @@
  */
 :root {
     color-scheme: light !important;
+    /* Sticky public header height (desktop two-tier ≈ 7.25–7.5rem, mobile ≈ 7.5rem).
+       Hero sections subtract this so they fill the real visible viewport. */
+    --site-header-offset: 7.5rem;
     --background: #F7FBF9;
     --foreground: #183A36;
 
@@ -178,6 +181,26 @@
       transform: none;
     }
   }
+
+  .home-testimonials-marquee {
+    animation: home-testimonials-scroll 52s linear infinite;
+  }
+  .home-testimonials-marquee:hover {
+    animation-play-state: paused;
+  }
+  @keyframes home-testimonials-scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .home-testimonials-marquee {
+      animation: none;
+    }
+  }
 }
 
 @layer base {
@@ -203,5 +226,16 @@
   }
   html {
     @apply font-sans;
+  }
+  /*
+   * Kill any horizontal scrollbar: full-bleed bands use 100vw (w-screen),
+   * which includes the classic scrollbar width and would otherwise push the
+   * page 15–17px wider than the visible viewport in browsers that draw
+   * classic scrollbars. `clip` (not `hidden`) — it does not create a scroll
+   * container, so the sticky header keeps working.
+   */
+  html,
+  body {
+    overflow-x: clip;
   }
 }

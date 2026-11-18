@@ -1,9 +1,7 @@
 import type { Metadata } from "next"
 import { JourneyStepsAnimated } from "@/features/content/journey-steps-animated"
-import { ScrollReveal, StaggerReveal } from "@/components/motion/scroll-reveal"
-import { homeInteractiveSurfaceClassName } from "@/lib/home-motion"
-import { cn } from "@/lib/utils"
-import { TestimonialCard } from "@/features/content/testimonial-card"
+import { ScrollReveal } from "@/components/motion/scroll-reveal"
+import { TestimonialsMarquee } from "@/features/content/testimonials-marquee"
 import { FaqList } from "@/features/content/faq-list"
 import {
   HomeBleedBand,
@@ -23,8 +21,8 @@ import {
   homeTestimonials,
 } from "@/features/content/home-content"
 import { homeMedicalDestinationStates } from "@/features/content/medical-destination-states"
-import { DoctorCard } from "@/features/providers/components/doctor-card"
-import { HospitalCard } from "@/features/providers/components/hospital-card"
+import { FeaturedHospitalsSection } from "@/features/content/featured-hospitals/featured-hospitals-section"
+import { FindDoctorsSection } from "@/features/content/find-doctors/find-doctors-section"
 import { FACILITY_CATEGORY_LABELS } from "@/features/discovery/facility-meta"
 import { doctorById, facilities, hospitals, specialties } from "@/data"
 import { searchDoctors, searchHospitals } from "@/lib/search"
@@ -36,12 +34,14 @@ export const metadata: Metadata = {
     "Discover hospitals, doctors and treatments in India, compare independent PER, CER and MER ratings, and send enquiries for coordinated follow-up.",
 }
 
-/** Demo hospital rotation for the featured section (fixture ids, stable order). */
+/** Home featured band — six demo cards (3 × 2 grid). */
 const FEATURED_HOSPITAL_IDS = [
   "hosp-sunrise-delhi",
   "hosp-tranquilvalley-kochi",
-  "hosp-goldenpeak-jaipur",
   "hosp-silverlake-bengaluru",
+  "hosp-goldenpeak-jaipur",
+  "hosp-sunrise-mumbai",
+  "hosp-metropulse-ahmedabad",
 ] as const
 
 /** Demo doctor rotation for the discovery section (fixture ids, stable order). */
@@ -173,68 +173,9 @@ export default function HomePage() {
           <FacilityCategoryGrid categories={facilityCategories} />
         </HomeBleedBand>
 
-        <HomeBleedBand
-          aria-labelledby="home-featured-hospitals-heading"
-          surfaceClassName="border-b border-border/70 bg-background"
-        >
-          <ScrollReveal>
-            <HomeSectionHeading
-              headingId="home-featured-hospitals-heading"
-              title="Featured hospitals"
-              description="Each card shows independent Patient Experience (PER) and Clinical Expertise (CER) ratings — never a combined score."
-            />
-          </ScrollReveal>
-          {featuredHospitals.length === 0 ? (
-            <p className="rounded-lg border border-dashed px-6 py-10 text-center text-sm text-muted-foreground">
-              No featured hospitals are available to show right now.
-            </p>
-          ) : (
-            <StaggerReveal
-              className="grid items-stretch gap-4 sm:grid-cols-2"
-              staggerMs={90}
-            >
-              {featuredHospitals.map((hospital) => (
-                <HospitalCard
-                  key={hospital.id}
-                  hospital={hospital}
-                  layout="stacked"
-                  className={cn("h-full", homeInteractiveSurfaceClassName)}
-                />
-              ))}
-            </StaggerReveal>
-          )}
-        </HomeBleedBand>
+        <FeaturedHospitalsSection hospitals={featuredHospitals} />
 
-        <HomeBleedBand
-          aria-labelledby="home-featured-doctors-heading"
-          surfaceClassName="border-b border-border/70 bg-white"
-        >
-          <ScrollReveal>
-            <HomeSectionHeading
-              headingId="home-featured-doctors-heading"
-              title="Find the right doctor"
-              description="Doctor cards show Patient Experience (PER) and Medical Expertise (MER) as two separate ratings with their own evidence metadata."
-            />
-          </ScrollReveal>
-          {featuredDoctors.length === 0 ? (
-            <p className="rounded-lg border border-dashed px-6 py-10 text-center text-sm text-muted-foreground">
-              No featured doctors are available to show right now.
-            </p>
-          ) : (
-            <StaggerReveal
-              className="grid items-stretch gap-4 md:grid-cols-2 lg:grid-cols-3"
-              staggerMs={80}
-            >
-              {featuredDoctors.map((doctor) => (
-                <DoctorCard
-                  key={doctor.id}
-                  doctor={doctor}
-                  className={cn("h-full", homeInteractiveSurfaceClassName)}
-                />
-              ))}
-            </StaggerReveal>
-          )}
-        </HomeBleedBand>
+        <FindDoctorsSection doctors={featuredDoctors} />
 
         {/* <HomeLowestQuotesSection /> — restore when home treatments grid is required */}
 
@@ -270,14 +211,15 @@ export default function HomePage() {
             <HomeSectionHeading
               headingId="home-testimonials-heading"
               title="Patient stories"
-              description="Experiences shared by patients who used the platform to find care. Individual outcomes vary — stories are not medical advice."
+              description="Reviews-style stories from patients who used the directory — outcomes vary; demo content only."
             />
           </ScrollReveal>
-          <StaggerReveal className="grid gap-4 md:grid-cols-3" staggerMs={100}>
-            {homeTestimonials.map((testimonial) => (
-              <TestimonialCard key={testimonial.id} testimonial={testimonial} />
-            ))}
-          </StaggerReveal>
+          <ScrollReveal delayMs={60}>
+            <TestimonialsMarquee testimonials={homeTestimonials} />
+          </ScrollReveal>
+          <p className="text-center text-xs text-muted-foreground">
+            Demo patient stories — fictional accounts for layout only, not medical advice.
+          </p>
         </HomeBleedBand>
 
         <HomeBleedBand

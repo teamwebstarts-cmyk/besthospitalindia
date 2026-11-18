@@ -18,8 +18,31 @@ const demoMer = (
   input: Omit<RatingSummary, 'kind' | 'scaleMax' | 'basis'>,
 ): RatingSummary => ({ kind: 'MER', scaleMax: 5, basis: 'verified_evidence', ...input });
 
-/** Shared demo portrait for doctor card / profile media (build). */
-const DOCTOR_DEMO_PHOTO = '/images/doctors/doctor-portrait-demo.png';
+/** Demo portrait indices (pravatar.cc stock — deterministic per doctor id). */
+const DOCTOR_PORTRAIT_IMG: Record<string, number> = {
+  'doc-aarav-mehta': 12,
+  'doc-isha-kapoor': 5,
+  'doc-rohan-sharma': 33,
+  'doc-priya-nair': 9,
+  'doc-vikram-rao': 15,
+  'doc-ananya-desai': 23,
+  'doc-karan-malhotra': 52,
+  'doc-meera-joshi': 44,
+  'doc-sanjay-pillai': 68,
+  'doc-leena-fernandes': 29,
+  'doc-arjun-khanna': 61,
+  'doc-nandini-bose': 47,
+};
+
+const DOCTOR_PHOTO_FALLBACK = '/images/doctors/doctor-portrait-demo.png';
+
+function doctorPhotoForId(id: string): string {
+  const img = DOCTOR_PORTRAIT_IMG[id]
+  if (img === undefined) return DOCTOR_PHOTO_FALLBACK
+  return `https://i.pravatar.cc/320?img=${img}`
+}
+
+const DOCTOR_DEMO_PHOTO = DOCTOR_PHOTO_FALLBACK;
 
 const doctorList = [
   {
@@ -446,7 +469,12 @@ const doctorList = [
   },
 ] satisfies readonly Doctor[];
 
-export const doctors: readonly Doctor[] = Object.freeze(doctorList);
+export const doctors: readonly Doctor[] = Object.freeze(
+  doctorList.map((doctor) => ({
+    ...doctor,
+    photo: doctorPhotoForId(doctor.id),
+  })),
+);
 
 /** Fast id → Doctor lookup for selectors and fixtures. */
 export const doctorById: Readonly<Record<string, Doctor>> = Object.freeze(

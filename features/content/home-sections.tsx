@@ -152,7 +152,7 @@ export function HomeSectionHeading({
     >
       <h2
         id={headingId}
-        className="text-[1.75rem] leading-[1.2] font-bold tracking-tight text-balance text-foreground sm:text-[2.15rem]"
+        className="text-[clamp(1.75rem,3.2vw,2.25rem)] leading-[1.2] font-extrabold tracking-tight text-balance text-foreground"
       >
         {title}
       </h2>
@@ -405,7 +405,7 @@ function FacilityCategoryRow({ entry }: { entry: FacilityCategoryEntry }) {
               · {entry.count} {listingLabel}
             </span>
           </span>
-          <span className="mt-0.5 block truncate text-xs leading-snug text-muted-foreground">
+          <span className="mt-0.5 line-clamp-2 text-xs leading-snug text-muted-foreground">
             {entry.description}
           </span>
         </span>
@@ -560,28 +560,24 @@ export function HomePatientServicesSection({
       />
       <StaggerReveal
         as="ul"
-        className="grid w-full gap-4 text-left sm:grid-cols-2 lg:grid-cols-3"
-        staggerMs={60}
+        className="grid w-full gap-3 text-left sm:grid-cols-2 lg:grid-cols-3 lg:gap-4"
+        staggerMs={50}
       >
         {homePatientServices.items.map((service) => {
           const Icon = patientServiceIcons[service.id]
           return (
             <li
               key={service.id}
-              className={cn(
-                "flex gap-3 rounded-xl border border-transparent bg-primary/[0.06] p-4 sm:gap-4 sm:p-5",
-                homeInteractiveSurfaceClassName,
-                "hover:border-primary/15 hover:bg-primary/[0.08]"
-              )}
+              className="flex gap-3 rounded-lg border border-border/70 bg-card p-4 transition-colors hover:border-primary/25 sm:gap-4"
             >
-              <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-white text-primary shadow-xs ring-1 ring-border/60 sm:size-12">
-                <Icon aria-hidden className="size-5 sm:size-[1.35rem]" strokeWidth={1.75} />
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary/[0.08] text-primary ring-1 ring-primary/12 sm:size-11">
+                <Icon aria-hidden className="size-5" strokeWidth={1.75} />
               </span>
               <div className="min-w-0 flex-1">
-                <h3 className="text-sm font-semibold text-foreground sm:text-base">
+                <h3 className="text-sm font-semibold leading-snug text-foreground sm:text-[0.9375rem]">
                   {service.title}
                 </h3>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
                   {service.description}
                 </p>
               </div>
@@ -609,38 +605,38 @@ export function MedicalTourismBlock({ className }: MedicalTourismBlockProps) {
     <ScrollReveal>
       <div
         className={cn(
-          "interactive-surface grid gap-6 rounded-2xl bg-card p-6 shadow-xs ring-1 ring-foreground/10 lg:grid-cols-[1.1fr_1fr] lg:p-8",
+          "grid gap-6 rounded-2xl border border-border/70 bg-card p-5 sm:p-6 lg:grid-cols-2 lg:items-center lg:gap-10 lg:p-8",
           className
         )}
       >
-      <div className="space-y-4">
-        <p className="flex items-center gap-2 text-sm font-semibold tracking-wide text-primary uppercase">
-          <GlobeIcon aria-hidden className="size-4" />
+      <div className="flex flex-col justify-center gap-4 text-left">
+        <p className="flex items-center gap-2 text-xs font-semibold tracking-wide text-primary uppercase sm:text-sm">
+          <GlobeIcon aria-hidden className="size-4 shrink-0" />
           Medical tourism support
         </p>
-        <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+        <h2 className="text-2xl font-semibold tracking-tight text-balance sm:text-[1.75rem]">
           Planning care away from home
         </h2>
-        <p className="text-sm leading-relaxed text-muted-foreground md:text-base">
-          The platform includes a dedicated medical-tourism module for patients
-          considering travel to India for care — from treatment discovery to
-          enquiry coordination and travel-assistance information with support at
-          each stage.
+        <p className="max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+          Discover treatment options in India, raise an international patient
+          enquiry, and read travel-assistance information — orientation at each
+          stage, not live concierge booking.
         </p>
-        <div className="flex flex-wrap gap-3">
-          <Button render={<Link href={ROUTES.public.medicalTourism} />}>
+        <div className="flex flex-wrap gap-2.5 pt-1">
+          <Button className="h-11 rounded-lg px-5" render={<Link href={ROUTES.public.medicalTourism} />}>
             Explore medical tourism
           </Button>
           <Button
             variant="outline"
+            className="h-11 rounded-lg px-5"
             render={<Link href={ROUTES.public.internationalPatientEnquiry} />}
           >
             International patient enquiry
           </Button>
         </div>
       </div>
-      <figure className="flex min-h-0 flex-col justify-center gap-2 self-stretch">
-        <div className="overflow-hidden rounded-xl border border-border/70 bg-muted shadow-xs ring-1 ring-foreground/10">
+      <figure className="flex min-h-0 w-full flex-col justify-center gap-2 lg:max-w-xl lg:justify-self-end">
+        <div className="overflow-hidden rounded-lg border border-border/70 bg-muted">
           <video
             className="aspect-video w-full bg-muted object-cover"
             controls

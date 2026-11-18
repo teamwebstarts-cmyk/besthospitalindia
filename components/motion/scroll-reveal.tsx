@@ -23,9 +23,8 @@ function prefersReducedMotion(): boolean {
 
 function useInViewOnce<T extends HTMLElement>(margin = "0px 0px -8% 0px") {
   const ref = useRef<T | null>(null)
-  const [visible, setVisible] = useState(
-    () => typeof window !== "undefined" && prefersReducedMotion()
-  )
+  // Always paint content visible first — never hide hero/sections behind opacity-0.
+  const [visible, setVisible] = useState(true)
 
   useEffect(() => {
     if (prefersReducedMotion()) return
@@ -40,11 +39,17 @@ function useInViewOnce<T extends HTMLElement>(margin = "0px 0px -8% 0px") {
           observer.disconnect()
         }
       },
-      { threshold: 0.12, rootMargin: margin }
+      { threshold: 0.08, rootMargin: margin }
     )
 
     observer.observe(node)
-    return () => observer.disconnect()
+
+    const fallback = window.setTimeout(() => setVisible(true), 1200)
+
+    return () => {
+      observer.disconnect()
+      window.clearTimeout(fallback)
+    }
   }, [margin])
 
   return { ref, visible }
@@ -75,7 +80,7 @@ export function ScrollReveal({
       ref={ref}
       className={cn(
         "transition-[opacity,transform] duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
-        visible ? "translate-y-0 opacity-100" : "translate-y-7 opacity-0",
+        visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-100",
         className
       )}
       style={{ transitionDelay: visible ? `${delayMs}ms` : "0ms" }}
@@ -119,7 +124,7 @@ export function StaggerReveal({
           className: cn(
             element.props.className,
             "transition-[opacity,transform] duration-[780ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
-            visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+            visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-100"
           ),
           style: {
             ...element.props.style,

@@ -1,0 +1,458 @@
+/* Find doctors — layout from the Find Doctors mock (scoped under .fd-section) */
+.fd-section {
+  position: relative;
+  overflow: hidden;
+  padding: 22px 0 60px;
+  background: #fff;
+  color: #0f2b26;
+}
+
+.fd-blob {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+.fd-blob-tl {
+  left: 0;
+  top: 0;
+  width: 310px;
+  height: 230px;
+}
+.fd-blob-tr {
+  right: 0;
+  top: 0;
+  width: 340px;
+  height: 190px;
+}
+.fd-blob-br {
+  right: 0;
+  bottom: 0;
+  width: 220px;
+  height: 120px;
+}
+
+.fd-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* --------------------------------------------------------------------- */
+/* Badge + title + subtitle                                               */
+/* --------------------------------------------------------------------- */
+
+.fd-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: max-content;
+  max-width: 100%;
+  margin: 0 auto;
+  height: 42px;
+  padding-right: 20px;
+  background: #dff3ec;
+  border-radius: 999px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0d6752;
+  letter-spacing: -0.01em;
+}
+.fd-badge-ico {
+  width: 46px;
+  height: 42px;
+  border-radius: 999px;
+  background: #0f9d7a;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  flex: none;
+}
+
+.fd-title {
+  margin: 16px auto 0;
+  font-size: clamp(1.75rem, 3.2vw, 2.25rem);
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: #0d1f33;
+  text-align: center;
+}
+.fd-title-wrap {
+  display: inline-block;
+  position: relative;
+}
+.fd-title-green {
+  background: linear-gradient(90deg, #3fb598, #0a7a5c);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
+.fd-title-swash {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -12px;
+  width: 100%;
+  height: 14px;
+}
+
+.fd-sub {
+  max-width: 900px;
+  margin: 18px auto 0;
+  text-align: center;
+  font-size: 20px;
+  line-height: 31px;
+  color: #5b6f7f;
+}
+
+/* --------------------------------------------------------------------- */
+/* Card grid                                                              */
+/* --------------------------------------------------------------------- */
+
+.fd-grid {
+  margin: 48px auto 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px;
+}
+
+.fd-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #e4efec;
+  border-radius: 24px;
+  padding: 18px;
+  box-shadow: none;
+}
+.fd-card-hl {
+  border: 1.5px solid #a8e2cc;
+  box-shadow: none;
+}
+
+.fd-top {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.fd-avatar {
+  width: 104px;
+  height: 104px;
+  border-radius: 16px;
+  overflow: hidden;
+  flex: none;
+  background: #d9efea;
+  position: relative;
+}
+.fd-avatar img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.fd-t-info {
+  flex: 1;
+  min-width: 0;
+  padding-top: 2px;
+}
+.fd-t-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.fd-name {
+  font-size: 22px;
+  line-height: 26px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: #111f1d;
+}
+
+.fd-heart {
+  width: 43px;
+  height: 43px;
+  border-radius: 50%;
+  background: #eef6f3;
+  border: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: #1a2f2c;
+  flex: none;
+  transition:
+    transform 0.15s ease,
+    color 0.15s ease;
+}
+.fd-heart:hover {
+  transform: scale(1.06);
+}
+.fd-heart svg {
+  width: 22px;
+  height: 22px;
+}
+.fd-heart-on {
+  color: #e5484d;
+}
+
+.fd-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 7px;
+}
+.fd-pill svg {
+  width: 16px;
+  height: 16px;
+}
+.fd-pill-verified {
+  background: #d9f5e5;
+  color: #0a9b4a;
+}
+.fd-pill-pending {
+  background: #fff2bd;
+  color: #6b5a00;
+  border: 1px solid #f2df8a;
+}
+
+.fd-spec {
+  margin-top: 7px;
+  font-size: 17px;
+  font-weight: 500;
+  color: #5b6f80;
+}
+.fd-loc {
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+  color: #5b6f80;
+}
+.fd-loc svg {
+  width: 17px;
+  height: 17px;
+  flex: none;
+}
+
+/* Credentials / hospitals / experience rows */
+.fd-info {
+  margin-top: 14px;
+  background: #f5faf8;
+  border: 1px solid #e9f1ee;
+  border-radius: 14px;
+  padding: 13px 14px;
+}
+.fd-i-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.fd-i-row + .fd-i-row {
+  margin-top: 9px;
+}
+.fd-i-ico {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  color: #2f3f3c;
+  display: grid;
+  place-items: center;
+  margin-top: 1px;
+}
+.fd-i-ico svg {
+  width: 22px;
+  height: 22px;
+}
+.fd-i-row p {
+  font-size: 15.6px;
+  line-height: 20px;
+  color: #1d2f2c;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* PER / MER — always two separate blocks, never a combined score */
+.fd-rating {
+  margin-top: 12px;
+  margin-bottom: 13px;
+  background: #e9f4ef;
+  border-radius: 14px;
+  padding: 11px 15px;
+  display: flex;
+  align-items: center;
+}
+.fd-r-col {
+  flex: 1;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+}
+.fd-r-div {
+  width: 1px;
+  height: 44px;
+  background: #c7ddd5;
+  margin: 0 16px;
+  flex: none;
+}
+.fd-r-ico {
+  width: 42px;
+  height: 32px;
+  color: #16967c;
+  flex: none;
+  display: grid;
+  place-items: center;
+}
+.fd-r-ico svg {
+  width: 40px;
+  height: 30px;
+}
+.fd-r-body {
+  min-width: 0;
+}
+.fd-r-lab {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #243936;
+}
+.fd-r-val {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+}
+.fd-r-val svg {
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+.fd-r-val b {
+  font-size: 23px;
+  font-weight: 800;
+  color: #0f211e;
+  font-variant-numeric: tabular-nums;
+}
+.fd-r-val small {
+  font-size: 16px;
+  color: #6a7f7a;
+  font-weight: 500;
+  margin-left: -3px;
+}
+.fd-r-norate {
+  font-size: 16.5px;
+  font-weight: 600;
+  color: #182826;
+  margin-top: 3px;
+  white-space: nowrap;
+}
+
+/* Full-width conversion button — pinned to the card bottom, min 16px gap */
+.fd-btn {
+  margin-top: auto;
+  width: 100%;
+  height: 52px;
+  border: 0;
+  border-radius: 12px;
+  background: #0c7a60;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 8px 16px rgba(12, 122, 96, 0.22);
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease;
+}
+.fd-btn:hover {
+  background: #0a6d56;
+  transform: translateY(-1px);
+}
+.fd-btn svg {
+  width: 24px;
+  height: 24px;
+  flex: none;
+}
+.fd-arr {
+  margin-left: 6px;
+}
+
+/* --------------------------------------------------------------------- */
+/* Responsive — mock breakpoint (1150px) + phone polish                    */
+/* --------------------------------------------------------------------- */
+
+@media (max-width: 1150px) {
+  .fd-content {
+    padding: 0 20px;
+  }
+  .fd-sub {
+    font-size: 17px;
+    line-height: 27px;
+  }
+  .fd-grid {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 560px;
+    gap: 28px;
+  }
+}
+
+/* Stack the two rating blocks when a single column gets narrow */
+@media (max-width: 560px) {
+  .fd-rating {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 14px 16px;
+    gap: 12px;
+  }
+  .fd-r-div {
+    width: auto;
+    height: 1px;
+    margin: 0;
+  }
+}
+
+/* Keep header + heart + pill on one screen at the smallest phones */
+@media (max-width: 420px) {
+  .fd-avatar {
+    width: 84px;
+    height: 84px;
+    border-radius: 14px;
+  }
+  .fd-name {
+    font-size: 18px;
+    line-height: 23px;
+  }
+  .fd-heart {
+    width: 36px;
+    height: 36px;
+  }
+  .fd-heart svg {
+    width: 18px;
+    height: 18px;
+  }
+  .fd-card {
+    padding: 16px;
+  }
+  .fd-btn {
+    font-size: 17px;
+    gap: 10px;
+  }
+  .fd-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+}

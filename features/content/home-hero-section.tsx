@@ -1,15 +1,15 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { Building2Icon, MapPinnedIcon, StarIcon, StethoscopeIcon } from "lucide-react"
+import Image from "next/image"
 
 import { ContactForm } from "@/features/content/contact-form"
 import { homeHero } from "@/features/content/home-content"
 import { fullBleedClassName } from "@/lib/full-bleed"
 import { cn } from "@/lib/utils"
 
-/** Left-weighted composition: subjects on the left, clear negative space on the right for the form. */
-const HERO_IMAGE_URL = "/images/hero-personal-care-left-focus.jpg"
+const HERO_IMAGE_DESKTOP = "/images/hero-find-care-banner.png"
+const HERO_IMAGE_MOBILE = "/images/hero-find-care-mobile.png"
 
 export interface HomeHeroSectionProps {
   hospitalCount: number
@@ -19,8 +19,8 @@ export interface HomeHeroSectionProps {
 }
 
 /**
- * Vaidam-style home hero: photographic background, short value prop + social
- * proof left, contact enquiry form right (same fields as /contact).
+ * Home hero: responsive full-bleed imagery (portrait mobile, landscape desktop)
+ * with `object-cover` so the photo always fills the section top-to-bottom.
  */
 export function HomeHeroSection({
   hospitalCount,
@@ -28,52 +28,76 @@ export function HomeHeroSection({
   stateCount,
   className,
 }: HomeHeroSectionProps) {
-  const [entered, setEntered] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  )
-
-  useEffect(() => {
-    if (entered) return
-    const frame = requestAnimationFrame(() => setEntered(true))
-    return () => cancelAnimationFrame(frame)
-  }, [entered])
-
-  const enterClass = () =>
-    cn(
-      "transition-[opacity,transform] duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
-      entered ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
-    )
-
   return (
     <section
       aria-label="Welcome"
-      className={cn(fullBleedClassName, "border-b", className)}
+      className={cn(
+        fullBleedClassName,
+        "relative isolate flex flex-col justify-center border-b bg-background",
+        // Height tracks the real visible viewport (svh) minus the sticky header.
+        // Content can push it taller, but it never feels short on tall screens.
+        "min-h-[calc(100svh-var(--site-header-offset))]",
+        "lg:bg-transparent",
+        className
+      )}
     >
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[#e8f3ef] bg-cover bg-left bg-no-repeat sm:bg-[position:8%_32%] lg:bg-[length:68%_auto] lg:bg-[position:left_center]"
-        style={{ backgroundImage: `url("${HERO_IMAGE_URL}")` }}
-      />
-      {/* Soft white column behind the form — no blur; blends photo into page background. */}
+        className="pointer-events-none absolute inset-0 bg-[#e9f4f0] lg:bg-[#e9f4f0]"
+      >
+        <div className="absolute inset-x-0 top-0 h-[clamp(13rem,42vh,24rem)] overflow-hidden lg:hidden">
+          <div className="relative h-full w-full">
+            <Image
+              src={HERO_IMAGE_MOBILE}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover object-top"
+            />
+          </div>
+        </div>
+        <div className="absolute inset-0 hidden lg:block">
+          <div className="relative h-full w-full">
+            <Image
+              src={HERO_IMAGE_DESKTOP}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover object-left"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop: light scrim only behind headline/stats — right side stays clear for the banner negative space + form */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-linear-to-r from-background/45 from-0% via-background/12 via-[36%] to-background from-[48%] to-[100%]"
+        className="pointer-events-none absolute inset-0 max-lg:hidden lg:bg-linear-to-r lg:from-background/22 lg:from-0% lg:via-background/6 lg:via-[min(36vw,22rem)] lg:to-transparent lg:to-[min(46vw,30rem)]"
       />
-      <div className="relative mx-auto grid max-w-7xl items-center gap-8 px-4 py-10 sm:px-6 sm:py-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10 lg:px-8 lg:py-14">
-        <div className={cn("min-w-0 space-y-6", enterClass())} style={{ transitionDelay: "0ms" }}>
-          <div className="space-y-3">
-            <h1 className="max-w-xl text-3xl leading-[1.15] font-bold tracking-tight text-balance text-foreground sm:text-4xl lg:text-[2.35rem]">
-              {homeHero.heading}
+
+      <div className="relative mx-auto grid w-full max-w-7xl flex-1 items-center gap-8 px-[max(1rem,3vw)] py-[clamp(1.5rem,4vh,3rem)] sm:px-[max(1.5rem,3.5vw)] lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.92fr)] lg:gap-[min(2.5rem,3vw)] lg:px-[max(2rem,4vw)] lg:py-[clamp(1.25rem,3vh,2.5rem)]">
+        <div className="min-w-0 space-y-[clamp(1rem,2.5vh,1.75rem)] pt-[clamp(8rem,34vh,12rem)] lg:pt-0">
+          <div className="max-w-[min(100%,38rem)] space-y-3">
+            <h1 className="font-extrabold tracking-tight text-foreground">
+              <span className="block text-[clamp(1.875rem,3.8vw,2.875rem)] leading-[1.15] lg:whitespace-nowrap">
+                {homeHero.headingLineOneLead}
+                <span className="text-primary">{homeHero.headingHospital}</span>
+                {homeHero.headingLineOneEnd}
+              </span>
+              <span className="mt-1 block text-[clamp(1.875rem,3.8vw,2.875rem)] leading-[1.15] lg:whitespace-nowrap">
+                {homeHero.headingLineTwoLead}
+                <span className="text-primary">{homeHero.headingDoctor}</span>
+              </span>
             </h1>
-            <p className="max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg">
+            <p className="max-w-md text-pretty text-[clamp(0.9375rem,1.6vw,1.125rem)] leading-relaxed text-muted-foreground">
               {homeHero.subheading}
             </p>
           </div>
 
-          <figure className="max-w-md overflow-hidden rounded-xl border border-border bg-card/75 shadow-xs backdrop-blur-[2px]">
-            <figcaption className="border-b border-border/80 px-4 py-3.5 sm:px-5">
+          <figure className="mt-[clamp(2rem,6vh,3.5rem)] max-w-md overflow-hidden rounded-xl border border-white/45 bg-card/50 shadow-sm backdrop-blur-md lg:mt-[clamp(2.75rem,8vh,5rem)]">
+            <figcaption className="border-b border-border/50 bg-background/25 px-4 py-3 sm:px-5">
               <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
                 <span className="text-2xl font-semibold tracking-tight text-foreground tabular-nums">
                   4.7
@@ -98,11 +122,11 @@ export function HomeHeroSection({
               </p>
             </figcaption>
             <dl
-              className="grid grid-cols-3 divide-x divide-border/80"
+              className="grid grid-cols-3 divide-x divide-border/50 bg-background/15"
               aria-label="Platform coverage"
             >
-              <div className="flex min-h-[5.5rem] flex-col items-center justify-center gap-2 px-2 py-4 sm:px-3">
-                <dd className="text-2xl font-semibold tracking-tight text-foreground tabular-nums">
+              <div className="flex min-h-[4.75rem] flex-col items-center justify-center gap-1.5 px-2 py-3 sm:px-3">
+                <dd className="text-xl font-semibold tracking-tight text-foreground tabular-nums sm:text-2xl">
                   {hospitalCount.toLocaleString()}
                 </dd>
                 <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -110,8 +134,8 @@ export function HomeHeroSection({
                   Hospitals
                 </dt>
               </div>
-              <div className="flex min-h-[5.5rem] flex-col items-center justify-center gap-2 px-2 py-4 sm:px-3">
-                <dd className="text-2xl font-semibold tracking-tight text-foreground tabular-nums">
+              <div className="flex min-h-[4.75rem] flex-col items-center justify-center gap-1.5 px-2 py-3 sm:px-3">
+                <dd className="text-xl font-semibold tracking-tight text-foreground tabular-nums sm:text-2xl">
                   {doctorCount.toLocaleString()}
                 </dd>
                 <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -119,8 +143,8 @@ export function HomeHeroSection({
                   Doctors
                 </dt>
               </div>
-              <div className="flex min-h-[5.5rem] flex-col items-center justify-center gap-2 px-2 py-4 sm:px-3">
-                <dd className="text-2xl font-semibold tracking-tight text-foreground tabular-nums">
+              <div className="flex min-h-[4.75rem] flex-col items-center justify-center gap-1.5 px-2 py-3 sm:px-3">
+                <dd className="text-xl font-semibold tracking-tight text-foreground tabular-nums sm:text-2xl">
                   {stateCount.toLocaleString()}
                 </dd>
                 <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -132,10 +156,7 @@ export function HomeHeroSection({
           </figure>
         </div>
 
-        <div
-          className={cn("min-w-0 lg:max-w-md lg:justify-self-end xl:max-w-lg", enterClass())}
-          style={{ transitionDelay: entered ? "140ms" : "0ms" }}
-        >
+        <div className="min-w-0 w-full lg:max-w-[min(100%,28rem)] lg:justify-self-end xl:max-w-[min(100%,32rem)]">
           <ContactForm variant="hero" className="w-full shadow-lg transition-shadow duration-500 hover:shadow-xl" />
         </div>
       </div>

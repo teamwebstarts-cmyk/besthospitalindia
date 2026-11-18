@@ -24,16 +24,16 @@ function rating(kind: RatingKind) {
 const per = rating('PER');
 const cer = rating('CER');
 
-/** Per-hospital mock artwork for cards and profiles (fictional branding). */
+/** State/region photos for varied hospital card imagery (demo fixtures). */
 const HOSPITAL_IMAGES: Record<string, string> = {
-  'hosp-sunrise-delhi': '/images/hospitals/sunrise-multispeciality-delhi.svg',
-  'hosp-sunrise-mumbai': '/images/hospitals/sunrise-multispeciality-mumbai.svg',
-  'hosp-azurecoast-chennai': '/images/hospitals/azurecoast-speciality-chennai.svg',
-  'hosp-silverlake-bengaluru': '/images/hospitals/silverlake-medical-city-bengaluru.svg',
-  'hosp-tranquilvalley-kochi': '/images/hospitals/tranquilvalley-institute-kochi.svg',
-  'hosp-northganga-varanasi': '/images/hospitals/northganga-charitable-varanasi.svg',
-  'hosp-metropulse-ahmedabad': '/images/hospitals/metropulse-heart-ahmedabad.svg',
-  'hosp-goldenpeak-jaipur': '/images/hospitals/goldenpeak-women-children-jaipur.svg',
+  'hosp-sunrise-delhi': '/images/destinations/states/delhi.jpg',
+  'hosp-sunrise-mumbai': '/images/destinations/states/maharashtra.jpg',
+  'hosp-azurecoast-chennai': '/images/destinations/states/tamil-nadu.jpg',
+  'hosp-silverlake-bengaluru': '/images/destinations/states/karnataka.jpg',
+  'hosp-tranquilvalley-kochi': '/images/destinations/states/kerala.jpg',
+  'hosp-northganga-varanasi': '/images/destinations/states/uttar-pradesh.jpg',
+  'hosp-metropulse-ahmedabad': '/images/destinations/states/gujarat.jpg',
+  'hosp-goldenpeak-jaipur': '/images/destinations/states/rajasthan.jpg',
 };
 
 const HOSPITAL_IMAGE_FALLBACK = '/images/hospitals/placeholder.svg';
@@ -275,7 +275,7 @@ const hospitalList = [
       }),
     },
     doctorIds: ['doc-arjun-khanna', 'doc-nandini-bose'],
-    image: HOSPITAL_DEMO_IMAGE,
+    image: hospitalImageForId('hosp-northganga-varanasi'),
   },
   {
     id: 'hosp-metropulse-ahmedabad',
@@ -313,7 +313,7 @@ const hospitalList = [
       }),
     },
     doctorIds: ['doc-aarav-mehta', 'doc-meera-joshi'],
-    image: HOSPITAL_DEMO_IMAGE,
+    image: hospitalImageForId('hosp-metropulse-ahmedabad'),
   },
   {
     id: 'hosp-goldenpeak-jaipur',
@@ -350,7 +350,7 @@ const hospitalList = [
       }),
     },
     doctorIds: ['doc-arjun-khanna', 'doc-nandini-bose'],
-    image: HOSPITAL_DEMO_IMAGE,
+    image: hospitalImageForId('hosp-goldenpeak-jaipur'),
   },
 ] satisfies readonly Hospital[];
 

@@ -21,10 +21,14 @@ import { ROUTES } from "@/constants/routes"
  * ----------------------------------------------------------------------- */
 
 export const homeHero = {
-  /** H1 — the page's single top-level heading. */
-  heading: "Healthcare Discovery With Personal Care",
+  /** H1 — two lines in `HomeHeroSection` (line 1 → hospital, line 2 → doctor). */
+  headingLineOneLead: "Find the right ",
+  headingHospital: "hospital",
+  headingLineOneEnd: ",",
+  headingLineTwoLead: "meeting the right ",
+  headingDoctor: "doctor",
   subheading:
-    "A trusted platform for hospitals, doctors and medical travel in India.",
+    "Compare hospitals and doctors across India with independent ratings and request coordinated support for your care journey.",
 } as const
 
 /** Copy for the city-destination pill row on the home page. */
@@ -44,7 +48,7 @@ export interface HomePatientServiceItem {
 export const homePatientServices = {
   title: "What you can use on this platform",
   description:
-    "BestHospitalIndia is a healthcare discovery directory — not a concierge or booking service. Use the flows below to find providers, compare ratings and request coordination with listed hospitals and doctors.",
+    "A healthcare discovery directory for India — compare independent ratings, browse providers and send enquiries. Not a concierge or confirmed booking service.",
   items: [
     {
       id: "provider-discovery",
@@ -550,27 +554,72 @@ export const homeTestimonials: readonly Testimonial[] = [
     authorName: "Meera S.",
     authorCountry: "Singapore",
     quote:
-      "The separate experience and expertise ratings helped me ask better questions before choosing a hospital. I always knew which number came from patients and which came from evidence.",
+      "PER and CER shown separately — I could see patient feedback and clinical evidence without a blended star rating. Made shortlisting hospitals in Kerala much easier.",
     hospitalId: "hosp-tranquilvalley-kochi",
     at: "2026-09-12",
+    authorPhoto: "https://i.pravatar.cc/96?img=5",
+    rating: 5,
+    relativeTime: "2 months ago",
   },
   {
     id: "test-story-2",
     authorName: "Rahul K.",
     authorCountry: "United Arab Emirates",
     quote:
-      'Seeing the verification state right on the profile — and an honest "assessment pending" where a rating was missing — made the platform feel trustworthy rather than salesy.',
+      'Verification badges and honest "assessment pending" labels felt straightforward. No pressure to book — just clear next steps for an enquiry.',
     hospitalId: "hosp-sunrise-delhi",
     at: "2026-10-02",
+    authorPhoto: "https://i.pravatar.cc/96?img=12",
+    rating: 5,
+    relativeTime: "6 weeks ago",
   },
   {
     id: "test-story-3",
     authorName: "Anita P.",
     authorCountry: "India",
     quote:
-      "The request workflow was clear that nothing was confirmed yet. That honesty is what I would want from a real healthcare discovery platform.",
+      "Appointment request wording was clear it was not confirmed until the hospital replied. Small detail, but it matched what I expect from a directory.",
     hospitalId: null,
     at: "2026-10-18",
+    authorPhoto: "https://i.pravatar.cc/96?img=25",
+    rating: 4,
+    relativeTime: "3 weeks ago",
+  },
+  {
+    id: "test-story-4",
+    authorName: "James W.",
+    authorCountry: "United Kingdom",
+    quote:
+      "Compared cardiologists in Ahmedabad and Bengaluru using MER on doctor cards. Filters by city saved time before I raised a travel enquiry.",
+    hospitalId: "hosp-metropulse-ahmedabad",
+    at: "2026-08-04",
+    authorPhoto: "https://i.pravatar.cc/96?img=33",
+    rating: 5,
+    relativeTime: "4 months ago",
+  },
+  {
+    id: "test-story-5",
+    authorName: "Fatima A.",
+    authorCountry: "Oman",
+    quote:
+      "Medical tourism page outlined visas and stay pointers without pretending they had booked flights for me. Useful orientation before calling the hospital.",
+    hospitalId: "hosp-silverlake-bengaluru",
+    at: "2026-07-19",
+    authorPhoto: "https://i.pravatar.cc/96?img=9",
+    rating: 4,
+    relativeTime: "5 months ago",
+  },
+  {
+    id: "test-story-6",
+    authorName: "Chen L.",
+    authorCountry: "China",
+    quote:
+      "Facility categories helped me find a diagnostic lab in Mumbai separate from hospital listings. Clean directory layout on mobile too.",
+    hospitalId: "hosp-sunrise-mumbai",
+    at: "2026-06-11",
+    authorPhoto: "https://i.pravatar.cc/96?img=44",
+    rating: 5,
+    relativeTime: "6 months ago",
   },
 ]
 
