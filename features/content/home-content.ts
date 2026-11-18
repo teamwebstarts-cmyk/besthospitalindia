@@ -21,10 +21,12 @@ import { ROUTES } from "@/constants/routes"
  * ----------------------------------------------------------------------- */
 
 export const homeHero = {
-  /** H1 — the page's single top-level heading. */
-  heading: "Healthcare Discovery With Personal Care",
+  /** Small eyebrow above the homepage H1. */
+  eyebrow: "HEALTHCARE, MADE EASIER",
+  /** H1 — the page's single top-level heading. The line break is intentional. */
+  heading: "Find the right hospital.\nMeet the right doctor.",
   subheading:
-    "A trusted platform for hospitals, doctors and medical travel in India.",
+    "Explore hospitals and doctors across India, compare independent provider ratings, and send an enquiry when you’re ready.",
 } as const
 
 /** Copy for the city-destination pill row on the home page. */
