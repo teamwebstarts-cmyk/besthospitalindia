@@ -9,7 +9,7 @@ This branch is prepared for a **review/staging preview**. It is not cleared for 
 3. Set the Root Directory to the repository root (`./`).
 4. Confirm Framework Preset is **Next.js**.
 5. Use Node.js **22.x**.
-6. Use the npm lockfile. Vercel should install dependencies with `npm install`/its detected lockfile install command.
+6. Set the Install Command to `npm ci` so the deployment uses the committed `package-lock.json` exactly.
 7. Build Command: `npm run build`.
 8. Leave Output Directory at the Next.js default. Do not set a custom static output directory.
 9. No environment variables are required for this demo preview.
