@@ -11,6 +11,7 @@
  */
 
 import type { Hospital, RatingKind, RatingSummary } from '@/types';
+import { HOSPITAL_HERO_IMAGES_BY_ID } from '@/lib/hospital-hero-images';
 
 /** Typed helper so every fixture rating carries kind + scaleMax correctly. */
 function rating(kind: RatingKind) {
@@ -24,17 +25,7 @@ function rating(kind: RatingKind) {
 const per = rating('PER');
 const cer = rating('CER');
 
-/** State/region photos for varied hospital card imagery (demo fixtures). */
-const HOSPITAL_IMAGES: Record<string, string> = {
-  'hosp-sunrise-delhi': '/images/destinations/states/delhi.jpg',
-  'hosp-sunrise-mumbai': '/images/destinations/states/maharashtra.jpg',
-  'hosp-azurecoast-chennai': '/images/destinations/states/tamil-nadu.jpg',
-  'hosp-silverlake-bengaluru': '/images/destinations/states/karnataka.jpg',
-  'hosp-tranquilvalley-kochi': '/images/destinations/states/kerala.jpg',
-  'hosp-northganga-varanasi': '/images/destinations/states/uttar-pradesh.jpg',
-  'hosp-metropulse-ahmedabad': '/images/destinations/states/gujarat.jpg',
-  'hosp-goldenpeak-jaipur': '/images/destinations/states/rajasthan.jpg',
-};
+const HOSPITAL_IMAGES = HOSPITAL_HERO_IMAGES_BY_ID;
 
 const HOSPITAL_IMAGE_FALLBACK = '/images/hospitals/placeholder.svg';
 

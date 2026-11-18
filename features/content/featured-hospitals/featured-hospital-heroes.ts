@@ -1,11 +1,9 @@
 import type { Hospital } from "@/types"
+import { hospitalHeroImageForId, HOSPITAL_HERO_IMAGES_BY_ID } from "@/lib/hospital-hero-images"
 
-/** Original hero artwork provided for the home featured band (PNG). */
-export const FEATURED_HOSPITAL_HERO_IMAGES: Record<string, string> = {
-  "hosp-sunrise-delhi": "/images/hospitals/featured/sunrise-delhi-hero.png",
-  "hosp-tranquilvalley-kochi": "/images/hospitals/featured/tranquilvalley-kochi-hero.png",
-}
+/** @deprecated Prefer `HOSPITAL_HERO_IMAGES_BY_ID` from `@/lib/hospital-hero-images`. */
+export const FEATURED_HOSPITAL_HERO_IMAGES = HOSPITAL_HERO_IMAGES_BY_ID
 
 export function getFeaturedHospitalHeroImage(hospital: Hospital): string {
-  return FEATURED_HOSPITAL_HERO_IMAGES[hospital.id] ?? hospital.image
+  return hospitalHeroImageForId(hospital.id) ?? hospital.image
 }

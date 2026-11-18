@@ -58,7 +58,6 @@ import {
   InfoIcon,
   LanguagesIcon,
   LoaderCircleIcon,
-  LockIcon,
   StethoscopeIcon,
   UserRoundIcon,
 } from "lucide-react";
@@ -355,21 +354,17 @@ export function EnquiryForm({ className }: EnquiryFormProps) {
   }
 
   return (
-    <Card className={cn("gap-6", className)}>
-      <CardHeader>
-        <CardTitle>Request your free consultation</CardTitle>
-        <CardDescription>
-          Share your details and our coordination team will follow up using the contact
-          information you provide.
-        </CardDescription>
+    <Card className={cn("gap-4", className)}>
+      <CardHeader className="pb-0">
+        <CardTitle className="text-lg">Request consultation</CardTitle>
       </CardHeader>
 
       <CardContent>
-        <form noValidate onSubmit={onSubmit} className="flex flex-col gap-6">
-          <fieldset className="flex min-w-0 flex-col gap-4" disabled={pending}>
+        <form noValidate onSubmit={onSubmit} className="flex flex-col gap-5">
+          <fieldset className="flex min-w-0 flex-col gap-3.5" disabled={pending}>
             <legend className="flex items-center gap-2 text-sm font-medium">
-              <UserRoundIcon aria-hidden className="size-4 text-muted-foreground" />
-              Patient details
+              <UserRoundIcon aria-hidden className="size-4 shrink-0 text-primary" />
+              Your details
             </legend>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -405,13 +400,7 @@ export function EnquiryForm({ className }: EnquiryFormProps) {
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field
-                label="Phone"
-                htmlFor="enquiry-phone"
-                error={errors.phone}
-                required
-                hint="Include country code, e.g. +91 98xxx xxxxx."
-              >
+              <Field label="Phone" htmlFor="enquiry-phone" error={errors.phone} required>
                 <Input
                   id="enquiry-phone"
                   name="phone"
@@ -422,10 +411,7 @@ export function EnquiryForm({ className }: EnquiryFormProps) {
                   value={values.phone}
                   onChange={(event) => setValue("phone", event.target.value)}
                   aria-invalid={errors.phone ? true : undefined}
-                  aria-describedby={cn(
-                    errors.phone ? "enquiry-phone-error" : undefined,
-                    !errors.phone ? "enquiry-phone-hint" : undefined,
-                  )}
+                  aria-describedby={errors.phone ? "enquiry-phone-error" : undefined}
                   disabled={pending}
                 />
               </Field>
@@ -497,10 +483,10 @@ export function EnquiryForm({ className }: EnquiryFormProps) {
 
           <Separator />
 
-          <fieldset className="flex min-w-0 flex-col gap-4" disabled={pending}>
+          <fieldset className="flex min-w-0 flex-col gap-3.5" disabled={pending}>
             <legend className="flex items-center gap-2 text-sm font-medium">
-              <StethoscopeIcon aria-hidden className="size-4 text-muted-foreground" />
-              Consultation request
+              <StethoscopeIcon aria-hidden className="size-4 shrink-0 text-primary" />
+              Your request
             </legend>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -537,7 +523,6 @@ export function EnquiryForm({ className }: EnquiryFormProps) {
                 label="Preferred provider"
                 htmlFor="enquiry-provider"
                 error={errors.preferredProviderId}
-                hint="Optional — leave as “No preference” to let our coordinator match a provider."
               >
                 <Select
                   name="preferredProviderId"
@@ -583,18 +568,18 @@ export function EnquiryForm({ className }: EnquiryFormProps) {
             </div>
 
             <Field
-              label="Describe your concern"
+              label="Your concern"
               htmlFor="enquiry-concern"
               error={errors.concern}
               required
-              hint={`${values.concern.length}/2000 characters (minimum 10).`}
+              hint={`${values.concern.length}/2000`}
               hintId="enquiry-concern-hint"
             >
               <Textarea
                 id="enquiry-concern"
                 name="concern"
-                rows={5}
-                placeholder="Briefly describe symptoms, duration and any diagnosis so far."
+                rows={4}
+                placeholder="Symptoms, how long, any diagnosis so far"
                 value={values.concern}
                 onChange={(event) => setValue("concern", event.target.value)}
                 aria-invalid={errors.concern ? true : undefined}
@@ -622,12 +607,7 @@ export function EnquiryForm({ className }: EnquiryFormProps) {
             </Field>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field
-                label="Preferred date"
-                htmlFor="enquiry-date"
-                error={errors.preferredDate}
-                hint="Optional — today or later."
-              >
+              <Field label="Preferred date" htmlFor="enquiry-date" error={errors.preferredDate}>
                 <Input
                   id="enquiry-date"
                   name="preferredDate"
@@ -636,10 +616,7 @@ export function EnquiryForm({ className }: EnquiryFormProps) {
                   value={values.preferredDate}
                   onChange={(event) => setValue("preferredDate", event.target.value)}
                   aria-invalid={errors.preferredDate ? true : undefined}
-                  aria-describedby={cn(
-                    errors.preferredDate ? "enquiry-date-error" : undefined,
-                    !errors.preferredDate ? "enquiry-date-hint" : undefined,
-                  )}
+                  aria-describedby={errors.preferredDate ? "enquiry-date-error" : undefined}
                   disabled={pending}
                 />
               </Field>
@@ -670,48 +647,39 @@ export function EnquiryForm({ className }: EnquiryFormProps) {
                 id="enquiry-consent-text"
                 className="flex-1 flex-col items-start gap-1 font-normal"
               >
-                <span>
-                  I agree to be contacted about this consultation request and accept the{" "}
+                <span className="text-sm leading-snug text-muted-foreground">
+                  I agree to be contacted and accept the{" "}
                   <a
                     href={ROUTES.public.privacy}
-                    className="underline underline-offset-4 hover:text-foreground"
+                    className="text-foreground underline underline-offset-4 hover:text-primary"
                   >
                     Privacy Policy
                   </a>{" "}
                   and{" "}
                   <a
                     href={ROUTES.public.terms}
-                    className="underline underline-offset-4 hover:text-foreground"
+                    className="text-foreground underline underline-offset-4 hover:text-primary"
                   >
-                    Terms of Use
+                    Terms
                   </a>
-                  . I understand submitting this form does not confirm an appointment until a
-                  provider agrees.
+                  . Submitting does not confirm an appointment.
                 </span>
               </Label>
             </div>
             <FieldError id="enquiry-consent-error" message={errors.consent} />
           </fieldset>
 
-          <CardFooter className="flex-col items-stretch gap-3 px-0 pb-0">
-            <Button type="submit" size="lg" disabled={pending}>
+          <CardFooter className="px-0 pb-0 pt-1">
+            <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={pending}>
               {pending ? (
                 <>
                   <LoaderCircleIcon aria-hidden className="animate-spin" />
                   Submitting…
                 </>
               ) : (
-                "Request free consultation"
+                "Submit request"
               )}
             </Button>
-            <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
-              <LockIcon aria-hidden className="mt-0.5 size-3.5 shrink-0" />
-              <span>
-                Medical disclaimer: BestHospitalIndia does not provide medical advice. Submitting
-                this form does not create a patient–provider relationship until a provider
-                confirms scope and timing.
-              </span>
-            </p>
           </CardFooter>
         </form>
       </CardContent>

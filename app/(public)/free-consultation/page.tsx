@@ -2,32 +2,28 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ROUTES } from "@/constants/routes";
 import { EnquiryForm } from "@/features/consultations/enquiry-form";
-import { IufInitiativeBanner } from "@/features/consultations/iuf-initiative-banner";
-import { CircleCheckIcon, InfoIcon, XIcon } from "lucide-react";
+import { CircleCheckIcon, XIcon } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Free Consultation",
   description:
-    "Request a free consultation on BestHospitalIndia, an International Urban Forum Supported Initiative. Describe your concern, pick a specialty and preferred date.",
+    "Request a free consultation on BestHospitalIndia — describe your concern, choose a specialty, and hear back from our coordination team.",
 };
 
 /**
  * /free-consultation — A07.
  *
- * IUF-supported consultation landing + mock enquiry form. Server component;
+ * Consultation landing + mock enquiry form. Server component;
  * the form itself is the only client island. Scope, exclusions and charges
  * copy follows the pages/14 spec framing; items the spec does not specify are
  * marked as pending product confirmation.
  */
 export default function FreeConsultationPage() {
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 py-6 sm:py-8">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 py-6 sm:py-8">
       <Breadcrumbs
         items={[
           { label: "Home", href: ROUTES.public.home },
@@ -35,18 +31,14 @@ export default function FreeConsultationPage() {
         ]}
       />
 
-      <header className="flex flex-col gap-4">
-        <IufInitiativeBanner />
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold tracking-tight text-balance sm:text-4xl">
-            Free consultation — ask before you decide
-          </h1>
-          <p className="max-w-3xl text-sm text-balance text-muted-foreground sm:text-base">
-            Share your concern and reports with our coordination team. The consultation
-            itself is free; any treatment, travel or hospital costs that may follow are always
-            separate and would be confirmed with you in advance.
-          </p>
-        </div>
+      <header>
+        <h1 className="text-2xl font-bold tracking-tight text-balance sm:text-3xl">
+          Free consultation
+          <span className="mx-1.5 text-lg font-normal text-muted-foreground/80" aria-hidden>
+            ·
+          </span>
+          ask before you decide
+        </h1>
       </header>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
@@ -63,92 +55,37 @@ export default function FreeConsultationPage() {
           </h2>
 
           <Card size="sm">
-            <CardHeader>
-              <CardTitle>What the free consultation covers</CardTitle>
-              <CardDescription>Scope of the programme.</CardDescription>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">What&apos;s included</CardTitle>
             </CardHeader>
-            <CardContent>
-              <ul className="flex flex-col gap-2.5 text-sm">
-                <ScopeItem>
-                  A review of the concern, reports and preferences you share in this form.
-                </ScopeItem>
-                <ScopeItem>
-                  Guidance on which listed specialties or providers may be relevant.
-                </ScopeItem>
-                <ScopeItem>
-                  An indicative opinion on next steps — opinions are provided free of charge.
-                </ScopeItem>
-                <ScopeItem>
-                  Estimated timelines for review and provider response, as stated on your confirmation.
-                </ScopeItem>
+            <CardContent className="pt-0">
+              <ul className="flex flex-col gap-2 text-sm leading-snug">
+                <ScopeItem>Review of your concern and any reports you share</ScopeItem>
+                <ScopeItem>Guidance on specialties and listed providers</ScopeItem>
+                <ScopeItem>Free indicative opinion on possible next steps</ScopeItem>
+                <ScopeItem>Timeline estimate when we confirm your request</ScopeItem>
               </ul>
             </CardContent>
           </Card>
 
           <Card size="sm">
-            <CardHeader>
-              <CardTitle>Exclusions &amp; possible charges</CardTitle>
-              <CardDescription>What is not included.</CardDescription>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Not included</CardTitle>
             </CardHeader>
-            <CardContent>
-              <ul className="flex flex-col gap-2.5 text-sm">
+            <CardContent className="pt-0">
+              <ul className="flex flex-col gap-2 text-sm leading-snug">
                 <ScopeItem excluded>
-                  The consultation opinion is free; treatments, procedures, medicines and hospital
-                  stays are separate and billable by the provider.
+                  Treatment, procedures, medicines and hospital stays (provider bills separately)
                 </ScopeItem>
-                <ScopeItem excluded>
-                  Travel, visa and accommodation support is a distinct paid service, not part of
-                  this consultation.
-                </ScopeItem>
-                <ScopeItem excluded>
-                  Follow-up consultations after the first free opinion may be chargeable — exact
-                  wording pending product confirmation.
-                </ScopeItem>
-                <ScopeItem excluded>
-                  Any third-party charges (diagnostics, document couriering) are possible and
-                  would always be confirmed with you first — pending product confirmation.
-                </ScopeItem>
+                <ScopeItem excluded>Travel, visa and accommodation support</ScopeItem>
+                <ScopeItem excluded>Follow-up consultations after the first opinion</ScopeItem>
               </ul>
+              <p className="mt-3 text-xs leading-snug text-muted-foreground">
+                Not medical advice. Submitting the form is not a confirmed appointment until a
+                provider agrees. In an emergency, use local emergency services.
+              </p>
             </CardContent>
           </Card>
-
-          <Card size="sm">
-            <CardHeader>
-              <CardTitle>Eligibility</CardTitle>
-              <CardDescription>Who can use this form.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="flex flex-col gap-2.5 text-sm">
-                <ScopeItem>
-                  Anyone exploring care options for themselves or a family member.
-                </ScopeItem>
-                <ScopeItem>
-                  International patients considering treatment in India.
-                </ScopeItem>
-                <ScopeItem>
-                  Additional eligibility rules are listed here when they apply to your case.
-                </ScopeItem>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Alert>
-            <InfoIcon />
-            <AlertTitle>Medical disclaimer</AlertTitle>
-            <AlertDescription>
-              Nothing on this page is medical advice and no diagnosis is made through the form alone.
-              A consultation request is not a confirmed appointment until a provider confirms. In an
-              emergency, contact your local emergency services.
-            </AlertDescription>
-          </Alert>
-
-          <Separator className="lg:hidden" />
-
-          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-            <Badge variant="outline">Secure submission</Badge>
-            <Badge variant="outline">Reference number on submit</Badge>
-            <Badge variant="outline">IUF Supported Initiative</Badge>
-          </div>
         </aside>
       </div>
     </div>
@@ -157,14 +94,11 @@ export default function FreeConsultationPage() {
 
 function ScopeItem({ children, excluded = false }: { children: ReactNode; excluded?: boolean }) {
   return (
-    <li className="flex items-start gap-2">
+    <li className="grid grid-cols-[1.125rem_minmax(0,1fr)] items-start gap-x-2 gap-y-0">
       {excluded ? (
-        <XIcon
-          aria-hidden
-          className="mt-0.5 size-4 shrink-0 text-muted-foreground"
-        />
+        <XIcon aria-hidden className="size-4 shrink-0 text-muted-foreground" />
       ) : (
-        <CircleCheckIcon aria-hidden className="mt-0.5 size-4 shrink-0 text-primary" />
+        <CircleCheckIcon aria-hidden className="size-4 shrink-0 text-primary" />
       )}
       <span className="text-foreground/90">{children}</span>
     </li>

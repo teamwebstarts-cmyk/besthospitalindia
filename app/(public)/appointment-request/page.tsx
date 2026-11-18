@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import { Breadcrumbs } from "@/components/shared/breadcrumbs"
 import { AppointmentRequestForm } from "@/features/appointments/appointment-request-form"
 import { doctorById, hospitalById, specialtyById, treatmentById } from "@/data"
@@ -28,9 +28,7 @@ export default async function AppointmentRequestPage({ searchParams }: Appointme
   if (providerType === "doctor") {
     const doctor = doctorById[providerId]
     if (!doctor) notFound()
-    provider = { type: "doctor", id: doctor.id, name: doctor.name, specialty: specialtyById[doctor.specialization]?.name ?? "Doctor", location: `${doctor.city}, ${doctor.state}` }
-    treatments = doctor.treatments.map((id) => treatmentById[id]).filter((item): item is NonNullable<typeof item> => Boolean(item)).map((item) => ({ id: item.id, name: item.name }))
-    backHref = doctorProfileHref(doctor.slug)
+    redirect(`${doctorProfileHref(doctor.slug)}#appointment`)
   } else {
     const hospital = hospitalById[providerId]
     if (!hospital) notFound()

@@ -22,9 +22,11 @@
 
 import Link from "next/link"
 
-import { Breadcrumbs } from "@/components/shared/breadcrumbs"
+import { DirectoryPageIntro } from "@/components/shared/directory-page-intro"
 import { EmptyState } from "@/components/shared/empty-state"
 import { SectionHeading } from "@/components/shared/section-heading"
+import { FindDoctorCard } from "@/features/content/find-doctors/find-doctor-card"
+import "@/features/content/find-doctors/find-doctors.css"
 import { FaqList } from "@/features/content/faq-list"
 import { homeSectionInnerClassName } from "@/features/content/home-sections"
 import { NOT_RATED_MESSAGE } from "@/constants/rating"
@@ -34,7 +36,6 @@ import { doctors as doctorsList, specialties } from "@/data"
 import { ROUTES } from "@/constants/routes"
 import { paginate, searchDoctors } from "@/lib/search"
 import type { RatingKindForSort, SearchSort } from "@/lib/search"
-import { DoctorCard } from "@/features/providers/components/doctor-card"
 import { DoctorListingSearch } from "@/features/discovery/doctor-listing-search"
 import { ListingFilters } from "@/features/discovery/listing-filters"
 import { UrlPagination } from "@/features/discovery/url-pagination"
@@ -264,17 +265,6 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
 
   return (
     <div className="flex flex-col">
-      <div className="space-y-3 pt-8">
-        <Breadcrumbs
-          items={[{ label: "Home", href: ROUTES.public.home }, { label: "Doctors" }]}
-        />
-        <SectionHeading
-          as="h1"
-          title="Find the right doctor"
-          description="Browse doctor profiles by city, specialization and hospital association. Patient Experience (PER) and Medical Expertise (MER) ratings are always shown as independent modules — never a combined score."
-        />
-      </div>
-
       <section
         aria-label="Doctor directory"
         className={cn(
@@ -283,6 +273,11 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
         )}
       >
         <div className={homeSectionInnerClassName}>
+          <DirectoryPageIntro
+            className="mb-8"
+            title="Find the right doctor"
+            description="Browse doctors by city and specialty with independent PER and MER ratings on every card."
+          />
           <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
             <aside aria-label="Doctor filters" className="lg:sticky lg:top-24 lg:self-start">
               <ListingFilters
@@ -336,10 +331,10 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                       }}
                     />
                   ) : (
-                    <ul className="grid items-stretch gap-4 sm:grid-cols-2" aria-label="Doctor results">
+                    <ul className="fd-grid fd-grid--directory list-none p-0" aria-label="Doctor results">
                       {items.map((doctor) => (
                         <li key={doctor.id} className="flex min-w-0">
-                          <DoctorCard doctor={doctor} className="h-full w-full" />
+                          <FindDoctorCard doctor={doctor} />
                         </li>
                       ))}
                     </ul>

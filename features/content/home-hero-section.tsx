@@ -2,7 +2,9 @@
 
 import { Building2Icon, MapPinnedIcon, StarIcon, StethoscopeIcon } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 
+import { Button } from "@/components/ui/button"
 import { ContactForm } from "@/features/content/contact-form"
 import { homeHero } from "@/features/content/home-content"
 import { fullBleedClassName } from "@/lib/full-bleed"
@@ -34,11 +36,12 @@ export function HomeHeroSection({
       className={cn(
         fullBleedClassName,
         "relative isolate flex flex-col justify-center border-b bg-background",
-        // Height tracks the real visible viewport (svh) minus the sticky header.
-        // Content can push it taller, but it never feels short on tall screens.
-        "min-h-[calc(100svh-var(--site-header-offset))]",
+        // Height follows the real visible viewport (svh) minus the sticky header,
+        // so the hero always fills the screen without being cut off.
+        "max-lg:min-h-0 max-lg:justify-start",
+        "lg:min-h-[calc(100svh-var(--site-header-offset))] lg:justify-center",
         "lg:bg-transparent",
-        className
+        className,
       )}
     >
       <div
@@ -71,14 +74,13 @@ export function HomeHeroSection({
         </div>
       </div>
 
-      {/* Desktop: light scrim only behind headline/stats — right side stays clear for the banner negative space + form */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 max-lg:hidden lg:bg-linear-to-r lg:from-background/22 lg:from-0% lg:via-background/6 lg:via-[min(36vw,22rem)] lg:to-transparent lg:to-[min(46vw,30rem)]"
       />
 
-      <div className="relative mx-auto grid w-full max-w-7xl flex-1 items-center gap-8 px-[max(1rem,3vw)] py-[clamp(1.5rem,4vh,3rem)] sm:px-[max(1.5rem,3.5vw)] lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.92fr)] lg:gap-[min(2.5rem,3vw)] lg:px-[max(2rem,4vw)] lg:py-[clamp(1.25rem,3vh,2.5rem)]">
-        <div className="min-w-0 space-y-[clamp(1rem,2.5vh,1.75rem)] pt-[clamp(8rem,34vh,12rem)] lg:pt-0">
+      <div className="relative mx-auto grid w-full max-w-7xl gap-3 px-[max(1rem,3vw)] py-[clamp(1rem,2.5vh,3rem)] max-lg:flex-none max-lg:content-start max-lg:items-stretch max-lg:gap-2.5 sm:px-[max(1.5rem,3.5vw)] lg:flex-1 lg:items-center lg:gap-[min(2.5rem,3vw)] lg:gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.92fr)] lg:px-[max(2rem,4vw)] lg:py-[clamp(1.25rem,3vh,2.5rem)]">
+        <div className="min-w-0 space-y-2.5 pt-[clamp(5rem,20vh,8.5rem)] max-lg:w-full max-lg:space-y-2 lg:space-y-[clamp(1rem,2.5vh,1.75rem)] lg:pt-0">
           <div className="max-w-[min(100%,38rem)] space-y-3">
             <h1 className="font-extrabold tracking-tight text-foreground">
               <span className="block text-[clamp(1.875rem,3.8vw,2.875rem)] leading-[1.15] lg:whitespace-nowrap">
@@ -92,14 +94,15 @@ export function HomeHeroSection({
               </span>
             </h1>
             <p className="max-w-md text-pretty text-[clamp(0.9375rem,1.6vw,1.125rem)] leading-relaxed text-muted-foreground">
-              {homeHero.subheading}
+              <span className="lg:hidden">{homeHero.subheadingMobile}</span>
+              <span className="hidden lg:inline">{homeHero.subheading}</span>
             </p>
           </div>
 
-          <figure className="mt-[clamp(2rem,6vh,3.5rem)] max-w-md overflow-hidden rounded-xl border border-white/45 bg-card/50 shadow-sm backdrop-blur-md lg:mt-[clamp(2.75rem,8vh,5rem)]">
-            <figcaption className="border-b border-border/50 bg-background/25 px-4 py-3 sm:px-5">
+          <figure className="mt-2 w-full max-w-md overflow-hidden rounded-lg border border-white/45 bg-card/50 shadow-sm backdrop-blur-md max-lg:mx-auto max-lg:mt-2 lg:mt-[clamp(5.5rem,13vh,9rem)] lg:rounded-xl">
+            <figcaption className="border-b border-border/50 bg-background/25 px-3 py-2 sm:px-5 lg:px-4 lg:py-3">
               <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-                <span className="text-2xl font-semibold tracking-tight text-foreground tabular-nums">
+                <span className="text-xl font-semibold tracking-tight text-foreground tabular-nums max-lg:text-lg lg:text-2xl">
                   4.7
                 </span>
                 <span
@@ -111,13 +114,13 @@ export function HomeHeroSection({
                       key={index}
                       className={cn(
                         "size-3.5 fill-current",
-                        index === 4 && "opacity-40"
+                        index === 4 && "opacity-40",
                       )}
                     />
                   ))}
                 </span>
               </div>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="mt-0.5 text-xs text-muted-foreground max-lg:leading-snug lg:mt-1 lg:text-sm">
                 Average patient experience on listed providers
               </p>
             </figcaption>
@@ -125,8 +128,8 @@ export function HomeHeroSection({
               className="grid grid-cols-3 divide-x divide-border/50 bg-background/15"
               aria-label="Platform coverage"
             >
-              <div className="flex min-h-[4.75rem] flex-col items-center justify-center gap-1.5 px-2 py-3 sm:px-3">
-                <dd className="text-xl font-semibold tracking-tight text-foreground tabular-nums sm:text-2xl">
+              <div className="flex min-h-[3.25rem] flex-col items-center justify-center gap-1 px-2 py-2 max-lg:min-h-[3.25rem] max-lg:py-2 sm:px-3 lg:min-h-[4.75rem] lg:gap-1.5 lg:py-3">
+                <dd className="text-base font-semibold tracking-tight text-foreground tabular-nums max-lg:text-base lg:text-2xl">
                   {hospitalCount.toLocaleString()}
                 </dd>
                 <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -134,8 +137,8 @@ export function HomeHeroSection({
                   Hospitals
                 </dt>
               </div>
-              <div className="flex min-h-[4.75rem] flex-col items-center justify-center gap-1.5 px-2 py-3 sm:px-3">
-                <dd className="text-xl font-semibold tracking-tight text-foreground tabular-nums sm:text-2xl">
+              <div className="flex min-h-[3.25rem] flex-col items-center justify-center gap-1 px-2 py-2 max-lg:min-h-[3.25rem] max-lg:py-2 sm:px-3 lg:min-h-[4.75rem] lg:gap-1.5 lg:py-3">
+                <dd className="text-base font-semibold tracking-tight text-foreground tabular-nums max-lg:text-base lg:text-2xl">
                   {doctorCount.toLocaleString()}
                 </dd>
                 <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -143,8 +146,8 @@ export function HomeHeroSection({
                   Doctors
                 </dt>
               </div>
-              <div className="flex min-h-[4.75rem] flex-col items-center justify-center gap-1.5 px-2 py-3 sm:px-3">
-                <dd className="text-xl font-semibold tracking-tight text-foreground tabular-nums sm:text-2xl">
+              <div className="flex min-h-[3.25rem] flex-col items-center justify-center gap-1 px-2 py-2 max-lg:min-h-[3.25rem] max-lg:py-2 sm:px-3 lg:min-h-[4.75rem] lg:gap-1.5 lg:py-3">
+                <dd className="text-base font-semibold tracking-tight text-foreground tabular-nums max-lg:text-base lg:text-2xl">
                   {stateCount.toLocaleString()}
                 </dd>
                 <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -156,8 +159,24 @@ export function HomeHeroSection({
           </figure>
         </div>
 
-        <div className="min-w-0 w-full lg:max-w-[min(100%,28rem)] lg:justify-self-end xl:max-w-[min(100%,32rem)]">
-          <ContactForm variant="hero" className="w-full shadow-lg transition-shadow duration-500 hover:shadow-xl" />
+        <div className="min-w-0 w-full max-lg:mx-auto max-lg:max-w-md max-lg:pt-0 lg:max-w-[min(100%,28rem)] lg:justify-self-end xl:max-w-[min(100%,32rem)]">
+          {/* Desktop keeps the enquiry card; smaller screens get one compact CTA
+              so the hero always fits the visible viewport. */}
+          <div className="hidden lg:block">
+            <ContactForm
+              variant="hero"
+              className="w-full shadow-lg transition-shadow duration-500 hover:shadow-xl"
+            />
+          </div>
+          <Button
+            variant="cta"
+            size="lg"
+            className="h-12 w-full rounded-lg text-base font-semibold shadow-md max-lg:mt-0 lg:hidden"
+            render={<Link href="/free-consultation" />}
+          >
+            Get a free consultation
+            <span aria-hidden>→</span>
+          </Button>
         </div>
       </div>
     </section>

@@ -48,13 +48,13 @@ export function FeaturedHospitalCard({ hospital }: FeaturedHospitalCardProps) {
   )}`
 
   return (
-    <article className="fh-card">
+    <article className="fh-card h-full w-full min-w-0">
       <div className="fh-media">
         <Image
           src={heroSrc}
           alt=""
           fill
-          sizes="(max-width: 1100px) 100vw, 50vw"
+          sizes="(max-width: 700px) 100vw, (max-width: 1180px) 50vw, 33vw"
           className="object-cover"
           priority={hospital.id === "hosp-sunrise-delhi" || hospital.id === "hosp-tranquilvalley-kochi"}
         />
@@ -66,81 +66,87 @@ export function FeaturedHospitalCard({ hospital }: FeaturedHospitalCardProps) {
         ) : null}
       </div>
 
-      <div className="fh-h-row">
-        <div className="fh-h-icon">
-          <FhHospitalIcon />
-        </div>
-        <div className="fh-h-info">
-          <h3 className="fh-h-title">
-            <Link href={profileHref}>{hospital.name}</Link>
-          </h3>
-          <div className="fh-h-loc">
-            <FhPinIcon />
-            <span>
-              {hospital.city}, {hospital.state} · {hospital.facilityType}
-            </span>
+      <div className="fh-card-main">
+        <div className="fh-h-row">
+          <div className="fh-h-icon">
+            <FhHospitalIcon />
+          </div>
+          <div className="fh-h-info">
+            <h3 className="fh-h-title">
+              <Link href={profileHref}>{hospital.name}</Link>
+            </h3>
+            <div className="fh-h-loc">
+              <FhPinIcon />
+              <span>
+                {hospital.city}, {hospital.state} · {hospital.facilityType}
+              </span>
+            </div>
           </div>
         </div>
-      </div>
 
-      {specialtyNames.length > 0 ? (
-        <div className="fh-tags">
-          {specialtyNames.map((tag) => (
-            <span key={tag} className="fh-tag">
-              {tag}
-            </span>
-          ))}
-        </div>
-      ) : null}
+        {specialtyNames.length > 0 ? (
+          <div className="fh-tags">
+            {specialtyNames.map((tag) => (
+              <span key={tag} className="fh-tag">
+                {tag}
+              </span>
+            ))}
+          </div>
+        ) : (
+          <div className="fh-tags fh-tags--empty" aria-hidden />
+        )}
 
-      <div className="fh-rating">
-        <div className="fh-r-item fh-r-item-per">
-          <FhPeopleIcon />
-          <div>
-            <div className="fh-r-label">PER</div>
-            {perScore ? (
-              <div className="fh-r-score">
-                <FhStarIcon />
-                <b>{perScore}</b>
-                <small>/{RATING_SCALE_MAX}</small>
+        <div className="fh-card-foot">
+          <div className="fh-rating">
+            <div className="fh-r-item fh-r-item-per">
+              <FhPeopleIcon />
+              <div>
+                <div className="fh-r-label">PER</div>
+                {perScore ? (
+                  <div className="fh-r-score">
+                    <FhStarIcon />
+                    <b>{perScore}</b>
+                    <small>/{RATING_SCALE_MAX}</small>
+                  </div>
+                ) : (
+                  <p className="fh-r-muted mt-1">{NOT_RATED_MESSAGE}</p>
+                )}
               </div>
-            ) : (
-              <p className="fh-r-muted mt-1">{NOT_RATED_MESSAGE}</p>
-            )}
-          </div>
-        </div>
-        <div className="fh-r-div" aria-hidden />
-        <div className="fh-r-item fh-r-item-cer">
-          <FhStethoscopeIcon />
-          <div>
-            <div className="fh-r-label">CER</div>
-            {cerScore ? (
-              <div className="fh-r-score">
-                <FhStarIcon />
-                <b>{cerScore}</b>
-                <small>/{RATING_SCALE_MAX}</small>
+            </div>
+            <div className="fh-r-div" aria-hidden />
+            <div className="fh-r-item fh-r-item-cer">
+              <FhStethoscopeIcon />
+              <div>
+                <div className="fh-r-label">CER</div>
+                {cerScore ? (
+                  <div className="fh-r-score">
+                    <FhStarIcon />
+                    <b>{cerScore}</b>
+                    <small>/{RATING_SCALE_MAX}</small>
+                  </div>
+                ) : (
+                  <p className="fh-r-muted mt-1">{NOT_RATED_MESSAGE}</p>
+                )}
               </div>
-            ) : (
-              <p className="fh-r-muted mt-1">{NOT_RATED_MESSAGE}</p>
-            )}
+            </div>
+          </div>
+
+          <div className="fh-actions">
+            <Link href={ROUTES.public.freeConsultation} className="fh-btn fh-btn-primary">
+              <FhCalendarIcon />
+              <span>Book Appointment</span>
+            </Link>
+            <a
+              href={waHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="fh-btn fh-btn-ghost"
+            >
+              <FhWhatsAppIcon />
+              <span>WhatsApp Us</span>
+            </a>
           </div>
         </div>
-      </div>
-
-      <div className="fh-actions">
-        <Link href={ROUTES.public.freeConsultation} className="fh-btn fh-btn-primary">
-          <FhCalendarIcon />
-          <span>Book Appointment</span>
-        </Link>
-        <a
-          href={waHref}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="fh-btn fh-btn-ghost"
-        >
-          <FhWhatsAppIcon />
-          <span>WhatsApp Us</span>
-        </a>
       </div>
     </article>
   )

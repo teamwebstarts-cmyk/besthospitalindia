@@ -123,6 +123,8 @@ export function HomePageSection({
 export interface HomeSectionHeadingProps {
   title: string
   description?: string
+  /** Shorter lead shown below `lg` when both are set. */
+  descriptionMobile?: string
   /** Optional id on the h2 (for `aria-labelledby` on section wrappers). */
   headingId?: string
   /** Optional trailing "View all" link. */
@@ -139,6 +141,7 @@ export interface HomeSectionHeadingProps {
 export function HomeSectionHeading({
   title,
   description,
+  descriptionMobile,
   headingId,
   viewAll,
   className,
@@ -158,7 +161,14 @@ export function HomeSectionHeading({
       </h2>
       {description ? (
         <p className="max-w-2xl text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base">
-          {description}
+          {descriptionMobile ? (
+            <>
+              <span className="lg:hidden">{descriptionMobile}</span>
+              <span className="hidden lg:inline">{description}</span>
+            </>
+          ) : (
+            description
+          )}
         </p>
       ) : null}
       {viewAll ? (
@@ -557,6 +567,7 @@ export function HomePatientServicesSection({
         headingId="home-patient-services-heading"
         title={homePatientServices.title}
         description={homePatientServices.description}
+        descriptionMobile={homePatientServices.descriptionMobile}
       />
       <StaggerReveal
         as="ul"
@@ -577,7 +588,7 @@ export function HomePatientServicesSection({
                 <h3 className="text-sm font-semibold leading-snug text-foreground sm:text-[0.9375rem]">
                   {service.title}
                 </h3>
-                <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground sm:text-sm">
                   {service.description}
                 </p>
               </div>
@@ -597,7 +608,8 @@ export interface MedicalTourismBlockProps {
   className?: string
 }
 
-const MEDICAL_TOURISM_DEMO_VIDEO_POSTER = "/images/hero-personal-care.png"
+/** 16:9 care scene — avoids wide PNG poster letterboxing in the video frame. */
+const MEDICAL_TOURISM_MEDIA_SRC = "/images/hero-personal-care-v2.jpg"
 
 /** Medical-tourism discovery block linking into A06 routes. */
 export function MedicalTourismBlock({ className }: MedicalTourismBlockProps) {
@@ -636,23 +648,17 @@ export function MedicalTourismBlock({ className }: MedicalTourismBlockProps) {
         </div>
       </div>
       <figure className="flex min-h-0 w-full flex-col justify-center gap-2 lg:max-w-xl lg:justify-self-end">
-        <div className="overflow-hidden rounded-lg border border-border/70 bg-muted">
-          <video
-            className="aspect-video w-full bg-muted object-cover"
-            controls
-            playsInline
-            preload="metadata"
-            poster={MEDICAL_TOURISM_DEMO_VIDEO_POSTER}
-            aria-label="Medical tourism programme overview"
-          >
-            <p className="p-4 text-sm text-muted-foreground">
-              Programme overview video — explore medical tourism using the links
-              on this page.
-            </p>
-          </video>
+        <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-border/70 bg-[#e9f4f0]">
+          <Image
+            src={MEDICAL_TOURISM_MEDIA_SRC}
+            alt=""
+            fill
+            sizes="(max-width: 1024px) 100vw, 528px"
+            className="object-cover object-center"
+          />
         </div>
         <figcaption className="text-center text-xs leading-relaxed text-muted-foreground">
-          Medical tourism programme overview
+          Support for patients travelling to India for care
         </figcaption>
       </figure>
       </div>

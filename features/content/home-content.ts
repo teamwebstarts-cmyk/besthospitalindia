@@ -29,6 +29,9 @@ export const homeHero = {
   headingDoctor: "doctor",
   subheading:
     "Compare hospitals and doctors across India with independent ratings and request coordinated support for your care journey.",
+  /** One-line hero lead on small screens only (`HomeHeroSection`). */
+  subheadingMobile:
+    "Compare hospitals and doctors in India — independent ratings and free consultation support.",
 } as const
 
 /** Copy for the city-destination pill row on the home page. */
@@ -49,6 +52,8 @@ export const homePatientServices = {
   title: "What you can use on this platform",
   description:
     "A healthcare discovery directory for India — compare independent ratings, browse providers and send enquiries. Not a concierge or confirmed booking service.",
+  descriptionMobile:
+    "Discover providers in India, compare ratings and send enquiries — not a booking concierge.",
   items: [
     {
       id: "provider-discovery",
@@ -628,30 +633,31 @@ export const homeTestimonials: readonly Testimonial[] = [
  * ----------------------------------------------------------------------- */
 
 export const contactContent = {
-  intro:
-    "Choose the purpose of your message and reach the right team. We aim to respond within one business day.",
+  intro: "Reach the right team. We usually reply within one business day.",
   channels: [
     {
       id: "channel-support",
-      title: "Patient support",
-      body: "Questions about finding providers, enquiries or appointment requests on the platform.",
+      title: "Patients",
+      body: "Help with search, enquiries or appointments.",
       label: "support@besthospitalindia.com",
+      href: "mailto:support@besthospitalindia.com",
     },
     {
       id: "channel-partnership",
-      title: "Hospital & doctor partnerships",
-      body: "Interest in listing a hospital or joining as an individual doctor — see the partner pages for scope first.",
+      title: "Partners",
+      body: "Hospitals and doctors interested in listing.",
       label: "partnerships@besthospitalindia.com",
+      href: "mailto:partnerships@besthospitalindia.com",
     },
     {
       id: "channel-consultation",
-      title: "Free consultation initiative",
-      body: "The IUF-supported consultation flow has its own request form; use it rather than this general contact form.",
-      label: "Use the consultation request form",
+      title: "Free consultation",
+      body: "IUF-supported — use the dedicated request form.",
+      label: "Open consultation form",
       href: ROUTES.public.freeConsultation,
     },
   ],
-  note: "For urgent medical concerns, contact your local emergency services or treating physician — this form is not for emergencies.",
+  note: "Not for medical emergencies — contact local emergency services or your doctor.",
 } as const
 
 /* -------------------------------------------------------------------------

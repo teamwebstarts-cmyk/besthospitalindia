@@ -14,27 +14,14 @@
  * Spec: docs/implementation/pages/02-facilities.md.
  */
 
-import Link from "next/link"
 import type { Metadata } from "next"
-import { MapPinIcon } from "lucide-react"
 
 import { facilities, specialties } from "@/data"
 import { getSpecialtyBySlug, paginate, searchFacilities } from "@/lib/search"
-import { Breadcrumbs } from "@/components/shared/breadcrumbs"
+import { DirectoryPageIntro } from "@/components/shared/directory-page-intro"
 import { EmptyState } from "@/components/shared/empty-state"
 import { SectionHeading } from "@/components/shared/section-heading"
-import { StatusBadge } from "@/components/shared/status-badge"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { FacilityListingCard } from "@/features/content/facility-listing/facility-listing-card"
 import { FaqList } from "@/features/content/faq-list"
 import { FACILITY_CATEGORY_LABELS } from "@/features/discovery/facility-meta"
 import { FacilityListingSearch } from "@/features/discovery/facility-listing-search"
@@ -208,20 +195,6 @@ export default async function FacilitiesPage({
 
   return (
     <div className="flex flex-col">
-      <div className="space-y-3 pt-8">
-        <Breadcrumbs
-          items={[{ label: "Home", href: ROUTES.public.home }, { label: "Facilities" }]}
-        />
-
-        <header className="space-y-2">
-          <SectionHeading
-            as="h1"
-            title="Healthcare Facilities Directory"
-            description="Healthcare facilities across India — hospitals, specialty centres, diagnostic labs, rehabilitation, wellness and medical-tourism services. Filter by category, city, specialty or service."
-          />
-        </header>
-      </div>
-
       <section
         aria-label="Facility directory"
         className={cn(
@@ -230,6 +203,11 @@ export default async function FacilitiesPage({
         )}
       >
         <div className={homeSectionInnerClassName}>
+          <DirectoryPageIntro
+            className="mb-8"
+            title="Facilities"
+            description="Hospitals, labs, centres and wellness listings across India — filter by category, city or service."
+          />
           <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
             <aside aria-label="Facility filters" className="lg:sticky lg:top-24 lg:self-start">
           <ListingFilters
@@ -312,52 +290,10 @@ export default async function FacilitiesPage({
                   }}
                 />
               ) : (
-                <ul className="grid items-stretch gap-4 sm:grid-cols-2">
+                <ul className="fh-grid fh-grid--directory list-none p-0">
                   {items.map((facility) => (
                     <li key={facility.id} className="flex min-w-0">
-                      <Card size="sm" className="h-full w-full">
-                    <CardHeader>
-                      <Badge variant="secondary">
-                        {FACILITY_CATEGORY_LABELS[facility.category]}
-                      </Badge>
-                      <CardTitle>
-                        <Link
-                          href={`/facilities/${facility.slug}`}
-                          className="hover:underline"
-                        >
-                          {facility.name}
-                        </Link>
-                      </CardTitle>
-                      <CardDescription className="flex items-center gap-1.5">
-                        <MapPinIcon aria-hidden className="size-3.5 shrink-0" />
-                        {facility.city}, {facility.state}
-                      </CardDescription>
-                      <CardAction>
-                        <StatusBadge status={facility.verificationStatus} />
-                      </CardAction>
-                    </CardHeader>
-                    <CardContent>
-                      <ul
-                        aria-label="Services offered"
-                        className="flex flex-wrap gap-1.5"
-                      >
-                        {facility.services.slice(0, 3).map((serviceLabel) => (
-                          <li key={serviceLabel}>
-                            <Badge variant="outline">{serviceLabel}</Badge>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                    <CardFooter>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        render={<Link href={`/facilities/${facility.slug}`} />}
-                      >
-                        View facility
-                      </Button>
-                    </CardFooter>
-                      </Card>
+                      <FacilityListingCard facility={facility} className="w-full" />
                     </li>
                   ))}
                 </ul>

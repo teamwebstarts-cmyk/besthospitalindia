@@ -226,6 +226,12 @@
   }
   html {
     @apply font-sans;
+    scroll-behavior: smooth;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
   }
   /*
    * Kill any horizontal scrollbar: full-bleed bands use 100vw (w-screen),

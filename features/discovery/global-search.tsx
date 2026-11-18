@@ -70,7 +70,7 @@ export function GlobalSearch({
   const isHeader = layout === "header"
 
   const headerSelectField = (
-    <div className="flex h-full shrink-0 items-center self-stretch border-r border-border/70">
+    <div className="flex h-full shrink-0 items-center self-stretch border-r border-border/60">
       <Select
         value={entityType}
         items={ENTITY_TYPE_ITEMS}
@@ -83,7 +83,7 @@ export function GlobalSearch({
         <SelectTrigger
           aria-label="Search entity type"
           size="default"
-          className="h-full w-[7.25rem] gap-1 rounded-none rounded-l-full border-0 bg-transparent px-3 py-0 text-sm font-normal text-foreground shadow-none focus-visible:ring-0 data-[size=default]:h-full sm:w-[7.75rem]"
+          className="h-full w-[7.25rem] gap-1 rounded-none rounded-l-full border-0 bg-transparent px-3 py-0 text-sm font-medium text-foreground shadow-none focus-visible:ring-0 data-[size=default]:h-full sm:w-[7.75rem]"
         >
           <SelectValue />
         </SelectTrigger>
@@ -155,7 +155,7 @@ export function GlobalSearch({
       {isHeader && (
         <button
           type="submit"
-          className="absolute top-1/2 right-1 flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted/80 hover:text-foreground"
+          className="absolute top-1/2 right-1 flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-primary/80 transition-colors hover:bg-secondary/80 hover:text-primary"
           aria-label={submitLabel}
         >
           <SearchIcon aria-hidden className="size-4 shrink-0" />
@@ -176,7 +176,7 @@ export function GlobalSearch({
         role="search"
         onSubmit={handleSubmit}
         className={cn(
-          "flex h-10 w-full min-w-0 items-center overflow-hidden rounded-full border border-border/80 bg-background shadow-xs",
+          "flex h-10 w-full min-w-0 items-center overflow-hidden rounded-full border border-border/70 bg-background shadow-sm transition-shadow duration-200 focus-within:border-primary/25 focus-within:shadow-md",
           className
         )}
       >

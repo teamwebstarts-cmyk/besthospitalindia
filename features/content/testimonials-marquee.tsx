@@ -24,7 +24,7 @@ function GoogleStyleReviewCard({
   return (
     <figure
       className={cn(
-        "flex w-[min(100%,20rem)] shrink-0 flex-col gap-3 rounded-lg border border-border/70 bg-card p-4 text-left sm:w-[22rem]",
+        "flex w-[min(calc(100vw-2rem),20rem)] shrink-0 flex-col gap-3 rounded-lg border border-border/70 bg-card p-4 text-left sm:w-[22rem]",
         className,
       )}
     >

@@ -7,10 +7,13 @@ export interface PortalNavGroup { heading: string; items: PortalNavItem[] }
 export type PortalNavEntry = PortalNavItem | PortalNavGroup
 export interface FooterNavGroup { heading: string; links: NavLink[] }
 
+/** Desktop mega-nav (matches marketing header mock — consultation CTA lives in top bar). */
 export const publicNav: NavLink[] = [
-  { label: "Home", href: "/" }, { label: "Hospitals", href: "/hospitals" },
-  { label: "Doctors", href: "/doctors" }, { label: "Facilities", href: "/facilities" },
-  { label: "Free Consultation", href: "/free-consultation" }, { label: "About", href: "/about" },
+  { label: "Home", href: "/" },
+  { label: "Hospitals", href: "/hospitals" },
+  { label: "Doctors", href: "/doctors" },
+  { label: "Facilities", href: "/facilities" },
+  { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ]
 

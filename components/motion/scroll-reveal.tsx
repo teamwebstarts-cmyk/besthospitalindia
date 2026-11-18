@@ -15,36 +15,58 @@ import {
 import { cn } from "@/lib/utils"
 
 const DEFAULT_STAGGER_MS = 72
+const REVEAL_EASE = "cubic-bezier(0.22, 1, 0.36, 1)"
 
 function prefersReducedMotion(): boolean {
   if (typeof window === "undefined") return false
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches
 }
 
-function useInViewOnce<T extends HTMLElement>(margin = "0px 0px -8% 0px") {
+/**
+ * SSR paints visible; after mount (when motion is allowed) content starts
+ * slightly below and fades in once in view — avoids a permanent hidden state.
+ */
+function useRevealInViewOnce<T extends HTMLElement>(margin = "0px 0px -8% 0px") {
   const ref = useRef<T | null>(null)
-  // Always paint content visible first — never hide hero/sections behind opacity-0.
   const [visible, setVisible] = useState(true)
+  const [motionActive, setMotionActive] = useState(false)
 
   useEffect(() => {
-    if (prefersReducedMotion()) return
+    if (prefersReducedMotion()) {
+      setVisible(true)
+      setMotionActive(false)
+      return
+    }
+
+    setMotionActive(true)
+    setVisible(false)
 
     const node = ref.current
-    if (!node) return
+    if (!node) {
+      setVisible(true)
+      return
+    }
+
+    const markVisible = () => setVisible(true)
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry?.isIntersecting) {
-          setVisible(true)
+          markVisible()
           observer.disconnect()
         }
       },
-      { threshold: 0.08, rootMargin: margin }
+      { threshold: 0.06, rootMargin: margin },
     )
 
     observer.observe(node)
 
-    const fallback = window.setTimeout(() => setVisible(true), 1200)
+    const rect = node.getBoundingClientRect()
+    if (rect.top < window.innerHeight * 0.94 && rect.bottom > 0) {
+      requestAnimationFrame(() => markVisible())
+    }
+
+    const fallback = window.setTimeout(markVisible, 1400)
 
     return () => {
       observer.disconnect()
@@ -52,7 +74,9 @@ function useInViewOnce<T extends HTMLElement>(margin = "0px 0px -8% 0px") {
     }
   }, [margin])
 
-  return { ref, visible }
+  const awaitingReveal = motionActive && !visible
+
+  return { ref, visible, awaitingReveal }
 }
 
 export interface ScrollRevealProps {
@@ -61,6 +85,7 @@ export interface ScrollRevealProps {
   /** Extra delay before the entrance transition (ms). */
   delayMs?: number
   as?: ElementType
+  id?: string
 }
 
 /**
@@ -72,18 +97,25 @@ export function ScrollReveal({
   className,
   delayMs = 0,
   as: Component = "div",
+  id,
 }: ScrollRevealProps) {
-  const { ref, visible } = useInViewOnce<HTMLDivElement>()
+  const { ref, awaitingReveal } = useRevealInViewOnce<HTMLDivElement>()
 
   return (
     <Component
       ref={ref}
+      id={id}
       className={cn(
-        "transition-[opacity,transform] duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
-        visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-100",
-        className
+        "transition-[opacity,transform] duration-[780ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none",
+        awaitingReveal
+          ? "translate-y-4 opacity-0"
+          : "translate-y-0 opacity-100",
+        className,
       )}
-      style={{ transitionDelay: visible ? `${delayMs}ms` : "0ms" }}
+      style={{
+        transitionTimingFunction: REVEAL_EASE,
+        transitionDelay: awaitingReveal ? "0ms" : `${delayMs}ms`,
+      }}
     >
       {children}
     </Component>
@@ -108,7 +140,7 @@ export function StaggerReveal({
   staggerMs = DEFAULT_STAGGER_MS,
   as: Component = "div",
 }: StaggerRevealProps) {
-  const { ref, visible } = useInViewOnce<HTMLDivElement>()
+  const { ref, visible, awaitingReveal } = useRevealInViewOnce<HTMLDivElement>()
 
   const items = Children.toArray(children)
 
@@ -118,16 +150,19 @@ export function StaggerReveal({
         if (!isValidElement(child)) return child
 
         const element = child as ReactElement<{ className?: string; style?: React.CSSProperties }>
-        const delay = visible ? index * staggerMs : 0
+        const delay = !awaitingReveal && visible ? index * staggerMs : 0
 
         return cloneElement(element, {
           className: cn(
             element.props.className,
-            "transition-[opacity,transform] duration-[780ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
-            visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-100"
+            "transition-[opacity,transform] duration-[720ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none",
+            awaitingReveal
+              ? "translate-y-4 opacity-0"
+              : "translate-y-0 opacity-100",
           ),
           style: {
             ...element.props.style,
+            transitionTimingFunction: REVEAL_EASE,
             transitionDelay: `${delay}ms`,
           },
         })

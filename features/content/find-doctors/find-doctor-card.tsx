@@ -98,8 +98,8 @@ export function FindDoctorCard({ doctor, highlighted = false }: FindDoctorCardPr
         </div>
         <div className="fd-t-info">
           <div className="fd-t-head">
-          <div className="fd-name">{doctor.name}</div>
-        </div>
+            <div className="fd-name">{doctor.name}</div>
+          </div>
           <span
             className={cn(
               "fd-pill",

@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { formatBytes } from "@/features/consultations/format-bytes";
-import { FileTextIcon, PaperclipIcon, Trash2Icon, UploadIcon } from "lucide-react";
+import { FileTextIcon, PaperclipIcon, Trash2Icon } from "lucide-react";
 
 /** Permitted demo file types (MIME types accepted by the mock picker). */
 const ACCEPTED_MIME_TYPES = [
@@ -28,8 +28,7 @@ const ACCEPTED_MIME_TYPES = [
 export const MAX_REPORT_SIZE_BYTES = 10 * 1024 * 1024;
 
 /** Permitted-types/size hint shown under the picker (per pages/14 spec). */
-export const REPORT_UPLOAD_HINT =
-  "Demo only — reports are not uploaded or stored. Accepted types: PDF, PNG, JPG, WEBP; up to 10 MB each.";
+export const REPORT_UPLOAD_HINT = "Optional — PDF or images, up to 10 MB each (demo; not stored).";
 
 /** One mock-selected report; the File object is never sent anywhere. */
 export interface MockReport {
@@ -181,12 +180,7 @@ export function ReportUploadMock({
             </li>
           ))}
         </ul>
-      ) : (
-        <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
-          <UploadIcon aria-hidden className="mt-0.5 size-3.5 shrink-0" />
-          <span>{REPORT_UPLOAD_HINT}</span>
-        </p>
-      )}
+      ) : null}
 
       <p aria-live="polite" className="text-xs text-muted-foreground">
         {notice}
