@@ -76,7 +76,7 @@ export async function generateMetadata({ params }: DoctorProfilePageProps): Prom
 
   return {
     title: titleParts.join(" — "),
-    description: `Demo profile for ${doctor.name}${specialization ? `, ${specialization}` : ""}, in ${doctor.city}, India. Fictional demo data only — no clinical claims.`,
+    description: `Profile for ${doctor.name}${specialization ? `, ${specialization}` : ""}, in ${doctor.city}, India. Independent PER and MER ratings — informational only, not clinical advice.`,
   }
 }
 
@@ -86,9 +86,9 @@ export async function generateMetadata({ params }: DoctorProfilePageProps): Prom
 
 /** Label lookup tables resolve relational fixture ids to demo display text. */
 const VERIFICATION_LABELS: Record<Review["reviewerVerification"], string> = {
-  unverified: "Unverified reviewer (demo)",
-  email_verified: "Email-verified reviewer (demo)",
-  verified_patient: "Verified patient (demo)",
+  unverified: "Unverified reviewer",
+  email_verified: "Email-verified reviewer",
+  verified_patient: "Verified patient",
 }
 
 const REVIEW_STATUS_LABELS = {
@@ -128,7 +128,7 @@ function ProfileSection({
 
 function DetailList({ items }: { items: string[] }) {
   if (items.length === 0) {
-    return <p className="text-sm text-muted-foreground">Not available in the demo record.</p>
+    return <p className="text-sm text-muted-foreground">Not available on this profile.</p>
   }
   return (
     <ul className="flex flex-wrap gap-2">
@@ -150,7 +150,7 @@ function DoctorReviews({ reviews, doctorName }: { reviews: readonly Review[]; do
       <EmptyState
         icon={MessageSquareQuoteIcon}
         title="No published reviews yet"
-        description={`There are no published patient reviews for ${doctorName} in the demo dataset.`}
+        description={`There are no published patient reviews for ${doctorName} yet.`}
       />
     )
   }
@@ -227,7 +227,7 @@ export default async function DoctorProfilePage({ params }: DoctorProfilePagePro
         <CardContent className="gap-4 sm:flex-row sm:items-start">
           <Avatar className="size-20 shrink-0">
             {doctor.photo ? (
-              <AvatarImage src={doctor.photo} alt={`Portrait of ${doctor.name} (demo)`} />
+              <AvatarImage src={doctor.photo} alt={`Portrait of ${doctor.name}`} />
             ) : null}
             <AvatarFallback aria-hidden>
               {doctor.name
@@ -254,7 +254,7 @@ export default async function DoctorProfilePage({ params }: DoctorProfilePagePro
               {doctor.city}, {doctor.state}, {doctor.country}
             </p>
             <p className="text-xs text-muted-foreground">
-              Fictional demo profile — all names, registrations and ratings are demo data.
+              Credentials and ratings are shown as recorded through our verification and assessment workflows.
             </p>
             <div className="flex flex-wrap gap-2 pt-1">
               <Button variant="cta" className="rounded-full px-5 font-semibold shadow-sm" render={<Link href={ROUTES.public.freeConsultation} />}>
@@ -301,11 +301,11 @@ export default async function DoctorProfilePage({ params }: DoctorProfilePagePro
             {doctor.yearsExperience !== null ? (
               <p className="flex items-center gap-2 text-sm text-foreground">
                 <CalendarClockIcon aria-hidden className="size-4 text-muted-foreground" />
-                {doctor.yearsExperience} years of experience (demo record)
+                {doctor.yearsExperience} years of experience
               </p>
             ) : (
               <p className="text-sm text-muted-foreground">
-                Experience details are not available in the demo record.
+                Experience details are not available on this profile.
               </p>
             )}
           </ProfileSection>
@@ -342,7 +342,7 @@ export default async function DoctorProfilePage({ params }: DoctorProfilePagePro
               <EmptyState
                 icon={Building2Icon}
                 title="No hospital associations"
-                description="This demo doctor record has no linked hospitals."
+                description="This doctor has no linked hospitals listed yet."
               />
             )}
           </ProfileSection>
@@ -380,8 +380,8 @@ export default async function DoctorProfilePage({ params }: DoctorProfilePagePro
             <CardContent className="gap-3">
               <SectionHeading as="h3" title="Request a consultation" className="block" />
               <p className="text-sm text-muted-foreground">
-                Submit a free consultation request and the demo coordination team will follow up.
-                No real booking is created — this is a mock flow.
+                Submit a free consultation request and our coordination team will follow up.
+                A request is not a confirmed appointment until the provider confirms.
               </p>
               <Button variant="cta" className="w-full rounded-full font-semibold shadow-sm" render={<Link href={ROUTES.public.freeConsultation} />}>
                 Request free consultation
@@ -390,8 +390,7 @@ export default async function DoctorProfilePage({ params }: DoctorProfilePagePro
           </Card>
           <Separator />
           <p className="text-xs text-muted-foreground">
-            All profile content is fictional demo data for the BestHospitalIndia demo build. No
-            real credentials, outcomes or bookings are represented.
+            Profile content is informational and does not guarantee outcomes or create a clinician–patient relationship.
           </p>
         </aside>
       </div>

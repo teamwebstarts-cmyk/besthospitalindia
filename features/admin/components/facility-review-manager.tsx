@@ -247,16 +247,11 @@ function FacilityDetailDrawer({
                 </div>
                 {record.change ? (
                   <div className="rounded-lg border border-info/40 bg-info/10 px-3 py-2 text-xs text-info">
-                    Local demo change: {record.change.action.replace(/_/g, " ")}
+                    {record.change.action.replace(/_/g, " ")}
                     {record.change.note ? ` — ${record.change.note}` : ""} ·{" "}
                     {formatDateTime(record.change.at)}
                   </div>
                 ) : null}
-                <p className="text-xs leading-relaxed text-muted-foreground">
-                  Facility records carry no rating in the demo contract — completeness and
-                  verification are the review dimensions here. Marking a record complete
-                  changes only this page&apos;s local state.
-                </p>
               </section>
 
               <Separator />
@@ -307,10 +302,10 @@ function FacilityDetailDrawer({
               <Separator />
 
               <section aria-label="Actions" className="space-y-2">
-                <h3 className="text-sm font-semibold text-foreground">Actions (local demo)</h3>
+                <h3 className="text-sm font-semibold text-foreground">Actions</h3>
                 <div className="flex flex-wrap gap-2">
                   <Button size="sm" onClick={() => onMarkComplete(record.facility.id)}>
-                    Mark record complete
+                    Mark complete
                   </Button>
                   <Button
                     size="sm"
@@ -623,11 +618,6 @@ export function FacilityReviewManager({ facilities, className }: FacilityReviewM
         </>
       )}
 
-      <p className="text-xs text-muted-foreground">
-        All actions are local demo state on fictional fixtures. Categories are the six
-        values of the frozen Facility contract — no new categories are introduced here.
-      </p>
-
       <FacilityDetailDrawer
         record={detailRecord}
         onClose={() => setDetailId(null)}
@@ -644,11 +634,9 @@ export function FacilityReviewManager({ facilities, className }: FacilityReviewM
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Request record update (demo)</DialogTitle>
+            <DialogTitle>Request update</DialogTitle>
             <DialogDescription>
-              {updateRecord
-                ? `Record what needs updating on ${updateRecord.facility.name}. The note stays in this page's local state — no notification is sent in this phase.`
-                : null}
+              {updateRecord ? `${updateRecord.facility.name} — local demo only.` : null}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-1.5">

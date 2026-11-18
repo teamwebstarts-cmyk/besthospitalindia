@@ -26,11 +26,8 @@ export const metadata: Metadata = {
 
 export default function AdminRatingsPage() {
   return (
-    <div className="space-y-8">
-      <AdminCasePageHeader
-        label="Ratings"
-        description="Rating governance for hospitals (PER + CER) and doctors (PER + MER). Patient-experience ratings stay separate from independently assessed clinical expertise; nothing is combined into one score."
-      />
+    <div className="space-y-6 py-6">
+      <AdminCasePageHeader compact label="Ratings" />
       <AdminRatingAssessmentManager assessments={ratingAssessments} />
     </div>
   )

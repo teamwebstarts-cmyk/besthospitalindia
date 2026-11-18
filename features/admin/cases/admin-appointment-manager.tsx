@@ -16,7 +16,6 @@
 
 import * as React from "react"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -613,12 +612,6 @@ export function AdminAppointmentManager({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-        Demo boundary: statuses and notes update local state only. No scheduling system, calendar
-        or patient notification exists behind this admin queue.
-        <Badge variant="outline">Mock phase</Badge>
-      </p>
     </div>
   )
 }

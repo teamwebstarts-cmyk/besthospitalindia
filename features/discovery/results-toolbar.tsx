@@ -79,9 +79,11 @@ export function ResultsToolbar({
 
   // Value→label map so the closed trigger shows the option label instead of
   // the raw value (Base UI renders the raw value without `items`).
+  const showSort = Boolean(sortOptions && sortOptions.length > 0)
+
   const sortItems = useMemo(
-    () =>
-      Object.fromEntries(sortOptions.map((option) => [option.value, option.label])),
+  () =>
+      Object.fromEntries((sortOptions ?? []).map((option) => [option.value, option.label])),
     [sortOptions],
   )
 
@@ -109,25 +111,29 @@ export function ResultsToolbar({
         </span>{" "}
         found
       </p>
-      <div className="flex items-center gap-2">
-        {viewToggle}
-        <Select
-          value={sortValue}
-          items={sortItems}
-          onValueChange={handleSortChange}
-        >
-          <SelectTrigger aria-label="Sort results" size="sm" className="w-[11rem]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {sortOptions.map((option: SortOption) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {showSort || viewToggle ? (
+        <div className="flex items-center gap-2">
+          {viewToggle}
+          {showSort ? (
+            <Select
+              value={sortValue ?? sortOptions![0]!.value}
+              items={sortItems}
+              onValueChange={handleSortChange}
+            >
+              <SelectTrigger aria-label="Sort results" size="sm" className="w-[11rem]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {sortOptions!.map((option: SortOption) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   )
 }

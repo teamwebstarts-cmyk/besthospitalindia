@@ -1,23 +1,11 @@
 import type { Metadata } from "next"
+import type { ComponentProps } from "react"
 
 /**
  * /admin — Admin Dashboard (pages/23).
  *
- * One screen-level question (14-admin-module-contracts.md dashboard skill):
- * "what on the platform needs admin attention today?" Composition per spec:
- * reconciled KPI totals (hospitals / doctors / patients / enquiries), the
- * operational problem queue (pending verification + moderation), trend
- * metadata, recent platform activity and shortcuts into the management
- * modules.
- *
- * Server Component — the page reads frozen fixtures through pure selectors
- * and renders links; interactive queue actions live on their module pages.
- * Every KPI value is derived from the same fixture arrays the module pages
- * render, so the totals reconcile exactly (pages/23 §6) — nothing is
- * hardcoded in JSX.
- *
- * RATINGS RULE: no rating appears on this page; pending assessments are
- * counted, never scored, and a missing score is never shown as 0.
+ * Server Component — KPI totals and queues from pure selectors over frozen
+ * fixtures. No rating scores on this page; pending assessments are counts only.
  */
 
 import Link from "next/link"
@@ -28,8 +16,6 @@ import {
   CalendarDaysIcon,
   ClipboardListIcon,
   GlobeIcon,
-  HeartHandshakeIcon,
-  HospitalIcon,
   MessagesSquareIcon,
   ShieldCheckIcon,
   StarIcon,
@@ -40,7 +26,6 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
 import { EmptyState } from "@/components/shared/empty-state"
 import { StatusBadge } from "@/components/shared/status-badge"
 import { appointments, doctors, hospitals, patientEnquiries, partnerUsers, patients } from "@/data"
@@ -62,8 +47,7 @@ import {
 
 export const metadata: Metadata = {
   title: "Dashboard",
-  description:
-    "Admin dashboard (demo): platform overview KPIs, pending verification queues, moderation counts and recent demo activity. Fictional fixture data only.",
+  description: "Admin dashboard (demo): platform overview and review queues.",
 }
 
 const KIND_ICONS = {
@@ -74,6 +58,8 @@ const KIND_ICONS = {
   provider: ShieldCheckIcon,
 } as const
 
+const ACTIVITY_LIMIT = 6
+
 export default function AdminDashboardPage() {
   const hospitalQueue = hospitalsPendingVerification()
   const doctorQueue = doctorsPendingVerification()
@@ -83,35 +69,67 @@ export default function AdminDashboardPage() {
   const moderationQueue = reviewsAwaitingModeration()
   const ratingQueueCount = assessmentsNeedingReviewCount()
   const unassignedTourism = unassignedTourismCases()
-  const activity = recentPlatformActivity()
+  const activity = recentPlatformActivity().slice(0, ACTIVITY_LIMIT)
 
-  const urgentQueueCount =
-    hospitalQueue.length +
-    doctorQueue.length +
-    facilityQueue.length +
-    moderationQueue.length +
-    ratingQueueCount
+  const queueItems = [
+    hospitalQueue.length > 0
+      ? {
+          title: `Hospitals (${hospitalQueue.length})`,
+          status: "pending" as const,
+          href: ROUTES.admin.hospitals,
+          linkLabel: "Review",
+        }
+      : null,
+    doctorQueue.length > 0
+      ? {
+          title: `Doctors (${doctorQueue.length})`,
+          status: "pending" as const,
+          href: ROUTES.admin.doctors,
+          linkLabel: "Review",
+        }
+      : null,
+    facilityQueue.length > 0
+      ? {
+          title: `Facilities (${facilityQueue.length})`,
+          status: "pending" as const,
+          href: ROUTES.admin.facilities,
+          linkLabel: "Review",
+        }
+      : null,
+    moderationQueue.length > 0
+      ? {
+          title: `Reviews (${moderationQueue.length})`,
+          status: "warning" as const,
+          href: ROUTES.admin.reviews,
+          linkLabel: "Moderate",
+        }
+      : null,
+    ratingQueueCount > 0
+      ? {
+          title: `Ratings (${ratingQueueCount})`,
+          status: "under_review" as const,
+          href: ROUTES.admin.ratings,
+          linkLabel: "Review",
+        }
+      : null,
+  ].filter(Boolean) as Array<{
+    title: string
+    status: ComponentProps<typeof StatusBadge>["status"]
+    href: string
+    linkLabel: string
+  }>
 
-  // Demo trend metadata: weekly counts derived from the enquiry/appointment
-  // fixtures by consent/creation week (illustrative only — labelled as demo,
-  // never live analytics).
   const trend = buildWeeklyTrend()
   const trendMax = Math.max(1, ...trend.map((t) => Math.max(t.enquiries, t.appointments)))
 
   return (
-    <div className="space-y-8 py-8">
+    <div className="space-y-6 py-6">
       <AdminPageHeader
+        compact
         items={[{ label: "Admin Portal" }, { label: "Dashboard" }]}
         title="Platform overview"
-        description="One view of the demo platform's providers, patients and operational queues. Every number below is derived from the same fictional fixtures the module pages render — nothing is live analytics."
-        action={
-          <Button render={<Link href={ROUTES.admin.hospitals} />}>
-            Review hospital verifications
-          </Button>
-        }
       />
 
-      {/* KPI row — reconciled totals derived from the frozen fixtures */}
       <section aria-labelledby="kpi-heading" className="space-y-3">
         <h2 id="kpi-heading" className="sr-only">
           Platform totals
@@ -119,183 +137,105 @@ export default function AdminDashboardPage() {
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <DashboardKpi
             icon={BuildingIcon}
-            label="Total hospitals"
+            label="Hospitals"
             value={String(hospitals.length)}
-            hint={`${hospitalQueue.length} in the verification queue`}
+            hint={hospitalQueue.length > 0 ? `${hospitalQueue.length} pending` : undefined}
             href={ROUTES.admin.hospitals}
           />
           <DashboardKpi
             icon={StethoscopeIcon}
-            label="Total doctors"
+            label="Doctors"
             value={String(doctors.length)}
-            hint={`${doctorQueue.length} with credentials to review`}
+            hint={doctorQueue.length > 0 ? `${doctorQueue.length} to review` : undefined}
             href={ROUTES.admin.doctors}
           />
           <DashboardKpi
             icon={UsersIcon}
-            label="Registered patients (demo)"
+            label="Patients"
             value={String(patients.length)}
-            hint="Fictional demo accounts with consented fixture data"
             href={ROUTES.admin.patients}
           />
           <DashboardKpi
             icon={MessagesSquareIcon}
-            label="Patient enquiries"
+            label="Enquiries"
             value={String(patientEnquiries.length)}
-            hint={`${enquiryQueue.length} awaiting admin action`}
+            hint={enquiryQueue.length > 0 ? `${enquiryQueue.length} open` : undefined}
             href={ROUTES.admin.consultations}
           />
         </div>
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Problem queue — urgent exceptions beside their actions (dashboard skill) */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-1.5">
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-1.5 text-base">
               <ShieldCheckIcon aria-hidden className="size-4 text-warning" />
-              Pending verification &amp; moderation
+              Needs attention
             </CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Items needing an admin decision. Open the module to act — actions
-              are local demo state only.
-            </p>
           </CardHeader>
           <CardContent className="gap-0">
-            {urgentQueueCount === 0 ? (
+            {queueItems.length === 0 ? (
               <EmptyState
                 icon={ShieldCheckIcon}
-                title="Verification and moderation queues are clear"
-                description="When a demo provider submits a profile or a review awaits moderation, it appears here with a direct action link."
+                title="Queues clear"
+                description="Nothing pending verification or moderation."
               />
             ) : (
-              <ul className="divide-y" aria-label="Pending verification and moderation">
-                <QueueRow
-                  title={`${hospitalQueue.length} hospitals awaiting verification review`}
-                  meta="Hospital profiles with pending or unverified status"
-                  status="pending"
-                  href={ROUTES.admin.hospitals}
-                  linkLabel="Review hospitals"
-                />
-                <QueueRow
-                  title={`${doctorQueue.length} doctors with credentials to review`}
-                  meta="Profiles or medical registrations not yet verified"
-                  status="pending"
-                  href={ROUTES.admin.doctors}
-                  linkLabel="Review doctors"
-                />
-                <QueueRow
-                  title={`${facilityQueue.length} facilities pending verification`}
-                  meta="Diagnostic, specialty, rehab and wellness records"
-                  status="pending"
-                  href={ROUTES.admin.facilities}
-                  linkLabel="Review facilities"
-                />
-                <QueueRow
-                  title={`${moderationQueue.length} reviews awaiting moderation`}
-                  meta="Pending or flagged patient reviews"
-                  status="warning"
-                  href={ROUTES.admin.reviews}
-                  linkLabel="Open moderation queue"
-                />
-                {ratingQueueCount > 0 ? (
-                  <QueueRow
-                    title={`${ratingQueueCount} rating assessments need review`}
-                    meta="CER/MER assessments in review or returned for changes"
-                    status="under_review"
-                    href={ROUTES.admin.ratings}
-                    linkLabel="Open rating queue"
-                  />
-                ) : null}
+              <ul className="divide-y" aria-label="Items needing attention">
+                {queueItems.map((item) => (
+                  <QueueRow key={item.href} {...item} />
+                ))}
               </ul>
             )}
           </CardContent>
         </Card>
 
-        {/* Operations snapshot + trend metadata */}
         <div className="flex flex-col gap-6">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-1.5">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-1.5 text-base">
                 <ActivityIcon aria-hidden className="size-4 text-muted-foreground" />
-                Operations snapshot
+                Operations
               </CardTitle>
             </CardHeader>
-            <CardContent className="gap-3">
-              <ul className="space-y-2.5 text-sm">
-                <li className="flex items-center justify-between gap-2">
-                  <span className="text-muted-foreground">Open appointment requests</span>
-                  <span className="flex items-center gap-2 font-medium text-foreground">
-                    {appointmentQueue.length}
-                    <Link
-                      href={ROUTES.admin.appointments}
-                      className="text-xs font-medium text-primary underline-offset-4 hover:underline"
-                    >
-                      Queue
-                      <span className="sr-only"> — open appointment requests</span>
-                    </Link>
-                  </span>
-                </li>
-                <li className="flex items-center justify-between gap-2">
-                  <span className="text-muted-foreground">Unassigned tourism cases</span>
-                  <span className="flex items-center gap-2 font-medium text-foreground">
-                    {unassignedTourism}
-                    <Link
-                      href={ROUTES.admin.medicalTourism}
-                      className="text-xs font-medium text-primary underline-offset-4 hover:underline"
-                    >
-                      Queue
-                      <span className="sr-only"> — unassigned tourism cases</span>
-                    </Link>
-                  </span>
-                </li>
-                <li className="flex items-center justify-between gap-2">
-                  <span className="text-muted-foreground">Partner accounts</span>
-                  <span className="flex items-center gap-2 font-medium text-foreground">
-                    {partnerUsers.length}
-                    <Link
-                      href={ROUTES.admin.partners}
-                      className="text-xs font-medium text-primary underline-offset-4 hover:underline"
-                    >
-                      Manage
-                      <span className="sr-only"> — partner accounts</span>
-                    </Link>
-                  </span>
-                </li>
+            <CardContent className="gap-0">
+              <ul className="divide-y text-sm">
+                <OpRow
+                  label="Appointments"
+                  count={appointmentQueue.length}
+                  href={ROUTES.admin.appointments}
+                />
+                <OpRow
+                  label="Tourism cases"
+                  count={unassignedTourism}
+                  href={ROUTES.admin.medicalTourism}
+                />
+                <OpRow label="Partners" count={partnerUsers.length} href={ROUTES.admin.partners} />
               </ul>
-              <Separator />
-              <p className="text-xs text-muted-foreground">
-                Counts reconcile with the module queues — the enquiry action count
-                covers records in submitted / under_review / assigned demo states.
-              </p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-1.5">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-1.5 text-base">
                 <TrendingUpIcon aria-hidden className="size-4 text-muted-foreground" />
-                Enquiry &amp; appointment trend (demo)
+                Weekly volume (demo)
               </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Weekly counts derived from the demo fixtures — illustrative metadata,
-                not live analytics. Values are record counts, never scores.
-              </p>
             </CardHeader>
-            <CardContent className="gap-4">
-              <ul className="space-y-3" aria-label="Weekly demo trend">
+            <CardContent className="gap-3">
+              <ul className="space-y-2.5" aria-label="Weekly demo trend">
                 {trend.map((week) => (
                   <li key={week.label} className="space-y-1">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground">{week.label}</span>
-                      <span className="tabular-nums text-muted-foreground">
-                        {week.enquiries} enquiries · {week.appointments} appointments
+                    <div className="flex items-center justify-between text-xs tabular-nums text-muted-foreground">
+                      <span>{week.label}</span>
+                      <span>
+                        {week.enquiries}E · {week.appointments}A
                       </span>
                     </div>
                     <div
-                      className="flex h-2.5 gap-1 overflow-hidden rounded-full bg-muted"
+                      className="flex h-2 gap-0.5 overflow-hidden rounded-full bg-muted"
                       role="img"
-                      aria-label={`${week.label}: ${week.enquiries} enquiries and ${week.appointments} appointments (demo metadata)`}
+                      aria-label={`${week.label}: ${week.enquiries} enquiries, ${week.appointments} appointments`}
                     >
                       <span
                         className="h-full rounded-full bg-primary/70"
@@ -309,32 +249,20 @@ export default function AdminDashboardPage() {
                   </li>
                 ))}
               </ul>
-              <p className="text-xs text-muted-foreground">
-                Bar lengths are proportional to each week&apos;s fixture counts.
-              </p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Recent platform activity */}
         <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-1.5">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-1.5 text-base">
               <ClipboardListIcon aria-hidden className="size-4 text-muted-foreground" />
-              Recent platform activity
+              Recent activity
             </CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Newest demo events across enquiries, appointments, reviews, tourism
-              cases and provider verification.
-            </p>
           </CardHeader>
           <CardContent className="gap-0">
             {activity.length === 0 ? (
-              <EmptyState
-                icon={ActivityIcon}
-                title="No recent demo activity"
-                description="Demo enquiries, appointments and reviews will appear here as fixture records exist."
-              />
+              <EmptyState icon={ActivityIcon} title="No recent activity" />
             ) : (
               <ul className="divide-y" aria-label="Recent platform activity">
                 {activity.map((item) => {
@@ -342,31 +270,24 @@ export default function AdminDashboardPage() {
                   return (
                     <li
                       key={item.id}
-                      className="flex flex-col gap-1.5 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+                      className="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0"
                     >
-                      <div className="flex min-w-0 items-start gap-3">
-                        <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md bg-muted">
-                          <ItemIcon aria-hidden className="size-4 text-muted-foreground" />
+                      <div className="flex min-w-0 items-center gap-2.5">
+                        <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-muted">
+                          <ItemIcon aria-hidden className="size-3.5 text-muted-foreground" />
                         </span>
-                        <div className="min-w-0 space-y-0.5">
-                          <p className="truncate text-sm font-medium text-foreground">
-                            {item.summary}
-                          </p>
-                          <p className="truncate text-xs text-muted-foreground">{item.detail}</p>
-                        </div>
+                        <p className="truncate text-sm text-foreground">{item.summary}</p>
                       </div>
-                      <div className="flex shrink-0 items-center gap-3 sm:flex-col sm:items-end sm:gap-1">
+                      <div className="flex shrink-0 items-center gap-2">
                         <time dateTime={item.at} className="text-xs text-muted-foreground">
                           {formatDateTime(item.at)}
                         </time>
                         {item.href ? (
                           <Link
                             href={item.href}
-                            className="inline-flex items-center gap-1 text-xs font-medium text-primary underline-offset-4 hover:underline"
+                            className="text-xs font-medium text-primary underline-offset-4 hover:underline"
                           >
                             Open
-                            <ArrowRightIcon aria-hidden className="size-3" />
-                            <span className="sr-only"> — {item.summary}</span>
                           </Link>
                         ) : null}
                       </div>
@@ -377,48 +298,6 @@ export default function AdminDashboardPage() {
             )}
           </CardContent>
         </Card>
-
-        {/* Shortcuts into the management modules */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Management shortcuts</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Jump into the admin modules owned by this workspace.
-            </p>
-          </CardHeader>
-          <CardContent className="gap-2">
-            <ShortcutLink
-              href={ROUTES.admin.hospitals}
-              icon={BuildingIcon}
-              label="Hospital management"
-              meta="Verification, profiles, accreditation"
-            />
-            <ShortcutLink
-              href={ROUTES.admin.doctors}
-              icon={StethoscopeIcon}
-              label="Doctor management"
-              meta="Credentials and registration review"
-            />
-            <ShortcutLink
-              href={ROUTES.admin.facilities}
-              icon={HospitalIcon}
-              label="Facility management"
-              meta="Diagnostic, specialty, wellness centres"
-            />
-            <ShortcutLink
-              href={ROUTES.admin.patients}
-              icon={UsersIcon}
-              label="Patient records"
-              meta="Privacy-conscious record lookup"
-            />
-            <ShortcutLink
-              href={ROUTES.admin.partners}
-              icon={HeartHandshakeIcon}
-              label="Partner management"
-              meta="Hospital & service-provider accounts"
-            />
-          </CardContent>
-        </Card>
       </div>
     </div>
   )
@@ -426,73 +305,51 @@ export default function AdminDashboardPage() {
 
 function QueueRow({
   title,
-  meta,
   status,
   href,
   linkLabel,
 }: {
   title: string
-  meta: string
-  status: React.ComponentProps<typeof StatusBadge>["status"]
+  status: ComponentProps<typeof StatusBadge>["status"]
   href: string
   linkLabel: string
 }) {
   return (
-    <li className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
-      <div className="min-w-0 space-y-1">
+    <li className="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
+      <div className="flex min-w-0 items-center gap-2">
         <p className="truncate text-sm font-medium text-foreground">{title}</p>
-        <p className="truncate text-xs text-muted-foreground">{meta}</p>
-      </div>
-      <div className="flex shrink-0 items-center gap-3">
         <StatusBadge status={status} />
-        <Button
-          variant="ghost"
-          size="sm"
-          render={<Link href={href} />}
-          className="gap-1"
-        >
-          {linkLabel}
-          <ArrowRightIcon aria-hidden className="size-3.5" />
-          <span className="sr-only"> — {title}</span>
-        </Button>
       </div>
+      <Button
+        variant="ghost"
+        size="sm"
+        render={<Link href={href} />}
+        className="shrink-0 gap-1"
+      >
+        {linkLabel}
+        <ArrowRightIcon aria-hidden className="size-3.5" />
+      </Button>
     </li>
   )
 }
 
-function ShortcutLink({
-  href,
-  icon: Icon,
-  label,
-  meta,
-}: {
-  href: string
-  icon: React.ComponentType<{ className?: string }>
-  label: string
-  meta: string
-}) {
+function OpRow({ label, count, href }: { label: string; count: number; href: string }) {
   return (
-    <Link
-      href={href}
-      className="flex items-center gap-3 rounded-lg border px-3 py-2.5 outline-none transition-colors hover:bg-muted/60 focus-visible:ring-3 focus-visible:ring-ring/50"
-    >
-      <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary/10">
-        <Icon aria-hidden className="size-4 text-primary" />
+    <li className="flex items-center justify-between gap-2 py-2.5 first:pt-0 last:pb-0">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="flex items-center gap-2 font-medium tabular-nums text-foreground">
+        {count}
+        <Link
+          href={href}
+          className="text-xs font-medium text-primary underline-offset-4 hover:underline"
+        >
+          Open
+        </Link>
       </span>
-      <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium text-foreground">{label}</span>
-        <span className="block truncate text-xs text-muted-foreground">{meta}</span>
-      </span>
-      <ArrowRightIcon aria-hidden className="size-4 shrink-0 text-muted-foreground" />
-    </Link>
+    </li>
   )
 }
 
-/**
- * Build the demo weekly trend from fixture timestamps (consent dates for
- * enquiries, creation dates for appointments). Pure and deterministic —
- * labelled demo metadata in the UI, never presented as live analytics.
- */
 function buildWeeklyTrend(): Array<{ label: string; enquiries: number; appointments: number }> {
   const buckets = new Map<string, { enquiries: number; appointments: number }>()
 
@@ -521,5 +378,5 @@ function buildWeeklyTrend(): Array<{ label: string; enquiries: number; appointme
     .filter(([key]) => key !== "unknown")
     .sort(([a], [b]) => a.localeCompare(b))
     .slice(-4)
-    .map(([key, counts]) => ({ label: `${key} (demo)`, ...counts }))
+    .map(([key, counts]) => ({ label: key, ...counts }))
 }

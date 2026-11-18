@@ -15,6 +15,7 @@ import { ArrowRightIcon } from "lucide-react"
 import { StatusBadge } from "@/components/shared/status-badge"
 import { EmptyState } from "@/components/shared/empty-state"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
 import type { StatusValue } from "@/components/shared/status-badge"
 
 export interface QueueItem {
@@ -68,7 +69,7 @@ export function QueueList({
             <EmptyState
               title={emptyTitle}
               description={emptyDescription}
-              className="border-none py-8"
+              className={cn("border-none", emptyDescription ? "py-8" : "py-5")}
             />
           </div>
         ) : (

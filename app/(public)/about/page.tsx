@@ -16,7 +16,7 @@ export default function AboutPage() {
     <div className="space-y-10 py-8">
       <PageHeader
         title="About BestHospitalIndia"
-        description="What the platform does, how it presents providers and ratings, and the trust principles behind the demo build."
+        description="What the platform does, how it presents providers and ratings, and the trust principles behind the service."
         breadcrumbItems={breadcrumbItems}
       />
 
@@ -54,7 +54,7 @@ export default function AboutPage() {
 
       <PageSection
         title="Platform scope"
-        description="What BestHospitalIndia covers in this demo build."
+        description="What BestHospitalIndia covers on the platform."
       >
         <ul className="list-disc space-y-2 pl-5">
           {aboutContent.scope.map((item) => (

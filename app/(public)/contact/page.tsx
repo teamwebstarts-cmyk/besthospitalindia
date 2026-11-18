@@ -7,7 +7,7 @@ import { contactContent } from "@/features/content/home-content"
 export const metadata: Metadata = {
   title: "Contact Us",
   description:
-    "Reach the BestHospitalIndia team: patient support, hospital and doctor partnerships, or the IUF-supported free consultation flow. Demo contact details and a mock enquiry form.",
+    "Reach the BestHospitalIndia team: patient support, hospital and doctor partnerships, or the IUF-supported free consultation flow.",
 }
 
 const breadcrumbItems = [{ label: "Home", href: "/" }, { label: "Contact" }]
@@ -23,7 +23,7 @@ export default function ContactPage() {
 
       <PageSection
         title="Contact routes"
-        description="Pick the channel that matches your question so it reaches the right demo team."
+        description="Pick the channel that matches your question so it reaches the right team."
       >
         <div className="grid gap-4 md:grid-cols-3">
           {contactContent.channels.map((channel) => (
@@ -59,7 +59,7 @@ export default function ContactPage() {
 
       <PageSection
         title="General enquiry form"
-        description="For anything that does not fit the channels above. This form is a demo — see the notice inside."
+        description="For anything that does not fit the channels above. Our team responds using the contact details you provide."
         id="enquiry-form"
       >
         <ContactForm />

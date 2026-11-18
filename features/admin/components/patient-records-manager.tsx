@@ -24,7 +24,6 @@ import { useMemo, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
@@ -111,7 +110,7 @@ function PatientDetailDrawer({
         <SheetHeader className="border-b p-4">
           <SheetTitle className="text-left">{patient.name}</SheetTitle>
           <SheetDescription className="text-left">
-            Demo patient record · {patient.country}
+            {patient.country}
             {patient.city ? ` · ${patient.city}` : ""} · {patient.id}
           </SheetDescription>
         </SheetHeader>
@@ -119,10 +118,8 @@ function PatientDetailDrawer({
           {/* Demo identity block — consented demo contact fields */}
           <section aria-label="Account details" className="space-y-2">
             <h3 className="text-sm font-semibold text-foreground">Account details</h3>
-            <p className="text-xs rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-warning">
-              Contact fields below are fictional demo values captured with demo consent.
-              Access in a real platform would be permission-gated; this demo shows them
-              for the record view only.
+            <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-1.5 text-xs text-warning">
+              Contact shown only in this record (demo).
             </p>
             <dl className="space-y-1.5 text-sm">
               <div className="flex items-center justify-between gap-2">
@@ -157,9 +154,8 @@ function PatientDetailDrawer({
               </div>
             </dl>
             {restricted ? (
-              <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-                Restricted flag recorded locally (demo): {formatDateTime(restrictedAt())}.
-                This demo page only — the demo account is not actually restricted anywhere.
+              <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-1.5 text-xs text-destructive">
+                Restricted locally (demo) · {formatDateTime(restrictedAt())}
               </div>
             ) : null}
           </section>
@@ -185,17 +181,14 @@ function PatientDetailDrawer({
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {specialtyLabel(enquiry.specialty)} ·{" "}
-                      {enquiry.preferredDate
-                        ? `preferred date ${formatDate(enquiry.preferredDate)}`
-                        : "no preferred date"}{" "}
-                      · consented {formatDateTime(enquiry.consentAt)}
+                      {enquiry.preferredDate ? formatDate(enquiry.preferredDate) : "—"} ·{" "}
+                      {formatDateTime(enquiry.consentAt)}
                     </p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Attached reports (names only, no content):{" "}
-                      {enquiry.reportNames.length > 0
-                        ? enquiry.reportNames.join(", ")
-                        : "none"}
-                    </p>
+                    {enquiry.reportNames.length > 0 ? (
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Reports: {enquiry.reportNames.join(", ")}
+                      </p>
+                    ) : null}
                   </li>
                 ))}
               </ul>
@@ -235,15 +228,10 @@ function PatientDetailDrawer({
           <Separator />
 
           <section aria-label="Actions" className="space-y-2">
-            <h3 className="text-sm font-semibold text-foreground">Actions (local demo)</h3>
+            <h3 className="text-sm font-semibold text-foreground">Actions</h3>
             <Button size="sm" variant={restricted ? "outline" : "destructive"} onClick={() => onToggleRestriction(patient.id)}>
-              {restricted ? "Lift restriction (demo)" : "Restrict account (demo)"}
+              {restricted ? "Lift restriction" : "Restrict account"}
             </Button>
-            <p className="text-xs leading-relaxed text-muted-foreground">
-              The restriction flag is page-local demo state — nothing is enforced, stored
-              or communicated. No medical record content exists in the demo contracts and
-              none is displayed.
-            </p>
           </section>
         </div>
       </SheetContent>
@@ -376,25 +364,10 @@ export function PatientRecordsManager({ patients, className }: PatientRecordsMan
 
   return (
     <div className={cn("space-y-4", className)}>
-      {/* Privacy boundary notice */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Privacy boundaries for this module</CardTitle>
-        </CardHeader>
-        <CardContent className="gap-1.5 text-sm text-muted-foreground">
-          <p>
-            The list shows directory-level fields only — contact details are masked here
-            and appear once, inside an opened record. The demo Patient contract holds no
-            medical data, so none is displayed; enquiry entries reference report file
-            names (from the patient&apos;s own consented submission), never report content.
-          </p>
-        </CardContent>
-      </Card>
-
       {/* Toolbar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex-1 space-y-1.5 sm:max-w-sm">
-          <Label htmlFor="patient-search">Search patients</Label>
+          <Label htmlFor="patient-search">Search</Label>
           <Input
             id="patient-search"
             value={query}
@@ -404,7 +377,7 @@ export function PatientRecordsManager({ patients, className }: PatientRecordsMan
           />
         </div>
         <p aria-live="polite" className="text-sm text-muted-foreground">
-          {visible.length} of {patients.length} demo patients
+          {visible.length} of {patients.length} patients
         </p>
       </div>
 

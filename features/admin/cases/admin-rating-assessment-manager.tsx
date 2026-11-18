@@ -706,13 +706,6 @@ export function AdminRatingAssessmentManager({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-        Demo boundary: assessment decisions update local state only. PER, CER and MER stay
-        independent; publication happens only for approved demo assessments under a recorded
-        methodology version.
-        <Badge variant="outline">Mock phase</Badge>
-      </p>
     </div>
   )
 }

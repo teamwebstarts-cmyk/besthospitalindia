@@ -20,14 +20,14 @@ export const metadata: Metadata = {
 
 export default function AdminHospitalsPage() {
   return (
-    <div className="space-y-8 py-8">
+    <div className="space-y-6 py-6">
       <AdminPageHeader
+        compact
         items={[
           { label: "Admin Portal", href: "/admin" },
           { label: "Hospitals" },
         ]}
-        title="Hospital management"
-        description="Review hospital profiles and verification states. Approve / reject act on the demo verification record; suspend is a separate listing-availability flag. All actions are local demo state."
+        title="Hospitals"
       />
 
       <HospitalReviewManager hospitals={hospitals} />

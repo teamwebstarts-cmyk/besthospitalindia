@@ -1,5 +1,7 @@
 "use client"
 
+import Link from "next/link"
+
 import { EnquiryForm } from "@/features/content/enquiry-form"
 import type { EnquiryFormField } from "@/features/content/enquiry-form"
 import { email, maxLength, minLength, phone, required } from "@/lib/validation"
@@ -18,7 +20,7 @@ const fields: readonly EnquiryFormField[] = [
     kind: "text",
     name: "name",
     label: "Your name",
-    placeholder: "Full name (demo)",
+    placeholder: "Full name",
     required: true,
     autoComplete: "name",
   },
@@ -51,7 +53,7 @@ const fields: readonly EnquiryFormField[] = [
     kind: "textarea",
     name: "message",
     label: "Message",
-    placeholder: "Tell the demo team what you need.",
+    placeholder: "How can we help?",
     required: true,
     rows: 5,
   },
@@ -69,21 +71,63 @@ const schema: ValidationSchema = {
  * General contact enquiry form for /contact. Mock-only: validates locally and
  * resolves with a generated demo reference — nothing is sent or stored.
  */
-export function ContactForm({ className }: { className?: string }) {
+export function ContactForm({
+  className,
+  variant = "card",
+}: {
+  className?: string
+  variant?: "card" | "hero"
+}) {
   const handleSubmit = async () => {
     await new Promise((resolve) => setTimeout(resolve, 450))
     const suffix = Math.random().toString(36).slice(2, 6).toUpperCase()
     return { ok: true as const, reference: `MSG-${suffix}` }
   }
 
+  const isHero = variant === "hero"
+
   return (
     <EnquiryForm
-      title="General contact enquiry (demo)"
+      title="General contact enquiry"
+      variant={variant}
+      intro={
+        isHero
+          ? {
+              title: "Let us help you",
+              description:
+                "Share your details and our team will get back to you shortly.",
+            }
+          : undefined
+      }
       fields={fields}
+      fieldRows={
+        isHero
+          ? [
+              ["name", "email"],
+              ["phone", "purpose"],
+              ["message"],
+            ]
+          : undefined
+      }
       schema={schema}
       onSubmit={handleSubmit}
-      submitLabel="Send message"
-      successNote="Demo only: your message was not sent or stored. In production this would reach the team matching your chosen purpose."
+      submitLabel={isHero ? "Continue" : "Send message"}
+      successNote="Our team will respond to the email address you provided, usually within one business day."
+      footer={
+        isHero ? (
+          <p className="text-center text-xs leading-relaxed text-primary-foreground/80">
+            By submitting you agree to our{" "}
+            <Link href="/terms" className="underline underline-offset-2">
+              Terms of Use
+            </Link>{" "}
+            and{" "}
+            <Link href="/privacy" className="underline underline-offset-2">
+              Privacy Policy
+            </Link>
+            .
+          </p>
+        ) : undefined
+      }
       className={className}
     />
   )

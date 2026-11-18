@@ -8,7 +8,7 @@
  * fixtures from @/data.
  *
  * Discovery shell wiring: server pages cannot pass function props to client
- * components, so ListingFilters / ResultsToolbar / UrlPagination run in URL
+ * components, so ListingFilters / UrlPagination run in URL
  * mode (basePath + current params); the shell composes canonical URLs itself.
  *
  * Spec: docs/implementation/pages/02-facilities.md.
@@ -27,12 +27,6 @@ import { StatusBadge } from "@/components/shared/status-badge"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
-import {
   Card,
   CardAction,
   CardContent,
@@ -41,15 +35,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { GlobalSearch } from "@/features/discovery/global-search"
+import { FaqList } from "@/features/content/faq-list"
 import { FACILITY_CATEGORY_LABELS } from "@/features/discovery/facility-meta"
+import { FacilityListingSearch } from "@/features/discovery/facility-listing-search"
 import { ListingFilters } from "@/features/discovery/listing-filters"
-import { ResultsToolbar } from "@/features/discovery/results-toolbar"
 import { UrlPagination } from "@/features/discovery/url-pagination"
-import { readFilterValues } from "@/features/discovery/types"
+import { buildFilterQueryString, readFilterValues } from "@/features/discovery/types"
+import { homeSectionInnerClassName } from "@/features/content/home-sections"
+import { ROUTES } from "@/constants/routes"
+import { fullBleedClassName } from "@/lib/full-bleed"
+import { cn } from "@/lib/utils"
 import type { FacilityCategory } from "@/types"
 
-const PAGE_SIZE = 9
+const PAGE_SIZE = 10
+const BASE_PATH = ROUTES.public.facilities
 const FACILITY_LABEL = "facility"
 const FACILITY_PLURAL_LABEL = "facilities"
 const DEFAULT_SORT = "relevance"
@@ -68,6 +67,30 @@ const SORT_OPTIONS = [
   { value: "relevance", label: "Recommended" },
   { value: "name-asc", label: "Name (A–Z)" },
   { value: "name-desc", label: "Name (Z–A)" },
+] as const
+
+const facilitiesDirectoryFaqs = [
+  {
+    id: "facilities-faq-what-is-listed",
+    order: 1,
+    question: "What is listed on this page?",
+    answer:
+      "Hospitals, specialty centres, diagnostic labs, rehabilitation centres, wellness centres and medical-tourism services across India. Each listing links to a facility profile with category, location, services and verification status.",
+  },
+  {
+    id: "facilities-faq-filters",
+    order: 2,
+    question: "How do the filters combine?",
+    answer:
+      "Filters within one group match any selected value; different groups compose AND. Every filter, the sort order and the page number are reflected in the URL, so any filtered view is shareable and bookmarkable.",
+  },
+  {
+    id: "facilities-faq-verification",
+    order: 3,
+    question: "What does the verification badge mean?",
+    answer:
+      "It reflects the verification status on each facility record (verified, pending or unverified). Status is updated as our team completes registry and accreditation checks — nothing is shown as verified without a verified record.",
+  },
 ] as const
 
 type SortValue = (typeof SORT_OPTIONS)[number]["value"]
@@ -95,22 +118,20 @@ function getCategoryOptions() {
   return FACILITY_CATEGORIES.map((category) => ({
     value: category,
     label: FACILITY_CATEGORY_LABELS[category],
-    hint: `${facilities.filter((facility) => facility.category === category).length}`,
   }))
 }
 
 /** Distinct, alphabetically sorted city facet from the fixture set. */
 function getCityOptions() {
-  const countsByCity = new Map<string, number>()
+  const cities = new Set<string>()
   for (const facility of facilities) {
-    countsByCity.set(facility.city, (countsByCity.get(facility.city) ?? 0) + 1)
+    cities.add(facility.city)
   }
-  return [...countsByCity.entries()]
-    .sort(([cityA], [cityB]) => cityA.localeCompare(cityB))
-    .map(([city, count]) => ({
+  return [...cities]
+    .sort((cityA, cityB) => cityA.localeCompare(cityB))
+    .map((city) => ({
       value: city,
       label: city,
-      hint: `${count} ${count === 1 ? FACILITY_LABEL : "facilities"}`,
     }))
 }
 
@@ -131,7 +152,7 @@ export function generateMetadata(): Metadata {
   return {
     title: "Healthcare Facilities Directory",
     description:
-      "Browse fictional demo healthcare facilities — hospitals, specialty centres, diagnostic labs, rehabilitation, wellness and medical-tourism services — filtered by category, city, specialty and service. Demo data only.",
+      "Browse healthcare facilities — hospitals, specialty centres, diagnostic labs, rehabilitation, wellness and medical-tourism services — filtered by category, city, specialty and service.",
     alternates: { canonical: "/facilities" },
   }
 }
@@ -172,51 +193,45 @@ export default async function FacilitiesPage({
     sort,
   )
   const { items, total, totalPages } = paginate(results, page, PAGE_SIZE)
+  const paginationPage = Math.min(Math.max(1, page), totalPages)
 
   // --- Discovery shell state (URL is the single source of truth) ----------
-  // Scoped to the facility params this page owns; page/sort are handled
-  // separately and unknown params never inflate the active-filter count.
   const filterValues = readFilterValues({
     q: q === "" ? undefined : q,
-    category,
-    city,
-    specialty: specialtySlug,
-    service,
+    category: params.category,
+    city: params.city,
+    specialty: params.specialty,
+    service: params.service,
   })
+  const preservedScalars = { q: q === "" ? undefined : q }
+  const sortExtra = sort !== DEFAULT_SORT ? { sort } : undefined
 
   return (
-    <div className="space-y-8 py-8">
-      <Breadcrumbs
-        items={[{ label: "Home", href: "/" }, { label: "Facilities" }]}
-      />
-
-      <header className="space-y-4">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-            Healthcare Facilities Directory
-          </h1>
-          <p className="max-w-2xl text-sm text-balance text-muted-foreground">
-            Fictional demo facilities across India — hospitals, specialty
-            centres, diagnostic labs, rehabilitation, wellness and
-            medical-tourism services. Every record is demo data, not a real
-            provider.
-          </p>
-        </div>
-        <GlobalSearch
-          defaultEntityType="facilities"
-          initialQuery={q}
-          routes={{
-            hospitals: "/hospitals",
-            doctors: "/doctors",
-            treatments: "/treatments",
-            facilities: "/facilities",
-          }}
-          className="max-w-2xl"
+    <div className="flex flex-col">
+      <div className="space-y-3 pt-8">
+        <Breadcrumbs
+          items={[{ label: "Home", href: ROUTES.public.home }, { label: "Facilities" }]}
         />
-      </header>
 
-      <div className="grid gap-8 lg:grid-cols-[16rem_1fr]">
-        <aside aria-label="Facility filters">
+        <header className="space-y-2">
+          <SectionHeading
+            as="h1"
+            title="Healthcare Facilities Directory"
+            description="Healthcare facilities across India — hospitals, specialty centres, diagnostic labs, rehabilitation, wellness and medical-tourism services. Filter by category, city, specialty or service."
+          />
+        </header>
+      </div>
+
+      <section
+        aria-label="Facility directory"
+        className={cn(
+          fullBleedClassName,
+          "border-b border-border/70 bg-background py-8 sm:py-10",
+        )}
+      >
+        <div className={homeSectionInnerClassName}>
+          <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
+            <aside aria-label="Facility filters" className="lg:sticky lg:top-24 lg:self-start">
           <ListingFilters
             facets={[
               {
@@ -250,33 +265,57 @@ export default async function FacilitiesPage({
               },
             ]}
             values={filterValues}
-            basePath="/facilities"
-            extraParams={{ q: q === "" ? undefined : q, sort }}
+            basePath={BASE_PATH}
+            extraParams={{ ...preservedScalars, ...sortExtra }}
           />
         </aside>
 
         <section aria-label="Facility results" className="min-w-0 space-y-4">
-          <ResultsToolbar
-            total={total}
-            entityLabel={FACILITY_LABEL}
-            pluralLabel={FACILITY_PLURAL_LABEL}
-            sortOptions={[...SORT_OPTIONS]}
-            sortValue={sort}
-            basePath="/facilities"
-            currentParams={params}
+          <FacilityListingSearch
+            basePath={BASE_PATH}
+            initialQuery={q}
+            filterValues={filterValues}
+            sort={sort}
+            defaultSort={DEFAULT_SORT}
           />
 
-          {items.length === 0 ? (
+          {q ? (
+            <p className="text-sm text-muted-foreground">
+              Matching “{q}”.{" "}
+              <a
+                href={`${BASE_PATH}${buildFilterQueryString(
+                  { ...filterValues, q: undefined },
+                  sortExtra,
+                )}`}
+                className="font-medium text-primary underline-offset-4 hover:underline"
+              >
+                Clear the search text
+              </a>
+            </p>
+          ) : null}
+
+          {total === 0 ? (
             <EmptyState
               title="No facilities match your filters"
-              description="Try removing a filter or broadening your search to see more demo facilities."
-              action={{ label: "Clear all filters", href: "/facilities" }}
+              description="Try removing a filter or broadening your search to see more facilities."
+              action={{ label: "Clear all filters", href: BASE_PATH }}
             />
           ) : (
-            <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {items.map((facility) => (
-                <li key={facility.id} className="min-w-0">
-                  <Card size="sm" className="h-full">
+            <>
+              {items.length === 0 ? (
+                <EmptyState
+                  title="This page is beyond the last result"
+                  description={`The directory has ${total} ${total === 1 ? FACILITY_LABEL : FACILITY_PLURAL_LABEL} across ${totalPages} ${totalPages === 1 ? "page" : "pages"}. Go back to page 1 to browse them.`}
+                  action={{
+                    label: "Back to page 1",
+                    href: `${BASE_PATH}${buildFilterQueryString(filterValues, sortExtra)}`,
+                  }}
+                />
+              ) : (
+                <ul className="grid items-stretch gap-4 sm:grid-cols-2">
+                  {items.map((facility) => (
+                    <li key={facility.id} className="flex min-w-0">
+                      <Card size="sm" className="h-full w-full">
                     <CardHeader>
                       <Badge variant="secondary">
                         {FACILITY_CATEGORY_LABELS[facility.category]}
@@ -318,62 +357,42 @@ export default async function FacilitiesPage({
                         View facility
                       </Button>
                     </CardFooter>
-                  </Card>
-                </li>
-              ))}
-            </ul>
+                      </Card>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <UrlPagination
+                page={paginationPage}
+                totalPages={totalPages}
+                basePath={BASE_PATH}
+                values={filterValues}
+                sort={sort !== DEFAULT_SORT ? sort : undefined}
+              />
+            </>
           )}
+            </section>
+          </div>
+        </div>
+      </section>
 
-          <UrlPagination
-            page={page}
-            totalPages={totalPages}
-            basePath="/facilities"
-            values={filterValues}
-            sort={sort}
+      <section
+        aria-labelledby="facilities-faq-heading"
+        className={cn(
+          fullBleedClassName,
+          "border-t border-border/70 bg-white py-8 sm:py-10",
+        )}
+      >
+        <div className={homeSectionInnerClassName}>
+          <SectionHeading
+            as="h2"
+            id="facilities-faq-heading"
+            title="Facilities directory FAQ"
+            description="How the facilities directory works, including filters, verification badges and profile pages."
           />
-        </section>
-      </div>
-
-      <section aria-labelledby="facilities-faq-heading" className="border-t pt-8">
-        <SectionHeading
-          title="Facilities directory FAQ"
-          description="How this demo directory works. All content is fictional demo data."
-        />
-        <Accordion className="mt-4">
-          <AccordionItem value="what-is-listed">
-            <AccordionTrigger>What is listed on this page?</AccordionTrigger>
-            <AccordionContent>
-              <p>
-                Fictional demo facility records — hospitals, specialty centres,
-                diagnostic labs, rehabilitation centres, wellness centres and
-                medical-tourism services — used to demonstrate the directory
-                pattern. No real provider is represented anywhere on this page.
-              </p>
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="how-filters-combine">
-            <AccordionTrigger>How do the filters combine?</AccordionTrigger>
-            <AccordionContent>
-              <p>
-                Filters within one group match any selected value; different
-                groups compose AND. Every filter, the sort order and the page
-                number are reflected in the URL, so any filtered view is
-                shareable and bookmarkable.
-              </p>
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="verification-badges">
-            <AccordionTrigger>What does the verification badge mean?</AccordionTrigger>
-            <AccordionContent>
-              <p>
-                It mirrors the mock verification status carried by each demo
-                record (verified, pending or unverified). It is a display state
-                only — nothing in this demo has been checked against any real
-                registry or accreditation body.
-              </p>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+          <FaqList faqs={facilitiesDirectoryFaqs} variant="cards" />
+        </div>
       </section>
     </div>
   )

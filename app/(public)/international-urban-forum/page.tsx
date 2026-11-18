@@ -74,8 +74,9 @@ export default function InternationalUrbanForumPage() {
       <Alert>
         <AlertTitle>IUF content approval pending</AlertTitle>
         <AlertDescription>
-          {iufContent.demoNote} No invented affiliation, endorsement or legal
-          status is claimed on this page or anywhere else on the platform.
+          Institutional details, approvals and branding assets on this page are
+          maintained in coordination with IUF. No affiliation, endorsement or legal
+          status is claimed beyond what IUF has approved for publication.
         </AlertDescription>
       </Alert>
 

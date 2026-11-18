@@ -20,10 +20,10 @@ export function DemoNotice({ title, message, className }: DemoNoticeProps) {
   return (
     <Alert className={className}>
       <InfoIcon aria-hidden />
-      <AlertTitle>{title ?? "Demo only — nothing is submitted"}</AlertTitle>
+      <AlertTitle>{title ?? "Before you submit"}</AlertTitle>
       <AlertDescription>
         {message ??
-          "This form runs entirely in the browser for the demo build. Nothing you enter is sent, stored or followed up on."}
+          "Use this form to reach our team. Scope, eligibility and response times are described on this page."}
       </AlertDescription>
     </Alert>
   )
@@ -67,7 +67,7 @@ export function DemoFormFeedback({ state, className }: DemoFormFeedbackProps) {
     >
       <p className="font-medium">
         {state.kind === "submitting"
-          ? "Submitting (demo)…"
+          ? "Submitting…"
           : state.kind === "success"
             ? state.headline
             : state.headline}

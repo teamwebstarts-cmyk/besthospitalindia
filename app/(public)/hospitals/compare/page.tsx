@@ -95,7 +95,7 @@ function CompareExperience() {
         <SectionHeading
           as="h1"
           title="Compare hospitals"
-          description="Compare up to three demo hospitals side by side. Patient experience (PER) and clinical expertise (CER) ratings appear as separate rows — this comparison never computes a combined or overall score."
+          description="Compare up to three hospitals side by side. Patient experience (PER) and clinical expertise (CER) ratings appear as separate rows — this comparison never computes a combined or overall score."
         />
       </header>
 
@@ -157,11 +157,11 @@ function CompareExperience() {
               </SelectContent>
             </Select>
           ) : (
-            <p className="text-sm text-muted-foreground">All demo hospitals are in the comparison.</p>
+            <p className="text-sm text-muted-foreground">All listed hospitals are in the comparison.</p>
           )}
         </div>
         <p className="text-xs text-muted-foreground">
-          Selection is stored in the page URL — copy the address to share this exact comparison. Demo data only.
+          Selection is stored in the page URL — copy the address to share this exact comparison.
         </p>
       </section>
 
@@ -170,7 +170,7 @@ function CompareExperience() {
         <EmptyState
           icon={GitCompareArrowsIcon}
           title="Nothing to compare yet"
-          description={`Add up to ${MAX_COMPARE_HOSPITALS} demo hospitals above to see them side by side, or browse the directory and pick from there.`}
+          description={`Add up to ${MAX_COMPARE_HOSPITALS} hospitals above to see them side by side, or browse the directory and pick from there.`}
           action={{ label: "Browse hospitals", href: ROUTES.public.hospitals }}
         />
       ) : (
@@ -190,7 +190,7 @@ function CompareExperience() {
             >
               rating methodology
             </Link>{" "}
-            page. All values are fictional demo data.
+            page.
           </p>
 
           <div className="flex flex-wrap gap-2">

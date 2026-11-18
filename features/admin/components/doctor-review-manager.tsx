@@ -272,14 +272,13 @@ function DoctorDetailDrawer({
                   <span className="text-sm text-muted-foreground">Medical registration</span>
                   <VerificationBadge status={record.doctor.registration.status} />
                 </div>
-                <p className="text-xs leading-relaxed text-muted-foreground">
-                  Registration authority: {record.doctor.registration.authority} · number{" "}
-                  <span className="font-mono">{record.doctor.registration.numberMasked}</span>{" "}
-                  (fictional, masked in all admin views).
+                <p className="text-xs text-muted-foreground">
+                  {record.doctor.registration.authority} ·{" "}
+                  <span className="font-mono">{record.doctor.registration.numberMasked}</span>
                 </p>
                 {record.change ? (
                   <div className="rounded-lg border border-info/40 bg-info/10 px-3 py-2 text-xs text-info">
-                    Local demo change: {record.change.action.replace(/_/g, " ")}
+                    {record.change.action.replace(/_/g, " ")}
                     {record.change.note ? ` — ${record.change.note}` : ""} ·{" "}
                     {formatDateTime(record.change.at)}
                   </div>
@@ -330,16 +329,13 @@ function DoctorDetailDrawer({
                     ))}
                   </ul>
                 )}
-                <p className="text-xs text-muted-foreground">
-                  Associations resolve against the hospital fixtures (two-way consistent).
-                </p>
               </section>
 
               <Separator />
 
               {/* Ratings — PER and MER separate */}
               <section aria-label="Ratings" className="space-y-2">
-                <h3 className="text-sm font-semibold text-foreground">Ratings (independent)</h3>
+                <h3 className="text-sm font-semibold text-foreground">Ratings</h3>
                 <div className="grid gap-2 sm:grid-cols-2">
                   <div className="rounded-lg border px-3 py-2">
                     <p className="text-xs font-medium text-muted-foreground">
@@ -360,20 +356,16 @@ function DoctorDetailDrawer({
                     <StatusBadge status={record.doctor.ratings.mer.status} className="mt-1" />
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  PER and MER are separate evidence tracks. A missing score is never shown
-                  as 0/{RATING_SCALE_MAX}.
-                </p>
               </section>
 
               <Separator />
 
               {/* Actions */}
               <section aria-label="Actions" className="space-y-2">
-                <h3 className="text-sm font-semibold text-foreground">Actions (local demo)</h3>
+                <h3 className="text-sm font-semibold text-foreground">Actions</h3>
                 <div className="flex flex-wrap gap-2">
                   <Button size="sm" onClick={() => onVerifyProfile(record.doctor.id)}>
-                    Approve profile verification
+                    Approve profile
                   </Button>
                   <Button
                     size="sm"
@@ -387,15 +379,9 @@ function DoctorDetailDrawer({
                     variant="outline"
                     onClick={() => onVerifyRegistration(record.doctor.id)}
                   >
-                    Mark registration verified
+                    Verify registration
                   </Button>
                 </div>
-                <p className="text-xs leading-relaxed text-muted-foreground">
-                  Nothing is auto-verified: each button records one explicit demo decision in
-                  page-local state. Profile verification and registration checks stay
-                  separate, and no doctor is ever verified as a side effect of viewing this
-                  drawer.
-                </p>
               </section>
 
               <Separator />
@@ -702,12 +688,6 @@ export function DoctorReviewManager({ doctors, className }: DoctorReviewManagerP
         </>
       )}
 
-      <p className="text-xs text-muted-foreground">
-        All actions are local demo state on fictional fixtures. Doctors are never
-        automatically marked verified — every verification is an explicit recorded action,
-        and registration checks stay separate from profile verification.
-      </p>
-
       <DoctorDetailDrawer
         record={detailRecord}
         onClose={() => setDetailId(null)}
@@ -725,11 +705,9 @@ export function DoctorReviewManager({ doctors, className }: DoctorReviewManagerP
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Request credential changes (demo)</DialogTitle>
+            <DialogTitle>Request changes</DialogTitle>
             <DialogDescription>
-              {changesRecord
-                ? `Record what ${changesRecord.doctor.name} needs to provide. The note stays in this page's local state — no notification is sent in this phase.`
-                : null}
+              {changesRecord ? `${changesRecord.doctor.name} — local demo only.` : null}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-1.5">

@@ -52,8 +52,8 @@ export default function TermsPage() {
           Submitting an enquiry or appointment request starts a coordination
           workflow with an explicit status. Only a provider-side confirmation
           changes a request into a confirmed appointment; nothing on the
-          platform should be read as instant confirmation, and the demo build
-          does not submit anything at all.
+          platform should be read as instant confirmation until a provider
+          confirms the appointment.
         </p>
       </PageSection>
 

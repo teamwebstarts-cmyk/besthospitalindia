@@ -25,11 +25,8 @@ export const metadata: Metadata = {
 
 export default function AdminReviewsPage() {
   return (
-    <div className="space-y-8">
-      <AdminCasePageHeader
-        label="Reviews"
-        description="Patient reviews across hospitals and doctors. Approve, reject or flag reviews for re-review — moderation changes demo visibility only; review text is never edited or silently removed."
-      />
+    <div className="space-y-6 py-6">
+      <AdminCasePageHeader compact label="Reviews" />
       <AdminReviewModerationManager reviews={reviews} />
     </div>
   )

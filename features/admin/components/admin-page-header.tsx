@@ -21,6 +21,11 @@ export interface AdminPageHeaderProps {
   description?: string
   /** Right-aligned action slot (primary action must stay visible). */
   action?: ReactNode
+  /**
+   * Dashboard-style header: one-line demo boundary instead of the full
+   * DemoNotice alert (reduces vertical noise on overview screens).
+   */
+  compact?: boolean
   className?: string
 }
 
@@ -29,6 +34,7 @@ export function AdminPageHeader({
   title,
   description,
   action,
+  compact = false,
   className,
 }: AdminPageHeaderProps) {
   return (
@@ -41,11 +47,15 @@ export function AdminPageHeader({
         action={action}
         className="mt-2"
       />
-      <DemoNotice
-        className="mt-4"
-        title="Demo admin workspace — mock data only"
-        message="Every record on this page is fictional fixture data. Status changes are local demo state: nothing is sent, published, verified or notified, and no real provider, patient or partner exists behind any row."
-      />
+      {compact ? (
+        <p className="mt-2 text-xs text-muted-foreground">Demo workspace — mock data only.</p>
+      ) : (
+        <DemoNotice
+          className="mt-4"
+          title="Demo admin workspace — mock data only"
+          message="Every record on this page is fictional fixture data. Status changes are local demo state: nothing is sent, published, verified or notified, and no real provider, patient or partner exists behind any row."
+        />
+      )}
     </header>
   )
 }

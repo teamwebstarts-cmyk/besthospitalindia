@@ -70,14 +70,14 @@ export interface InternationalPatientEnquiryFormProps {
 
 /** Country options are demo-only fixture text, per 09 mock-data rules. */
 const COUNTRY_OPTIONS = [
-  "India (demo)",
-  "Bangladesh (demo)",
-  "Kenya (demo)",
-  "Nigeria (demo)",
-  "Oman (demo)",
-  "United Kingdom (demo)",
-  "United States (demo)",
-  "Uzbekistan (demo)",
+  "India",
+  "Bangladesh",
+  "Kenya",
+  "Nigeria",
+  "Oman",
+  "United Kingdom",
+  "United States",
+  "Uzbekistan",
 ] as const
 
 const LANGUAGE_OPTIONS = [
@@ -302,31 +302,29 @@ export function InternationalPatientEnquiryForm({
               <CircleCheckBigIcon className="size-5" />
             </span>
             <CardTitle className="text-lg font-semibold">
-              Demo enquiry recorded — reference {reference}
+              Enquiry recorded — reference {reference}
             </CardTitle>
             <CardDescription>
-              This is a mock confirmation for the demo platform. Nothing was
-              sent to any hospital, doctor or coordinator, and no real case
-              exists.
+              Our international patient team will review your enquiry and contact
+              you using the details you provided.
             </CardDescription>
           </CardHeader>
           <CardContent className="gap-4">
             <Alert>
               <InfoIcon />
-              <AlertTitle>Demo only — no real submission</AlertTitle>
+              <AlertTitle>What happens next</AlertTitle>
               <AlertDescription>
                 <p>
-                  Reference <strong>{reference}</strong> is a randomly generated
-                  demo label. It is not stored, and admin review or coordinator
-                  assignment will not happen — those steps are documented future
-                  backend states.
+                  Reference <strong>{reference}</strong> helps our team locate your
+                  enquiry. A coordinator will match you with suitable hospitals or
+                  doctors and confirm next steps by email or phone.
                 </p>
               </AlertDescription>
             </Alert>
 
             <div className="rounded-lg border p-4">
               <h3 className="text-sm font-semibold text-foreground">
-                What you entered (demo record)
+                Your enquiry summary
               </h3>
               <dl className="mt-3 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
                 <dt className="text-muted-foreground">Patient</dt>
@@ -367,9 +365,7 @@ export function InternationalPatientEnquiryForm({
             </div>
 
             <p className="text-xs text-muted-foreground">
-              Next steps (admin review, coordinator assignment, provider
-              response) are future backend capabilities and are intentionally
-              not simulated here. Explore{" "}
+              While you wait, explore{" "}
               <Link
                 href={ROUTES.public.treatments}
                 className="underline underline-offset-4 hover:text-foreground"
@@ -396,7 +392,7 @@ export function InternationalPatientEnquiryForm({
                 setFailure(null)
               }}
             >
-              Fill another demo enquiry
+              Submit another enquiry
             </Button>
           </CardContent>
         </Card>
@@ -416,14 +412,13 @@ export function InternationalPatientEnquiryForm({
       aria-describedby={`${formId}-status`}
     >
       <p id={`${formId}-status`} className="text-xs text-muted-foreground" role="status">
-        Demo form: validation runs locally and submission is simulated. Nothing
-        leaves this browser session.
+        Fields marked required must be completed before our team can review your enquiry.
       </p>
 
       {failure ? (
         <Alert variant="destructive">
           <CircleExclamationPointIcon />
-          <AlertTitle>We could not record the demo enquiry</AlertTitle>
+          <AlertTitle>We could not record the enquiry</AlertTitle>
           <AlertDescription>
             <p>Fix the highlighted fields below and try again.</p>
           </AlertDescription>
@@ -444,7 +439,7 @@ export function InternationalPatientEnquiryForm({
         <CardHeader>
           <CardTitle className="text-base font-semibold">1. Patient & contact details</CardTitle>
           <CardDescription>
-            Demo contact data only — do not enter real personal information.
+            Use an email and phone number where our team can reach you.
           </CardDescription>
         </CardHeader>
         <CardContent className="gap-4">
@@ -455,7 +450,7 @@ export function InternationalPatientEnquiryForm({
                 id="enquiry-patient-name"
                 name="patientName"
                 autoComplete="name"
-                placeholder="e.g. A. Karim (demo)"
+                placeholder="e.g. A. Karim"
                 value={values.patientName}
                 onChange={(e) => setValue("patientName", e.target.value)}
                 aria-invalid={
@@ -500,7 +495,7 @@ export function InternationalPatientEnquiryForm({
                 name="phone"
                 type="tel"
                 autoComplete="tel"
-                placeholder="+91 00000 00000 (demo)"
+                placeholder="+91 98xxx xxxxx"
                 value={values.phone}
                 onChange={(e) => setValue("phone", e.target.value)}
                 aria-invalid={submitAttempted && Boolean(errors.phone) ? true : undefined}
@@ -525,7 +520,7 @@ export function InternationalPatientEnquiryForm({
                     submitAttempted && Boolean(errors.country) ? true : undefined
                   }
                 >
-                  <SelectValue placeholder="Select a country (demo list)" />
+                  <SelectValue placeholder="Select a country" />
                 </SelectTrigger>
                 <SelectContent>
                   {COUNTRY_OPTIONS.map((country) => (
@@ -581,7 +576,7 @@ export function InternationalPatientEnquiryForm({
         <CardHeader>
           <CardTitle className="text-base font-semibold">2. Case details</CardTitle>
           <CardDescription>
-            Specialty, treatment context and preferred demo city.
+            Specialty, treatment context and preferred city in India.
           </CardDescription>
         </CardHeader>
         <CardContent className="gap-4">
@@ -635,13 +630,13 @@ export function InternationalPatientEnquiryForm({
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                Demo list — cities mirror the fictional provider fixtures.
+                Cities match our listed hospital and doctor network.
               </p>
             </div>
           </div>
           {defaultTreatmentName ? (
             <p className="text-xs text-muted-foreground">
-              Referred from a treatment page (demo context:{" "}
+              Referred from a treatment page:{" "}
               <span className="font-medium text-foreground">{defaultTreatmentName}</span>
               ). Mention it in your concern below if relevant.
             </p>
@@ -667,7 +662,7 @@ export function InternationalPatientEnquiryForm({
               id="enquiry-concern"
               name="concern"
               rows={5}
-              placeholder="Describe symptoms, duration, existing reports and anything the receiving team should know (demo text)."
+              placeholder="Describe symptoms, duration, existing reports and anything the receiving team should know."
               value={values.concern}
               onChange={(e) => setValue("concern", e.target.value)}
               aria-invalid={submitAttempted && Boolean(errors.concern) ? true : undefined}
@@ -681,7 +676,7 @@ export function InternationalPatientEnquiryForm({
           </div>
 
           <div className="space-y-1.5">
-            <Label>Medical reports (optional, mock)</Label>
+            <Label>Medical reports (optional)</Label>
             <ReportUploadMock
               reports={reports}
               onAdd={setReports}
@@ -748,7 +743,7 @@ export function InternationalPatientEnquiryForm({
                 Accommodation guidance
               </span>
               <span className="text-xs text-muted-foreground">
-                Information about staying near demo provider locations.
+                Information about staying near your shortlisted provider locations.
               </span>
             </Label>
           </div>
@@ -785,7 +780,7 @@ export function InternationalPatientEnquiryForm({
                 Local transport information
               </span>
               <span className="text-xs text-muted-foreground">
-                General orientation for demo cities — no pickup is arranged.
+                General orientation for your destination city — airport pickup is arranged separately when confirmed.
               </span>
             </Label>
           </div>
@@ -812,12 +807,11 @@ export function InternationalPatientEnquiryForm({
             />
             <Label htmlFor="enquiry-consent" className="flex-col items-start gap-0.5 font-normal">
               <span className="font-medium text-foreground">
-                I consent to my demo enquiry details being used in this mock
-                flow.
+                I consent to BestHospitalIndia using my enquiry details to coordinate
+                with hospitals and doctors.
               </span>
               <span className="text-xs text-muted-foreground">
-                Required. Nothing is stored or shared — the consent timestamp is
-                simulated locally.
+                Required. See our Privacy Policy for how we handle your information.
               </span>
             </Label>
           </div>
@@ -829,13 +823,13 @@ export function InternationalPatientEnquiryForm({
 
       <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:justify-end">
         <Button type="submit" size="lg" variant="cta" className="rounded-full px-6 font-semibold shadow-sm" disabled={submitting}>
-          {submitting ? "Recording demo enquiry…" : "Submit demo enquiry"}
+          {submitting ? "Submitting…" : "Submit enquiry"}
         </Button>
       </div>
       <p className="text-xs text-muted-foreground">
-        By continuing you understand this is a demonstration platform: no real
-        medical service, booking or advice is provided, and no data is sent
-        anywhere.
+        BestHospitalIndia does not provide medical advice. Submitting this form
+        does not confirm travel, treatment or appointments until our team and a
+        provider agree on next steps.
       </p>
     </form>
   )

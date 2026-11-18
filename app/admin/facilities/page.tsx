@@ -20,14 +20,14 @@ export const metadata: Metadata = {
 
 export default function AdminFacilitiesPage() {
   return (
-    <div className="space-y-8 py-8">
+    <div className="space-y-6 py-6">
       <AdminPageHeader
+        compact
         items={[
           { label: "Admin Portal", href: "/admin" },
           { label: "Facilities" },
         ]}
-        title="Facility management"
-        description="Review healthcare facility records across the six contract categories — hospitals, specialty centres, diagnostic labs, rehabilitation, wellness and medical-tourism services. Record completeness and verification are the review dimensions here."
+        title="Facilities"
       />
 
       <FacilityReviewManager facilities={facilities} />

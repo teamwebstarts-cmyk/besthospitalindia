@@ -20,14 +20,14 @@ export const metadata: Metadata = {
 
 export default function AdminDoctorsPage() {
   return (
-    <div className="space-y-8 py-8">
+    <div className="space-y-6 py-6">
       <AdminPageHeader
+        compact
         items={[
           { label: "Admin Portal", href: "/admin" },
           { label: "Doctors" },
         ]}
-        title="Doctor management"
-        description="Review doctor profiles, qualifications, registration checks and verification states. Profile verification and registration checks are separate records — nothing is verified automatically. All actions are local demo state."
+        title="Doctors"
       />
 
       <DoctorReviewManager doctors={doctors} />

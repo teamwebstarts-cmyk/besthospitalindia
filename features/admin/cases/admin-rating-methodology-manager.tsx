@@ -468,12 +468,6 @@ export function AdminRatingMethodologyManager({
           </div>
         </TabsContent>
       </Tabs>
-
-      <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-        Demo boundary: methodology versions are derived from recorded demo assessments; the
-        criteria editor and approval are local demonstrations and persist nothing.
-        <Badge variant="outline">Mock phase</Badge>
-      </p>
     </div>
   )
 }

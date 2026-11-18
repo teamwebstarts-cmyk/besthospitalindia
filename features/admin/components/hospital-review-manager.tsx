@@ -63,7 +63,6 @@ import {
 } from "@/constants/rating"
 import { hospitalProfileHref } from "@/constants/routes"
 import { formatDate, formatDateTime } from "@/features/admin/format"
-import { VERIFICATION_LABELS } from "@/features/admin/selectors"
 import { required, validate } from "@/lib/validation"
 import { cn } from "@/lib/utils"
 import type { Hospital, VerificationStatus } from "@/types"
@@ -267,25 +266,18 @@ function HospitalDetailDrawer({
                 </div>
                 {record.change ? (
                   <div className="rounded-lg border border-info/40 bg-info/10 px-3 py-2 text-xs text-info">
-                    Local demo change: {record.change.action}
+                    {record.change.action}
                     {record.change.reason ? ` — ${record.change.reason}` : ""} ·{" "}
                     {formatDateTime(record.change.at)}
                   </div>
                 ) : null}
-                <p className="text-xs leading-relaxed text-muted-foreground">
-                  Verification approval is separate from rating publication and separate
-                  from any listing suspension. Demo actions above change only this
-                  page&apos;s local state.
-                </p>
               </section>
 
               <Separator />
 
               {/* Accreditations / document status */}
               <section aria-label="Accreditations and documents" className="space-y-2">
-                <h3 className="text-sm font-semibold text-foreground">
-                  Accreditations &amp; document status
-                </h3>
+                <h3 className="text-sm font-semibold text-foreground">Accreditations</h3>
                 {record.hospital.accreditations.length === 0 ? (
                   <p className="rounded-lg border border-dashed px-3 py-3 text-xs text-muted-foreground">
                     No accreditation records on file for this demo hospital.
@@ -316,7 +308,7 @@ function HospitalDetailDrawer({
 
               {/* Ratings — independent modules, honest empty states */}
               <section aria-label="Ratings" className="space-y-2">
-                <h3 className="text-sm font-semibold text-foreground">Ratings (independent)</h3>
+                <h3 className="text-sm font-semibold text-foreground">Ratings</h3>
                 <div className="grid gap-2 sm:grid-cols-2">
                   <div className="rounded-lg border px-3 py-2">
                     <p className="text-xs font-medium text-muted-foreground">
@@ -337,18 +329,13 @@ function HospitalDetailDrawer({
                     <StatusBadge status={record.hospital.ratings.cer.status} className="mt-1" />
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  PER and CER are separate assessments. A missing score is shown as
-                  &quot;Not yet rated&quot; / &quot;Assessment pending&quot; — never
-                  0/{RATING_SCALE_MAX}.
-                </p>
               </section>
 
               <Separator />
 
               {/* Profile info */}
               <section aria-label="Profile information" className="space-y-2">
-                <h3 className="text-sm font-semibold text-foreground">Profile information</h3>
+                <h3 className="text-sm font-semibold text-foreground">Profile</h3>
                 <p className="text-sm leading-relaxed text-muted-foreground">
                   {record.hospital.overview}
                 </p>
@@ -372,10 +359,10 @@ function HospitalDetailDrawer({
 
               {/* Actions */}
               <section aria-label="Actions" className="space-y-2">
-                <h3 className="text-sm font-semibold text-foreground">Actions (local demo)</h3>
+                <h3 className="text-sm font-semibold text-foreground">Actions</h3>
                 <div className="flex flex-wrap gap-2">
                   <Button size="sm" onClick={() => onApprove(record.hospital.id)}>
-                    Approve verification
+                    Approve
                   </Button>
                   <Button
                     size="sm"
@@ -385,14 +372,9 @@ function HospitalDetailDrawer({
                     Reject…
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => onSuspend(record.hospital.id)}>
-                    Suspend listing
+                    Suspend
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Approve / reject change the demo verification state in page-local state
-                  only. Suspend is a listing-availability flag — it never alters the
-                  verification record.
-                </p>
               </section>
             </div>
           </>
@@ -624,7 +606,7 @@ export function HospitalReviewManager({ hospitals, className }: HospitalReviewMa
       {visible.length === 0 ? (
         <EmptyState
           title="No hospitals match these filters"
-          description="Try clearing the search or switching the verification filter back to “All hospitals”."
+          description="Clear search or reset filters."
           action={{
             label: "Show all hospitals",
             onClick: () => {
@@ -684,12 +666,6 @@ export function HospitalReviewManager({ hospitals, className }: HospitalReviewMa
         </>
       )}
 
-      <p className="text-xs text-muted-foreground">
-        All actions are local demo state on fictional fixtures — no verification, listing or
-        notification is real. Labels follow the frozen verification vocabulary
-        ({Object.values(VERIFICATION_LABELS).join(", ")}).
-      </p>
-
       {/* Detail drawer */}
       <HospitalDetailDrawer
         record={detailRecord}
@@ -708,11 +684,9 @@ export function HospitalReviewManager({ hospitals, className }: HospitalReviewMa
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Reject verification (demo)</DialogTitle>
+            <DialogTitle>Reject verification</DialogTitle>
             <DialogDescription>
-              {rejectRecord
-                ? `Record why the verification of ${rejectRecord.hospital.name} is being rejected. The reason stays in this page's local state — nothing is sent.`
-                : null}
+              {rejectRecord ? `${rejectRecord.hospital.name} — local demo only.` : null}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-1.5">

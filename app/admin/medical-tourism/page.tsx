@@ -25,11 +25,8 @@ export const metadata: Metadata = {
 
 export default function AdminMedicalTourismPage() {
   return (
-    <div className="space-y-8">
-      <AdminCasePageHeader
-        label="Medical Tourism"
-        description="International patient cases from enquiry through treatment and follow-up. Assign demo coordinators, move cases along the documented pipeline and record follow-ups — no travel, visa or treatment arrangement exists behind this demo."
-      />
+    <div className="space-y-6 py-6">
+      <AdminCasePageHeader compact label="Medical tourism" />
       <AdminTourismCaseManager cases={tourismCases} />
     </div>
   )

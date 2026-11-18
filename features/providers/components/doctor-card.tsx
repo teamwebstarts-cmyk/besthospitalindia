@@ -24,7 +24,6 @@ import {
 } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { VerificationBadge } from "@/features/providers/components/verification-badge"
@@ -102,12 +101,12 @@ export function DoctorCard({ doctor, className }: DoctorCardProps) {
   const profileHref = doctorProfileHref(doctor.slug)
 
   return (
-    <Card className={cn("h-full", className)}>
-      <CardContent className="gap-3">
+    <Card className={cn("flex h-full flex-col gap-0 overflow-hidden p-0", className)}>
+      <CardContent className="min-h-0 flex-1 gap-3 py-4">
         <div className="flex items-start gap-3">
           <Avatar className="size-14 shrink-0 ring-2 ring-background">
             {doctor.photo ? (
-              <AvatarImage src={doctor.photo} alt={`Portrait of ${doctor.name} (demo)`} />
+              <AvatarImage src={doctor.photo} alt={`Portrait of ${doctor.name}`} />
             ) : null}
             <AvatarFallback aria-hidden>
               {doctor.name
@@ -165,7 +164,9 @@ export function DoctorCard({ doctor, className }: DoctorCardProps) {
             {doctor.yearsExperience} years experience
           </p>
         ) : null}
+      </CardContent>
 
+      <div className="mt-auto flex flex-col gap-3 px-(--card-spacing) pb-4">
         <div>
           <p className="sr-only">
             Independent ratings for {doctor.name} — patient experience and medical expertise, shown
@@ -176,12 +177,9 @@ export function DoctorCard({ doctor, className }: DoctorCardProps) {
             <DoctorCardRatingModule rating={doctor.ratings.mer} />
           </div>
         </div>
-      </CardContent>
+      </div>
 
-      <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t bg-muted/30 px-(--card-spacing) py-3">
-        <Badge variant="outline" className="min-w-0 max-w-full text-muted-foreground">
-          <span className="truncate">Demo profile — fictional data</span>
-        </Badge>
+      <div className="flex justify-end rounded-b-xl border-t bg-muted/30 px-(--card-spacing) py-3">
         <Button variant="cta" size="sm" className="rounded-full px-4 font-semibold" render={<Link href={profileHref} />}>
           View profile
           <span className="sr-only"> for {doctor.name}</span>

@@ -714,12 +714,6 @@ export function AdminTourismCaseManager({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-        Demo boundary: coordinator assignment, stages and follow-up dates update local state only.
-        No travel, visa, accommodation or treatment arrangement exists behind this queue.
-        <Badge variant="outline">Mock phase</Badge>
-      </p>
     </div>
   )
 }

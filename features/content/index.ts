@@ -59,19 +59,32 @@ export {
 export { ContactForm } from "./contact-form"
 export { AuthEntryCard, type AuthEntryCardProps } from "./auth-entry-card"
 export { HeroSearchPanel, type HeroSearchPanelProps } from "./hero-panel"
+export { HomeHeroSection, type HomeHeroSectionProps } from "./home-hero-section"
 export {
+  HomeBleedBand,
+  HomePageSection,
+  homeSectionInnerClassName,
   HomeSectionHeading,
+  MedicalDestinationCities,
   SpecialtyTileGrid,
   FacilityCategoryGrid,
   MedicalTourismBlock,
+  HomeLowestQuotesSection,
+  HomePatientServicesSection,
   TrustValuesBlock,
   IufConsultationCta,
   TestimonialsSection,
   HomeFaqSection,
+  type HomeBleedBandProps,
+  type HomePageSectionProps,
   type HomeSectionHeadingProps,
+  type MedicalDestinationCitiesProps,
+  type MedicalDestinationCityCard,
   type SpecialtyTileGridProps,
   type FacilityCategoryEntry,
   type FacilityCategoryGridProps,
+  type HomeLowestQuotesSectionProps,
+  type HomePatientServicesSectionProps,
   type MedicalTourismBlockProps,
   type TrustValuesBlockProps,
   type IufConsultationCtaProps,

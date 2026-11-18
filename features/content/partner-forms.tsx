@@ -22,7 +22,7 @@ export interface PartnerInterestFormProps {
 }
 
 const consentLabel =
-  "I understand this is a demo form. Nothing is submitted, stored or followed up on, and no approval, listing or rating is promised. (Required)"
+  "I agree to be contacted about listing on BestHospitalIndia and understand that approval, listing and ratings follow our partner review process. (Required)"
 
 /** Shared base fields for both partner forms (explicitly typed). */
 function baseFields(kind: "hospital" | "doctor"): EnquiryFormTextField[] {
@@ -31,14 +31,14 @@ function baseFields(kind: "hospital" | "doctor"): EnquiryFormTextField[] {
     kind: "text",
     name: "organisation",
     label: "Hospital / organisation name",
-    placeholder: "e.g. City Care Hospital (demo)",
+    placeholder: "e.g. City Care Hospital",
     required: true,
   }
   const fullNameField: EnquiryFormTextField = {
     kind: "text",
     name: "fullName",
     label: "Full name",
-    placeholder: "e.g. Dr. Priya Nair (demo)",
+    placeholder: "e.g. Dr. Priya Nair",
     required: true,
     autoComplete: "name",
   }
@@ -116,7 +116,7 @@ export function PartnerInterestForm({
       ? "About the facility (specialties, accreditations, city)"
       : "About your practice (specialty, qualifications, hospital associations)",
     placeholder:
-      "A short summary helps the demo review — nothing is actually reviewed.",
+      "A short summary helps our partnerships team route your request.",
     required: true,
     rows: 5,
   }
@@ -154,15 +154,13 @@ export function PartnerInterestForm({
   return (
     <EnquiryForm
       title={
-        isHospital
-          ? "Hospital interest form (demo)"
-          : "Doctor interest form (demo)"
+        isHospital ? "Hospital interest form" : "Doctor interest form"
       }
       fields={fields}
       schema={schema}
       onSubmit={handleSubmit}
       submitLabel="Submit interest request"
-      successNote="Demo only: this interest request was not sent, stored or reviewed anywhere, and no approval or listing is implied."
+      successNote="Our partnerships team will review your request and contact you using the details provided."
       className={className}
     />
   )

@@ -8,7 +8,7 @@
  *
  * Shared discovery shell (A03, server-parent URL mode): ListingFilters renders
  * doctor-specific facets (city, specialization) behind the mobile filter
- * sheet; ResultsToolbar shows the count + sort; UrlPagination keeps ?page= in
+ * sheet; free-text search sits above results; UrlPagination keeps ?page= in
  * the URL. Free-text search (?q=, matching doctor name/specialty/hospital
  * text) is a separate GET form so the full query stays shareable.
  *
@@ -20,24 +20,32 @@
  * combined into one score (SearchOptions.ratingKind carries exactly one kind).
  */
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import Link from "next/link"
+
 import { Breadcrumbs } from "@/components/shared/breadcrumbs"
 import { EmptyState } from "@/components/shared/empty-state"
 import { SectionHeading } from "@/components/shared/section-heading"
+import { FaqList } from "@/features/content/faq-list"
+import { homeSectionInnerClassName } from "@/features/content/home-sections"
+import { NOT_RATED_MESSAGE } from "@/constants/rating"
+import { fullBleedClassName } from "@/lib/full-bleed"
+import { cn } from "@/lib/utils"
 import { doctors as doctorsList, specialties } from "@/data"
 import { ROUTES } from "@/constants/routes"
 import { paginate, searchDoctors } from "@/lib/search"
 import type { RatingKindForSort, SearchSort } from "@/lib/search"
 import { DoctorCard } from "@/features/providers/components/doctor-card"
+import { DoctorListingSearch } from "@/features/discovery/doctor-listing-search"
 import { ListingFilters } from "@/features/discovery/listing-filters"
-import { ResultsToolbar } from "@/features/discovery/results-toolbar"
 import { UrlPagination } from "@/features/discovery/url-pagination"
 import {
   buildFilterQueryString,
   readFilterValues,
+  toFilterValueList,
   type DiscoveryFacet,
+  type DiscoveryFilterValues,
 } from "@/features/discovery/types"
+import type { VerificationStatus } from "@/types"
 
 // ---------------------------------------------------------------------------
 // URL param parsing — safe, deterministic, tolerant of unknown values
@@ -53,7 +61,42 @@ const SORT_OPTIONS = [
 type SortValue = (typeof SORT_OPTIONS)[number]["value"]
 
 const DEFAULT_SORT: SortValue = "name-asc"
-const PAGE_SIZE = 6
+const PAGE_SIZE = 10
+const BASE_PATH = ROUTES.public.doctors
+
+const doctorDirectoryFaqs = [
+  {
+    id: "doctor-faq-ratings",
+    order: 1,
+    question: "What do PER and MER mean on a doctor card?",
+    answer: `PER (Patient Experience Rating) reflects patient feedback about care and communication. MER (Medical Expertise Rating) is an evidence-based assessment of credentials and practice scope. They are always displayed separately — we never combine them into one score. Missing scores show “${NOT_RATED_MESSAGE}”, never 0/5.`,
+  },
+  {
+    id: "doctor-faq-hospitals",
+    order: 2,
+    question: "How are hospital associations shown?",
+    answer:
+      "Each doctor card lists hospitals they are associated with. Open a doctor profile for qualifications, languages, treatments and the full PER/MER evidence metadata.",
+  },
+  {
+    id: "doctor-faq-verification",
+    order: 3,
+    question: "How are doctors and ratings verified?",
+    answer: (
+      <>
+        Doctor profiles list credentials, registration state and independent PER and MER ratings with evidence
+        metadata. Verification badges reflect recorded status. See the{" "}
+        <Link
+          href={ROUTES.public.ratingMethodology}
+          className="font-medium text-primary underline-offset-4 hover:underline"
+        >
+          rating methodology
+        </Link>{" "}
+        page for how ratings are presented.
+      </>
+    ),
+  },
+] as const
 
 function isSortValue(value: string): value is SortValue {
   return SORT_OPTIONS.some((option) => option.value === value)
@@ -61,12 +104,6 @@ function isSortValue(value: string): value is SortValue {
 
 function firstParam(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value
-}
-
-/** A param counts only when a non-empty trimmed string value exists. */
-function presentParam(value: string | string[] | undefined): string | undefined {
-  const first = firstParam(value)?.trim()
-  return first ? first : undefined
 }
 
 function parsePage(value: string | string[] | undefined): number {
@@ -94,16 +131,31 @@ function resolveSort(sortValue: SortValue): { sort: SearchSort; ratingKind?: Rat
   }
 }
 
-/** Doctor-specific facets per 04-reference-design-audit.md — no hospital labels. */
+const DOCTOR_CITIES = [...new Set(doctorsList.map((doctor) => doctor.city))].sort((a, b) =>
+  a.localeCompare(b),
+)
+const DOCTOR_STATES = [...new Set(doctorsList.map((doctor) => doctor.state))].sort((a, b) =>
+  a.localeCompare(b),
+)
+const DOCTOR_LANGUAGES = [...new Set(doctorsList.flatMap((doctor) => doctor.languages))].sort(
+  (a, b) => a.localeCompare(b),
+)
+
+/** Doctor-specific facets — city, specialization, verification, languages, etc. */
 const FILTER_FACETS: DiscoveryFacet[] = [
   {
     kind: "select",
     param: "city",
     label: "City",
     includeBlank: { value: "", label: "All cities" },
-    options: [...new Set(doctorsList.map((doctor) => doctor.city))]
-      .sort((a, b) => a.localeCompare(b))
-      .map((city) => ({ value: city, label: city })),
+    options: DOCTOR_CITIES.map((city) => ({ value: city, label: city })),
+  },
+  {
+    kind: "select",
+    param: "state",
+    label: "State",
+    includeBlank: { value: "", label: "All states" },
+    options: DOCTOR_STATES.map((state) => ({ value: state, label: state })),
   },
   {
     kind: "select",
@@ -112,45 +164,37 @@ const FILTER_FACETS: DiscoveryFacet[] = [
     includeBlank: { value: "", label: "All specializations" },
     options: specialties.map((specialty) => ({ value: specialty.id, label: specialty.name })),
   },
+  {
+    kind: "select",
+    param: "verification",
+    label: "Verification",
+    includeBlank: { value: "", label: "Any status" },
+    options: [
+      { value: "verified", label: "Verified" },
+      { value: "pending", label: "Pending review" },
+      { value: "unverified", label: "Unverified" },
+      { value: "rejected", label: "Rejected" },
+      { value: "expired", label: "Expired" },
+    ],
+  },
+  {
+    kind: "multi-select",
+    param: "language",
+    label: "Languages spoken",
+    options: DOCTOR_LANGUAGES.map((language) => ({ value: language, label: language })),
+  },
+  {
+    kind: "select",
+    param: "rating-status",
+    label: "Rating status",
+    includeBlank: { value: "", label: "Any rating status" },
+    options: [
+      { value: "published", label: "Has a published rating" },
+      { value: "pending", label: "Assessment pending" },
+      { value: "not_assessed", label: "Not yet rated" },
+    ],
+  },
 ]
-
-// ---------------------------------------------------------------------------
-// Free-text search form (?q=) — doctor name, specialty or hospital text.
-// GET form so the submitted URL remains shareable; kept separate from the
-// facet shell because ListingFilters is facet-only by contract.
-// ---------------------------------------------------------------------------
-
-function DoctorQueryForm({ currentQuery, preserved }: { currentQuery: string; preserved: { city?: string; specialization?: string; sort: SortValue } }) {
-  return (
-    <form
-      method="get"
-      action={ROUTES.public.doctors}
-      role="search"
-      aria-label="Search doctors"
-      className="flex flex-wrap items-center gap-2"
-    >
-      {/* Preserve active facets/sort when submitting a new query. */}
-      {preserved.city ? <input type="hidden" name="city" value={preserved.city} /> : null}
-      {preserved.specialization ? (
-        <input type="hidden" name="specialization" value={preserved.specialization} />
-      ) : null}
-      {preserved.sort !== DEFAULT_SORT ? (
-        <input type="hidden" name="sort" value={preserved.sort} />
-      ) : null}
-      <Input
-        type="search"
-        name="q"
-        defaultValue={currentQuery}
-        placeholder="Search by name, specialty or hospital…"
-        aria-label="Search doctors by name, specialty or hospital"
-        className="w-full sm:max-w-none"
-      />
-      <Button type="submit" variant="cta" className="font-semibold shadow-sm">
-        Search
-      </Button>
-    </form>
-  )
-}
 
 // ---------------------------------------------------------------------------
 // Page
@@ -163,112 +207,175 @@ interface DoctorsPageProps {
 export const metadata = {
   title: "Doctor Directory",
   description:
-    "Browse demo doctor profiles by city, specialization and hospital association, with independent patient-experience and medical-expertise ratings. Fictional demo data only.",
+    "Browse doctor profiles by city, specialization and hospital association, with independent patient-experience and medical-expertise ratings.",
 }
 
 export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
   const params = await searchParams
-  const q = presentParam(params.q)
-  const city = presentParam(params.city)
-  const specialization = presentParam(params.specialization)
+  const filterValues = readFilterValues(params)
+  const q = filterValues.q?.[0]
+  const city = filterValues.city?.[0]
+  const specialization = filterValues.specialization?.[0]
+  const state = filterValues.state?.[0]
+  const verification = filterValues.verification?.[0]
+  const languages = toFilterValueList(filterValues.language)
+  const ratingStatus = filterValues["rating-status"]?.[0]
   const sort = parseSort(params.sort)
   const page = parsePage(params.page)
 
   const { sort: searchSort, ratingKind } = resolveSort(sort)
-  const results = searchDoctors(
-    { query: q, city, specialization },
+  const matched = searchDoctors(
+    {
+      query: q,
+      city,
+      specialization,
+      state,
+      languages: languages.length > 0 ? languages : undefined,
+      verificationStatuses: verification
+        ? [verification as VerificationStatus]
+        : undefined,
+    },
     undefined,
     searchSort,
-    ratingKind ? { ratingKind } : undefined
+    ratingKind ? { ratingKind } : undefined,
   )
-  const { items, total, totalPages } = paginate(results, page, PAGE_SIZE)
 
-  // Facet values keyed by facet param, as A03's shell expects (URL is the truth).
-  const filterValues = readFilterValues({ city: params.city, specialization: params.specialization })
-  // Scalars preserved across facet/sort changes (never page).
-  const preservedScalars = { q: q ?? "", sort }
+  const statusFiltered =
+    ratingStatus === undefined || ratingStatus === ""
+      ? matched
+      : matched.filter((doctor) => {
+          const ratings = [doctor.ratings.per, doctor.ratings.mer]
+          if (ratingStatus === "published") {
+            return ratings.some((rating) => rating.status === "published" && rating.score !== null)
+          }
+          if (ratingStatus === "pending") {
+            return ratings.some((rating) => rating.status === "pending")
+          }
+          if (ratingStatus === "not_assessed") {
+            return ratings.every((rating) => rating.score === null)
+          }
+          return true
+        })
+
+  const { items, total, totalPages } = paginate(statusFiltered, page, PAGE_SIZE)
+  const paginationPage = Math.min(Math.max(1, page), totalPages)
+
+  // Scalars preserved across facet changes (never page).
+  const preservedScalars = { q: q ?? "" }
 
   return (
-    <div className="space-y-6 py-8">
-      <div className="space-y-3">
-        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Doctors" }]} />
+    <div className="flex flex-col">
+      <div className="space-y-3 pt-8">
+        <Breadcrumbs
+          items={[{ label: "Home", href: ROUTES.public.home }, { label: "Doctors" }]}
+        />
         <SectionHeading
           as="h1"
           title="Find the right doctor"
-          description="Browse demo doctor profiles by city, specialization and hospital association. Patient Experience (PER) and Medical Expertise (MER) ratings are always shown as independent modules — never a combined score. All data is fictional demo data."
+          description="Browse doctor profiles by city, specialization and hospital association. Patient Experience (PER) and Medical Expertise (MER) ratings are always shown as independent modules — never a combined score."
         />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
-        {/* Facet column (desktop) / filter sheet (mobile) — A03 shell */}
-        <aside aria-label="Doctor filters">
-          <div className="mb-4">
-            <DoctorQueryForm
-              currentQuery={q ?? ""}
-              preserved={{
-                city: filterValues.city?.[0],
-                specialization: filterValues.specialization?.[0],
-                sort,
-              }}
-            />
-          </div>
-          <ListingFilters
-            facets={FILTER_FACETS}
-            values={filterValues}
-            basePath={ROUTES.public.doctors}
-            extraParams={preservedScalars}
-            triggerLabel="Filters"
-          />
-        </aside>
-
-        <div className="min-w-0 space-y-4">
-          <ResultsToolbar
-            total={total}
-            entityLabel="doctor"
-            sortOptions={SORT_OPTIONS}
-            sortValue={sort}
-            basePath={ROUTES.public.doctors}
-            currentParams={params}
-          />
-
-          {q ? (
-            <p className="text-sm text-muted-foreground">
-              Matching “{q}”.{" "}
-              <a
-                href={`${ROUTES.public.doctors}${buildFilterQueryString(filterValues, { sort })}`}
-                className="font-medium text-primary underline-offset-4 hover:underline"
-              >
-                Clear the search text
-              </a>
-            </p>
-          ) : null}
-
-          {items.length > 0 ? (
-            <>
-              <ul className="grid gap-4 sm:grid-cols-2" aria-label="Doctor results">
-                {items.map((doctor) => (
-                  <li key={doctor.id} className="min-w-0">
-                    <DoctorCard doctor={doctor} />
-                  </li>
-                ))}
-              </ul>
-              <UrlPagination
-                page={page}
-                totalPages={totalPages}
-                basePath={ROUTES.public.doctors}
+      <section
+        aria-label="Doctor directory"
+        className={cn(
+          fullBleedClassName,
+          "border-b border-border/70 bg-background py-8 sm:py-10",
+        )}
+      >
+        <div className={homeSectionInnerClassName}>
+          <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
+            <aside aria-label="Doctor filters" className="lg:sticky lg:top-24 lg:self-start">
+              <ListingFilters
+                facets={FILTER_FACETS}
                 values={filterValues}
-                sort={sort}
+                basePath={BASE_PATH}
+                extraParams={preservedScalars}
+                triggerLabel="Filters"
               />
-            </>
-          ) : (
-            <EmptyState
-              title="No doctors match these filters"
-              description="Try a different city or specialization, or clear the filters to see all demo doctor profiles."
-              action={{ label: "Clear all filters", href: ROUTES.public.doctors }}
-            />
-          )}
+            </aside>
+
+            <div className="min-w-0 space-y-4">
+              <DoctorListingSearch
+                basePath={BASE_PATH}
+                initialQuery={q ?? ""}
+                filterValues={filterValues}
+                sort={sort}
+                defaultSort={DEFAULT_SORT}
+              />
+
+              {q ? (
+                <p className="text-sm text-muted-foreground">
+                  Matching “{q}”.{" "}
+                  <a
+                    href={`${BASE_PATH}${buildFilterQueryString(
+                      { ...filterValues, q: undefined },
+                      { sort },
+                    )}`}
+                    className="font-medium text-primary underline-offset-4 hover:underline"
+                  >
+                    Clear the search text
+                  </a>
+                </p>
+              ) : null}
+
+              {total === 0 ? (
+                <EmptyState
+                  title="No doctors match these filters"
+                  description="Try a different city, state or specialization, or clear the filters to see all doctor profiles."
+                  action={{ label: "Clear all filters", href: BASE_PATH }}
+                />
+              ) : (
+                <>
+                  {items.length === 0 ? (
+                    <EmptyState
+                      title="This page is beyond the last result"
+                      description={`The directory has ${total} ${total === 1 ? "doctor" : "doctors"} across ${totalPages} ${totalPages === 1 ? "page" : "pages"}. Go back to page 1 to browse them.`}
+                      action={{
+                        label: "Back to page 1",
+                        href: `${BASE_PATH}${buildFilterQueryString(filterValues, { sort })}`,
+                      }}
+                    />
+                  ) : (
+                    <ul className="grid items-stretch gap-4 sm:grid-cols-2" aria-label="Doctor results">
+                      {items.map((doctor) => (
+                        <li key={doctor.id} className="flex min-w-0">
+                          <DoctorCard doctor={doctor} className="h-full w-full" />
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  <UrlPagination
+                    page={paginationPage}
+                    totalPages={totalPages}
+                    basePath={BASE_PATH}
+                    values={filterValues}
+                    sort={sort}
+                  />
+                </>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
+
+      <section
+        aria-labelledby="doctors-directory-faq-heading"
+        className={cn(
+          fullBleedClassName,
+          "border-t border-border/70 bg-white py-8 sm:py-10",
+        )}
+      >
+        <div className={homeSectionInnerClassName}>
+          <SectionHeading
+            as="h2"
+            id="doctors-directory-faq-heading"
+            title="Doctor directory FAQ"
+          />
+          <FaqList faqs={doctorDirectoryFaqs} variant="cards" />
+        </div>
+      </section>
     </div>
   )
 }

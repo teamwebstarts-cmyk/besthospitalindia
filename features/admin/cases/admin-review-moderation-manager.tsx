@@ -20,7 +20,6 @@
 
 import * as React from "react"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -561,13 +560,6 @@ export function AdminReviewModerationManager({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-        Demo boundary: moderation decisions update local state only — nothing is published,
-        deleted or reported to a real platform, and review authenticity is shown exactly as the
-        fixtures declare it.
-        <Badge variant="outline">Mock phase</Badge>
-      </p>
     </div>
   )
 }

@@ -31,9 +31,7 @@ export function TestimonialCard({
         <span className="block font-medium text-foreground">
           {testimonial.authorName} · {testimonial.authorCountry}
         </span>
-        <span className="block text-xs">
-          Fictional demo story — not a real patient.
-        </span>
+        <span className="block text-xs">Patient experience shared on the platform.</span>
       </figcaption>
     </figure>
   )

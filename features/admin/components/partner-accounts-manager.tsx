@@ -201,7 +201,7 @@ export function PartnerAccountsManager({ partnerUsers, className }: PartnerAccou
       {/* Summary + toolbar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex-1 space-y-1.5 sm:max-w-sm">
-          <Label htmlFor="partner-search">Search partners</Label>
+          <Label htmlFor="partner-search">Search</Label>
           <Input
             id="partner-search"
             value={query}
@@ -211,8 +211,7 @@ export function PartnerAccountsManager({ partnerUsers, className }: PartnerAccou
           />
         </div>
         <p aria-live="polite" className="text-sm text-muted-foreground">
-          {totalAccounts} partner accounts · {approvedCount} approved · {suspendedCount}{" "}
-          suspended (local demo state)
+          {totalAccounts} accounts · {approvedCount} approved · {suspendedCount} suspended
         </p>
       </div>
 
@@ -231,7 +230,7 @@ export function PartnerAccountsManager({ partnerUsers, className }: PartnerAccou
       {visibleOrganizations.length === 0 ? (
         <EmptyState
           title="No partner accounts match this search"
-          description="Try a different name, email, role or organization."
+          description="Try another search."
           action={{
             label: "Clear search",
             onClick: () => setQuery(""),
@@ -337,9 +336,9 @@ export function PartnerAccountsManager({ partnerUsers, className }: PartnerAccou
                                       triggerLabel="Suspend access"
                                       triggerVariant="destructive"
                                       triggerSize="xs"
-                                      title="Suspend partner access (demo)"
-                                      description={`Suspend demo partner access for ${record.user.name}? This records a local demo flag only — no real access exists to revoke, and nothing is communicated.`}
-                                      confirmLabel="Suspend (demo)"
+                                      title="Suspend access"
+                                      description={`Suspend ${record.user.name}? Local demo only.`}
+                                      confirmLabel="Suspend"
                                       destructive
                                       onConfirm={() =>
                                         dispatch({ type: "suspend", id: record.user.id })
@@ -358,9 +357,9 @@ export function PartnerAccountsManager({ partnerUsers, className }: PartnerAccou
                                         triggerLabel="Suspend"
                                         triggerVariant="destructive"
                                         triggerSize="xs"
-                                        title="Suspend partner access (demo)"
-                                        description={`Suspend demo partner access for ${record.user.name}? This records a local demo flag only — no real access exists to revoke, and nothing is communicated.`}
-                                        confirmLabel="Suspend (demo)"
+                                        title="Suspend access"
+                                        description={`Suspend ${record.user.name}? Local demo only.`}
+                                        confirmLabel="Suspend"
                                         destructive
                                         onConfirm={() =>
                                           dispatch({ type: "suspend", id: record.user.id })
@@ -417,9 +416,9 @@ export function PartnerAccountsManager({ partnerUsers, className }: PartnerAccou
                                 triggerLabel="Suspend"
                                 triggerVariant="destructive"
                                 triggerSize="sm"
-                                title="Suspend partner access (demo)"
-                                description={`Suspend demo partner access for ${record.user.name}? This records a local demo flag only.`}
-                                confirmLabel="Suspend (demo)"
+                                title="Suspend access"
+                                description={`Suspend ${record.user.name}? Local demo only.`}
+                                confirmLabel="Suspend"
                                 destructive
                                 onConfirm={() => dispatch({ type: "suspend", id: record.user.id })}
                               />
@@ -435,12 +434,6 @@ export function PartnerAccountsManager({ partnerUsers, className }: PartnerAccou
           })}
         </ul>
       )}
-
-      <p className="text-xs text-muted-foreground">
-        All actions are local demo state on fictional fixtures — the demo sign-in hints on
-        the partner portal remain demo-only and no real access, staff change or
-        notification exists in this phase.
-      </p>
 
       {/* Manage-staff sheet */}
       {staffUser ? (
@@ -475,19 +468,15 @@ export function PartnerAccountsManager({ partnerUsers, className }: PartnerAccou
                     <dd>{formatDate(staffUser.createdAt)}</dd>
                   </div>
                 </dl>
-                <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-xs text-warning">
-                  {staffUser.mockLoginHint} — demo-only marker; no real authentication
-                  exists in this phase.
+                <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-1.5 text-xs text-warning">
+                  {staffUser.mockLoginHint}
                 </p>
               </section>
               <Separator />
               <section aria-label="Staff management scope" className="space-y-2">
-                <h3 className="text-sm font-semibold text-foreground">Manage staff (demo)</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  Staff roster changes (inviting or removing partner users) are outside the
-                  frozen demo contracts — the fixture set defines exactly three partner
-                  accounts. Approval and suspension of existing accounts is available from
-                  the partner table; no create/remove-staff action is simulated here.
+                <h3 className="text-sm font-semibold text-foreground">Staff roster</h3>
+                <p className="text-sm text-muted-foreground">
+                  Invite/remove staff is outside the demo fixtures — use suspend/approve on the table.
                 </p>
               </section>
             </div>

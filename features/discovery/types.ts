@@ -141,10 +141,10 @@ export interface ResultsToolbarProps {
    * Falls back to `${entityLabel}s` when omitted.
    */
   pluralLabel?: string
-  /** Available sort options (entity-specific). Readonly — `as const` literals accepted. */
-  sortOptions: readonly SortOption[]
-  /** Currently applied ?sort= value. */
-  sortValue: string
+  /** When omitted, the sort control is hidden (count-only toolbar). */
+  sortOptions?: readonly SortOption[]
+  /** Currently applied ?sort= value — required when `sortOptions` is set. */
+  sortValue?: string
   /**
    * Client-parent mode: receives the next sort value; the parent composes
    * the URL.

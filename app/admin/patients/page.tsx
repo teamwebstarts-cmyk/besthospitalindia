@@ -21,14 +21,14 @@ export const metadata: Metadata = {
 
 export default function AdminPatientsPage() {
   return (
-    <div className="space-y-8 py-8">
+    <div className="space-y-6 py-6">
       <AdminPageHeader
+        compact
         items={[
           { label: "Admin Portal", href: "/admin" },
           { label: "Patients" },
         ]}
-        title="Patient records"
-        description="Locate demo patient accounts and review their enquiry and appointment references. Contact fields are masked in the list and revealed only inside an opened record — all values are fictional demo data captured with demo consent."
+        title="Patients"
       />
 
       <PatientRecordsManager patients={patients} />

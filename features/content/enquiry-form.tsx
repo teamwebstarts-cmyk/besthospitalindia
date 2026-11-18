@@ -1,7 +1,7 @@
 "use client"
 
-import { useId, useState } from "react"
-import { SendIcon } from "lucide-react"
+import { Fragment, useId, useState, type ReactNode } from "react"
+import { SendIcon, ShieldCheckIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -69,11 +69,20 @@ export type EnquiryFormField =
   | EnquiryFormTextareaField
   | EnquiryFormConsentField
 
+export interface EnquiryFormIntro {
+  title: string
+  description: string
+}
+
 export interface EnquiryFormProps {
   /** Accessible form title (visually hidden if heading is supplied). */
   title: string
   /** Optional visible heading above the form. */
   heading?: string
+  /** Card (default) or primary-filled hero panel. */
+  variant?: "card" | "hero"
+  /** Hero variant: title + lead above the fields. */
+  intro?: EnquiryFormIntro
   fields: readonly EnquiryFormField[]
   schema: ValidationSchema
   /** Mock submit — resolves with { ok: true; reference } or { ok: false; errors }. */
@@ -86,6 +95,13 @@ export interface EnquiryFormProps {
   successNote: string
   submitLabel?: string
   className?: string
+  /** Optional note below the submit control (e.g. terms on hero forms). */
+  footer?: ReactNode
+  /**
+   * When set, fields render in rows (e.g. `[["name","email"],["message"]]`).
+   * Rows with two names use a two-column grid on `sm+`.
+   */
+  fieldRows?: readonly (readonly string[])[]
 }
 
 type Values = Record<string, string | boolean | undefined>
@@ -100,13 +116,18 @@ const initialFeedback: DemoFormFeedbackState = { kind: "idle" }
 export function EnquiryForm({
   title,
   heading,
+  variant = "card",
+  intro,
   fields,
   schema,
   onSubmit,
   successNote,
   submitLabel = "Submit",
   className,
+  footer,
+  fieldRows,
 }: EnquiryFormProps) {
+  const isHero = variant === "hero"
   const reactId = useId()
   const [values, setValues] = useState<Values>({})
   const [errors, setErrors] = useState<ValidationErrors>({})
@@ -149,7 +170,7 @@ export function EnquiryForm({
         setValues({})
         setFeedback({
           kind: "success",
-          headline: `Demo request received — reference ${result.reference}`,
+          headline: `Request received — reference ${result.reference}`,
           lines: [successNote],
         })
       } else {
@@ -157,7 +178,7 @@ export function EnquiryForm({
         setFeedback({
           kind: "error",
           headline:
-            "The demo submission was rejected. Please review the fields below.",
+            "We could not submit your request. Please review the fields below.",
           lines: [],
         })
       }
@@ -178,21 +199,50 @@ export function EnquiryForm({
     return fieldError(name) ? errorId(name) : undefined
   }
 
+  const labelClass = isHero ? "text-primary-foreground" : undefined
+
+  const fieldByName = Object.fromEntries(fields.map((field) => [field.name, field]))
+  const layoutRows = fieldRows ?? fields.map((field) => [field.name] as const)
+
   return (
     <section
       aria-label={title}
       className={cn(
-        "rounded-2xl border bg-card p-6 shadow-xs sm:p-8",
+        isHero
+          ? "rounded-2xl border-0 bg-primary p-5 text-primary-foreground shadow-xl sm:p-6 [&_[data-slot=select-trigger]]:border-white/20 [&_[data-slot=select-trigger]]:bg-white [&_[data-slot=select-trigger]]:text-foreground [&_[data-slot=select-trigger]]:shadow-none [&_[data-slot=select-trigger]]:data-placeholder:text-muted-foreground [&_input]:border-white/20 [&_input]:bg-white [&_input]:text-foreground [&_input]:placeholder:text-foreground/45 [&_input]:dark:bg-white [&_input]:dark:text-foreground [&_textarea]:border-white/20 [&_textarea]:bg-white [&_textarea]:text-foreground [&_textarea]:placeholder:text-foreground/45 [&_textarea]:dark:bg-white [&_textarea]:dark:text-foreground [&_[data-slot=select-trigger]]:dark:bg-white"
+          : "rounded-2xl border bg-card p-6 shadow-xs sm:p-8",
         className
       )}
     >
-      {heading ? (
+      {isHero && intro ? (
+        <div className="mb-5 space-y-1.5">
+          <p className="flex items-center gap-2 text-lg font-semibold tracking-tight">
+            <ShieldCheckIcon aria-hidden className="size-5 shrink-0 opacity-90" />
+            {intro.title}
+          </p>
+          <p className="text-sm leading-relaxed text-primary-foreground/85">
+            {intro.description}
+          </p>
+        </div>
+      ) : null}
+      {heading && !isHero ? (
         <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">
           {heading}
         </h2>
       ) : null}
-      <form onSubmit={handleSubmit} noValidate className="space-y-5">
-        {fields.map((field) => {
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        className={cn("space-y-4", isHero && "space-y-3.5")}
+      >
+        {layoutRows.map((row) => {
+          const rowFields = row
+            .map((name) => fieldByName[name])
+            .filter((field): field is EnquiryFormField => field !== undefined)
+
+          if (rowFields.length === 0) return null
+
+          const rowBody = rowFields.map((field) => {
           if (field.kind === "consent") {
             const error = fieldError(field.name)
             return (
@@ -210,7 +260,10 @@ export function EnquiryForm({
                   />
                   <Label
                     htmlFor={`${reactId}-${field.name}`}
-                    className="text-sm leading-snug font-normal text-muted-foreground"
+                    className={cn(
+                      "text-sm leading-snug font-normal",
+                      isHero ? "text-primary-foreground/90" : "text-muted-foreground"
+                    )}
                   >
                     {field.label}
                   </Label>
@@ -231,7 +284,7 @@ export function EnquiryForm({
             const error = fieldError(field.name)
             return (
               <div key={field.name} className="space-y-1.5">
-                <Label htmlFor={`${reactId}-${field.name}`}>
+                <Label htmlFor={`${reactId}-${field.name}`} className={labelClass}>
                   {field.label}
                   {field.required ? (
                     <span aria-hidden className="text-destructive">
@@ -296,7 +349,7 @@ export function EnquiryForm({
             const error = fieldError(field.name)
             return (
               <div key={field.name} className="space-y-1.5">
-                <Label htmlFor={`${reactId}-${field.name}`}>
+                <Label htmlFor={`${reactId}-${field.name}`} className={labelClass}>
                   {field.label}
                   {field.required ? (
                     <span aria-hidden className="text-destructive">
@@ -330,7 +383,7 @@ export function EnquiryForm({
           const error = fieldError(field.name)
           return (
             <div key={field.name} className="space-y-1.5">
-              <Label htmlFor={`${reactId}-${field.name}`}>
+              <Label htmlFor={`${reactId}-${field.name}`} className={labelClass}>
                 {field.label}
                 {field.required ? (
                   <span aria-hidden className="text-destructive">
@@ -360,14 +413,46 @@ export function EnquiryForm({
               ) : null}
             </div>
           )
+          })
+
+          const rowKey = row.join("-")
+          if (rowFields.length > 1) {
+            return (
+              <div
+                key={rowKey}
+                className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:items-start"
+              >
+                {rowBody}
+              </div>
+            )
+          }
+
+          return <Fragment key={rowKey}>{rowBody}</Fragment>
         })}
 
         <div className="space-y-3">
-          <Button type="submit" variant="cta" className="rounded-full px-6 font-semibold shadow-sm" disabled={isSubmitting}>
-            <SendIcon aria-hidden />
+          <Button
+            type="submit"
+            variant="cta"
+            className={cn(
+              "font-semibold shadow-sm",
+              isHero ? "w-full rounded-md px-6" : "rounded-full px-6"
+            )}
+            disabled={isSubmitting}
+          >
+            {!isHero ? <SendIcon aria-hidden /> : null}
             {isSubmitting ? "Submitting…" : submitLabel}
+            {isHero && !isSubmitting ? (
+              <span aria-hidden className="ml-0.5">
+                →
+              </span>
+            ) : null}
           </Button>
-          <DemoFormFeedback state={feedback} />
+          {footer}
+          <DemoFormFeedback
+            state={feedback}
+            className={isHero ? "text-primary-foreground/90 [&_a]:text-primary-foreground" : undefined}
+          />
         </div>
       </form>
     </section>

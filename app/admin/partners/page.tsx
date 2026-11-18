@@ -21,14 +21,14 @@ export const metadata: Metadata = {
 
 export default function AdminPartnersPage() {
   return (
-    <div className="space-y-8 py-8">
+    <div className="space-y-6 py-6">
       <AdminPageHeader
+        compact
         items={[
           { label: "Admin Portal", href: "/admin" },
           { label: "Partners" },
         ]}
-        title="Partner management"
-        description="Review organizations with partner access and their staff accounts. Approve / suspend record a local demo access flag; the staff view explains the demo roster boundary. All actions are local demo state."
+        title="Partners"
       />
 
       <PartnerAccountsManager partnerUsers={partnerUsers} />

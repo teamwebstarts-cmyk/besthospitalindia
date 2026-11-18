@@ -17,6 +17,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { publicNav, type NavLink } from "@/constants/navigation"
+import { SITE_CONTACT } from "@/constants/site-contact"
 import { cn } from "@/lib/utils"
 
 const headerSearchRoutes = {
@@ -116,23 +117,25 @@ function HeaderTopBar() {
   )
 }
 
+function navLinkClassName(isActive: boolean) {
+  return cn(
+    "inline-flex h-10 items-center px-2 text-xs font-medium text-foreground/80 whitespace-nowrap transition-colors outline-none hover:text-primary focus-visible:ring-3 focus-visible:ring-ring/50 xl:px-2.5 xl:text-sm",
+    isActive && "font-semibold text-primary"
+  )
+}
+
 function DesktopNavLinks({ links }: { links: NavLink[] }) {
   const pathname = usePathname()
 
   return (
-    <nav
-      aria-label="Primary"
-      className="min-w-0 flex-1 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-    >
-      <ul className="flex w-max items-center gap-0.5 xl:w-full xl:flex-wrap">
+    <nav aria-label="Primary" className="shrink-0">
+      <ul className="flex flex-nowrap items-center gap-0.5">
         {links.map((link) => (
           <li key={link.href} className="shrink-0">
             <Link
               href={link.href}
               aria-current={isPathActive(pathname, link.href) ? "page" : undefined}
-              className={cn(
-                "inline-flex h-9 items-center px-2 text-xs font-medium text-foreground/80 whitespace-nowrap transition-colors outline-none hover:text-primary focus-visible:ring-3 focus-visible:ring-ring/50 xl:h-10 xl:px-2.5 xl:text-sm aria-[current=page]:font-semibold aria-[current=page]:text-primary"
-              )}
+              className={navLinkClassName(isPathActive(pathname, link.href))}
             >
               {link.label}
             </Link>
@@ -186,16 +189,16 @@ function MobileNav({ links }: { links: NavLink[] }) {
         <div className="space-y-3 border-t p-4">
           <ul className="space-y-2 text-sm text-muted-foreground" aria-label="Contact">
             <li>
-              <a href="tel:+910000000000" className="font-medium text-foreground">
-                +91 (0) 00000 00000
+              <a href={SITE_CONTACT.phoneHref} className="font-medium text-foreground">
+                {SITE_CONTACT.phoneDisplay}
               </a>
             </li>
             <li>
               <a
-                href="mailto:hello@besthospitalindia.example"
+                href={SITE_CONTACT.mainEmailHref}
                 className="font-medium text-foreground"
               >
-                hello@besthospitalindia.example
+                {SITE_CONTACT.mainEmail}
               </a>
             </li>
           </ul>
@@ -249,17 +252,17 @@ export function PublicHeader({ links = publicNav, className }: PublicHeaderProps
             <MobileNav links={links} />
           </div>
         </div>
-        <div className="border-t bg-background/80 px-4 pb-3 sm:px-6">
+        <div className="border-t bg-background/80 px-4 pt-3 pb-3 sm:px-6">
           <HeaderSearchBar />
         </div>
       </div>
 
-      {/* Desktop lg–xl: nav row, search row; xl+: single row */}
+      {/* Desktop: single nav + search row */}
       <div className="hidden border-b bg-background lg:block">
-        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-2 py-2 xl:h-11 xl:flex-row xl:items-center xl:gap-4 xl:py-0">
+        <div className="mx-auto w-full max-w-7xl px-4 py-2.5 sm:px-6 lg:px-8 xl:py-3">
+          <div className="flex min-h-10 items-center gap-4 xl:gap-6">
             <DesktopNavLinks links={links} />
-            <HeaderSearchBar className="w-full shrink-0 xl:max-w-sm 2xl:max-w-md" />
+            <HeaderSearchBar className="min-w-0 flex-1" />
           </div>
         </div>
       </div>

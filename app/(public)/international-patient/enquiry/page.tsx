@@ -22,7 +22,7 @@ import { InternationalPatientEnquiryForm } from "@/features/medical-tourism"
 export const metadata: Metadata = {
   title: "International Patient Enquiry",
   description:
-    "Record a demo international patient enquiry with case details, report labels and travel preferences. Mock platform — nothing is submitted, uploaded or stored.",
+    "Submit an international patient enquiry with case details, report labels and travel preferences. Our coordination team reviews and follows up.",
   alternates: { canonical: ROUTES.public.internationalPatientEnquiry },
 }
 
@@ -63,10 +63,9 @@ export default async function InternationalPatientEnquiryPage({
         </h1>
         <p className="max-w-3xl text-base text-muted-foreground">
           Share patient details, case context, report labels and travel
-          preferences. This is a demo form: validation runs locally, submission
-          is simulated, and you will see a confirmation with a demo reference
-          number. Nothing is sent to any hospital, doctor or coordinator, and
-          no account, case or appointment is created.
+          preferences. After you submit, you receive a reference number and our
+          coordination team reviews the enquiry. An enquiry is not a confirmed
+          appointment until a provider confirms.
         </p>
       </section>
 
@@ -77,10 +76,9 @@ export default async function InternationalPatientEnquiryPage({
             <InfoIcon aria-hidden className="mt-0.5 size-4 shrink-0" />
             <span>
               <strong className="font-medium text-foreground">What happens after submit:</strong>{" "}
-              a local confirmation with a randomly generated demo reference
-              (ENQ-XXXX). Admin review, coordinator assignment and provider
-              responses are future backend capabilities — they are documented
-              in the project specs but intentionally not simulated here.
+              you receive a reference number (for example ENQ-XXXX). A coordinator
+              reviews the enquiry, may assign a case worker and shares provider
+              responses according to the workflow described on the medical tourism pages.
             </span>
           </p>
         </CardContent>

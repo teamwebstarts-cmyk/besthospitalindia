@@ -26,7 +26,7 @@ export function IufInitiativeBanner({ className }: { className?: string }) {
           </span>
           <span className="block text-xs text-muted-foreground">
             This free consultation programme is presented under the Forum&apos;s supported-initiative
-            banner on BestHospitalIndia (demo platform).
+            banner on BestHospitalIndia.
           </span>
         </span>
       </p>

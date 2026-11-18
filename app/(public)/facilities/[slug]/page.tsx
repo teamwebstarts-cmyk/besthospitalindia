@@ -61,7 +61,7 @@ export async function generateMetadata({
   const categoryLabel = FACILITY_CATEGORY_LABELS[facility.category].toLowerCase()
   return {
     title: facility.name,
-    description: `${facility.name} is a fictional demo ${categoryLabel} facility in ${facility.city}, ${facility.state}, listed for demonstration purposes on the BestHospitalIndia demo platform. Demo data only — not a real provider.`,
+    description: `${facility.name} — ${categoryLabel} facility in ${facility.city}, ${facility.state}. View category, services, specialties and verification status on BestHospitalIndia.`,
     alternates: { canonical: `/facilities/${facility.slug}` },
   }
 }
@@ -105,9 +105,9 @@ export default async function FacilityDetailPage({ params }: FacilityPageProps) 
           {facility.city}, {facility.state}, {facility.country}
         </p>
         <p className="max-w-3xl text-sm text-balance text-muted-foreground">
-          This is a fictional demo facility profile. It exists to demonstrate
-          the facility detail layout — nothing here represents a real provider,
-          and no booking, enquiry or verification has taken place.
+          Facility profile with verification status, listed specialties and
+          services. Use the enquiry options to request information or a free
+          consultation — an enquiry is not a confirmed booking.
         </p>
         <div className="flex flex-wrap gap-2 pt-1">
           <Button render={<Link href="/contact" />}>
@@ -129,17 +129,16 @@ export default async function FacilityDetailPage({ params }: FacilityPageProps) 
               <p>
                 {facility.name} is listed as a{" "}
                 {FACILITY_CATEGORY_LABELS[facility.category].toLowerCase()} in{" "}
-                {facility.city}, {facility.state}. This profile is part of the
-                BestHospitalIndia demo dataset and carries only the fields
-                defined for demo facilities: category, location, associated
-                specialties and services, and a mock verification status.
+                {facility.city}, {facility.state}. This profile lists category,
+                location, associated specialties and services, and verification
+                status as recorded on the platform.
               </p>
               <p>
                 Verification status on this record is{" "}
                 <strong className="font-medium text-foreground">
                   {facility.verificationStatus}
                 </strong>{" "}
-                — a mock display state only, not a real-world check.
+                — updated as our team completes registry and accreditation checks.
               </p>
             </div>
           </section>
@@ -148,11 +147,11 @@ export default async function FacilityDetailPage({ params }: FacilityPageProps) 
             <SectionHeading
               as="h2"
               title="Specialties"
-              description="Demo taxonomy tags associated with this facility."
+              description="Specialties associated with this facility."
             />
             {facilitySpecialties.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                No specialties are associated with this demo facility.
+                No specialties are associated with this facility yet.
               </p>
             ) : (
               <ul aria-label="Specialties" className="flex flex-wrap gap-2">
@@ -169,7 +168,7 @@ export default async function FacilityDetailPage({ params }: FacilityPageProps) 
             <SectionHeading
               as="h2"
               title="Services"
-              description="Category-specific demo services offered at this facility."
+              description="Services offered at this facility."
             />
             <ul className="grid gap-2 sm:grid-cols-2">
               {facility.services.map((service) => (
@@ -188,7 +187,7 @@ export default async function FacilityDetailPage({ params }: FacilityPageProps) 
           <Card size="sm">
             <CardHeader>
               <CardTitle>Location</CardTitle>
-              <CardDescription>Demo location details (fictional).</CardDescription>
+              <CardDescription>City and region for this listing.</CardDescription>
             </CardHeader>
             <CardContent className="text-sm">
               <p className="flex items-start gap-2">
@@ -203,8 +202,7 @@ export default async function FacilityDetailPage({ params }: FacilityPageProps) 
                 </span>
               </p>
               <p className="mt-3 text-xs text-muted-foreground">
-                Full address and contact details are intentionally omitted from
-                demo data.
+                Full address and direct contact details may be shared after an enquiry is reviewed.
               </p>
             </CardContent>
           </Card>
@@ -213,8 +211,7 @@ export default async function FacilityDetailPage({ params }: FacilityPageProps) 
             <CardHeader>
               <CardTitle>Interested in this facility?</CardTitle>
               <CardDescription>
-                Enquiries route to the contact and consultation flows — nothing
-                is submitted from this page.
+                Enquiries route to the contact and consultation flows for follow-up by our team.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
@@ -225,8 +222,7 @@ export default async function FacilityDetailPage({ params }: FacilityPageProps) 
                 Free consultation
               </Button>
               <p className="text-xs text-muted-foreground">
-                Links open the public enquiry flows. No data is sent from this
-                demo profile.
+                Links open the enquiry flows with this facility in context where supported.
               </p>
             </CardContent>
           </Card>

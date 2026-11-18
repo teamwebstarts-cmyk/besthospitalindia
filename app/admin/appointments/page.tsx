@@ -25,11 +25,8 @@ export const metadata: Metadata = {
 
 export default function AdminAppointmentsPage() {
   return (
-    <div className="space-y-8">
-      <AdminCasePageHeader
-        label="Appointments"
-        description="Appointment requests across the platform. Update scheduling status or cancel a request — every action is a local demo edit and no patient or provider is contacted."
-      />
+    <div className="space-y-6 py-6">
+      <AdminCasePageHeader compact label="Appointments" />
       <AdminAppointmentManager requests={appointments} />
     </div>
   )

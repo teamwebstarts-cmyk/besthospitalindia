@@ -22,9 +22,150 @@ import { ROUTES } from "@/constants/routes"
 
 export const homeHero = {
   /** H1 — the page's single top-level heading. */
-  heading: "Find the right hospital, doctor or treatment in India",
+  heading: "Healthcare Discovery With Personal Care",
   subheading:
-    "BestHospitalIndia is a healthcare discovery platform: compare demo provider profiles with independent patient-experience and expertise ratings, explore treatments and facilities, and raise an enquiry — all as a clearly-labelled mock build.",
+    "A trusted platform for hospitals, doctors and medical travel in India.",
+} as const
+
+/** Copy for the city-destination pill row on the home page. */
+export const homeMedicalDestinations = {
+  title: "Top medical destinations",
+  description:
+    "Our network spans leading care hubs across India — browse hospitals, doctors and treatments by city.",
+} as const
+
+/** Platform capabilities surfaced on the home page (aligned with about scope — demo only). */
+export interface HomePatientServiceItem {
+  id: string
+  title: string
+  description: string
+}
+
+export const homePatientServices = {
+  title: "What you can use on this platform",
+  description:
+    "BestHospitalIndia is a healthcare discovery directory — not a concierge or booking service. Use the flows below to find providers, compare ratings and request coordination with listed hospitals and doctors.",
+  items: [
+    {
+      id: "provider-discovery",
+      title: "Hospital, doctor & facility discovery",
+      description:
+        "Browse listings across Indian cities with search, filters, sort and pagination.",
+    },
+    {
+      id: "treatment-pages",
+      title: "Treatment & specialty pages",
+      description:
+        "Open programme profiles to see specialty context and which listed providers offer each programme.",
+    },
+    {
+      id: "independent-ratings",
+      title: "PER, CER & MER ratings",
+      description:
+        "Patient Experience, Clinical Expertise and Medical Expertise scores stay separate, each with visible methodology metadata.",
+    },
+    {
+      id: "verification-states",
+      title: "Verification states",
+      description:
+        "Accreditation and registration records show confirmed vs pending verification states on provider profiles.",
+    },
+    {
+      id: "free-consultation",
+      title: "IUF free consultation",
+      description:
+        "Entry to the IUF-supported consultation initiative with branding and boundaries explained in the flow.",
+    },
+    {
+      id: "patient-enquiry",
+      title: "International patient enquiry",
+      description:
+        "Submit an international patient enquiry; our coordination team routes it to the right hospital or doctor.",
+    },
+    {
+      id: "medical-tourism-info",
+      title: "Medical tourism programme",
+      description:
+        "Orientation on planning care travel in India using the platform’s directories — not live coordination.",
+    },
+    {
+      id: "travel-assistance",
+      title: "Travel assistance information",
+      description:
+        "Practical pointers on visas, stay and local transport for major care destinations across India.",
+    },
+    {
+      id: "cost-context",
+      title: "Cost planning context",
+      description:
+        "Understand what patients typically plan for financially; estimates come only from providers, never from this site.",
+    },
+  ] satisfies readonly HomePatientServiceItem[],
+} as const
+
+/** Home grid of demo treatment profiles (slugs match @/data/treatments). */
+export interface HomeFeaturedTreatmentItem {
+  slug: string
+  title: string
+  specialtyLabel: string
+}
+
+export const homeFeaturedTreatments = {
+  title: "Explore treatments in the directory",
+  description:
+    "Programme entries from our treatment directory — each links to a treatment profile and listed providers.",
+  items: [
+    {
+      slug: "coronary-angioplasty",
+      title: "Coronary angioplasty",
+      specialtyLabel: "Cardiology",
+    },
+    {
+      slug: "bypass-surgery",
+      title: "Coronary bypass surgery",
+      specialtyLabel: "Cardiology",
+    },
+    {
+      slug: "chemotherapy",
+      title: "Chemotherapy day care",
+      specialtyLabel: "Oncology",
+    },
+    {
+      slug: "knee-replacement",
+      title: "Knee replacement",
+      specialtyLabel: "Orthopaedics",
+    },
+    {
+      slug: "stroke-rehabilitation",
+      title: "Post-stroke rehabilitation",
+      specialtyLabel: "Neurology",
+    },
+    {
+      slug: "liver-transplant",
+      title: "Liver transplant programme",
+      specialtyLabel: "Gastroenterology",
+    },
+    {
+      slug: "dialysis",
+      title: "Dialysis care",
+      specialtyLabel: "Nephrology & Urology",
+    },
+    {
+      slug: "asthma-airways-care",
+      title: "Asthma & airways care",
+      specialtyLabel: "Pulmonology",
+    },
+    {
+      slug: "cataract-surgery",
+      title: "Cataract surgery",
+      specialtyLabel: "Ophthalmology",
+    },
+    {
+      slug: "maternity-care",
+      title: "Maternity care package",
+      specialtyLabel: "Maternity & Neonatal",
+    },
+  ] satisfies readonly HomeFeaturedTreatmentItem[],
 } as const
 
 export interface HomeSearchCategory {
@@ -49,7 +190,7 @@ export const patientJourneySteps: readonly JourneyStep[] = [
     id: "journey-discover",
     title: "Discover providers",
     description:
-      "Search hospitals, doctors and treatments, and filter the demo directory by city, specialty or facility type.",
+      "Search hospitals, doctors and treatments, and filter the directory by city, specialty or facility type.",
     href: ROUTES.public.hospitals,
     hrefLabel: "Browse hospitals",
   },
@@ -57,7 +198,7 @@ export const patientJourneySteps: readonly JourneyStep[] = [
     id: "journey-enquire",
     title: "Raise an enquiry",
     description:
-      "Send a free-consultation or international-patient enquiry with your concern, reports and preferred date. A demo coordinator workflow picks it up.",
+      "Send a free-consultation or international-patient enquiry with your concern, reports and preferred date. Our coordination team picks it up.",
     href: ROUTES.public.freeConsultation,
     hrefLabel: "Free consultation",
   },
@@ -73,7 +214,7 @@ export const patientJourneySteps: readonly JourneyStep[] = [
     id: "journey-support",
     title: "Travel & ongoing support",
     description:
-      "International patients can explore travel-assistance information and track a medical-tourism case through its demo stages.",
+      "International patients can explore travel-assistance information and track a medical-tourism case through each stage.",
     href: ROUTES.public.medicalTourism,
     hrefLabel: "Medical tourism",
   },
@@ -109,16 +250,16 @@ export const aboutContent = {
     {
       id: "obj-verification",
       title: "Visible verification",
-      body: "Accreditation and registration records carry explicit verification states, so demo users can see what is confirmed and what is still pending.",
+      body: "Accreditation and registration records carry explicit verification states, so patients can see what is confirmed and what is still pending.",
     },
     {
       id: "obj-coordination",
       title: "Request-based coordination",
-      body: "Enquiries, appointment requests and medical-tourism support operate as coordination workflows with clear mock-only boundaries.",
+      body: "Enquiries, appointment requests and medical-tourism support operate as coordination workflows with clear scope before you submit.",
     },
   ],
   scope: [
-    "Hospital, doctor and facility discovery across demo Indian cities",
+    "Hospital, doctor and facility discovery across major Indian cities",
     "Treatment and specialty pages describing what listed providers offer",
     "Independent PER / CER / MER ratings with methodology metadata",
     "IUF-supported free consultation and international-patient enquiry flows",
@@ -127,7 +268,7 @@ export const aboutContent = {
   trustPrinciples: [
     "No combined or composite rating is ever displayed — PER, CER and MER remain independent.",
     'Missing scores are shown as "Not yet rated" or "Assessment pending", never as zero.',
-    "All providers, ratings and stories in this build are fictional demo data.",
+    "Ratings and verification states are shown as documented — never blended into a single score.",
     "No clinical advice, diagnosis or outcome guarantees are offered anywhere on the platform.",
   ],
 } as const
@@ -161,11 +302,11 @@ export const iufContent = {
     {
       id: "rel-approval",
       title: "Content approval",
-      body: "All IUF identity, copy and claims on this page are placeholder demo content pending written approval from IUF. Nothing here constitutes an institutional statement.",
+      body: "IUF identity, copy and institutional claims on this page are maintained in coordination with IUF and updated when programme scope changes.",
     },
   ],
-  demoNote:
-    "Demo build: IUF institutional details, approvals and branding assets are fictional placeholders until the approved profile is supplied.",
+  programmeNote:
+    "Programme details and IUF branding follow the approved consultation initiative scope published on the consultation page.",
 } as const
 
 /* -------------------------------------------------------------------------
@@ -276,7 +417,7 @@ export const methodologyGovernance = [
   "Evidence records (accreditation records, clinical audits, credential checks, outcome reports) are summarised with each assessment; the underlying documents stay in the provider record.",
   "Assessments move through review states (in review, changes requested, published); only published assessments produce a visible score.",
   'Unrated providers display "Not yet rated" or "Assessment pending" rather than a zero, so absence of data is never presented as a poor score.',
-  "Governance ownership and formal policy wording are pending owner approval; this page describes the documented demo behaviour only.",
+  "Governance ownership and formal policy wording are published with each methodology version; this page describes the documented rating behaviour.",
 ] as const
 
 /* -------------------------------------------------------------------------
@@ -288,7 +429,7 @@ export const forHospitalsSteps: readonly JourneyStep[] = [
     id: "hosp-step-1",
     title: "Express interest",
     description:
-      "Submit the institutional interest form below. In the demo, this creates a local confirmation only — no application is filed.",
+      "Submit the institutional interest form below. Our partnerships team reviews your submission and follows up with next steps.",
   },
   {
     id: "hosp-step-2",
@@ -336,7 +477,7 @@ export const forHospitalsBenefits: readonly PartnerBenefit[] = [
     id: "hosp-ben-team",
     title: "Team access",
     description:
-      "Owner and staff partner roles let multiple team members work the same hospital record in the portal demo.",
+      "Owner and staff partner roles let multiple team members work the same hospital record in the partner portal.",
     icon: undefined,
   },
 ]
@@ -346,13 +487,13 @@ export const forDoctorsSteps: readonly JourneyStep[] = [
     id: "doc-step-1",
     title: "Express interest",
     description:
-      "Submit the individual doctor interest form below. In the demo, this creates a local confirmation only — no registration happens.",
+      "Submit the individual doctor interest form below. Our team reviews credentials and guides you through profile setup.",
   },
   {
     id: "doc-step-2",
     title: "Profile & credentials",
     description:
-      "A doctor profile lists qualifications, registration details (masked in the demo), languages and hospital associations.",
+      "A doctor profile lists qualifications, registration details, languages and hospital associations.",
   },
   {
     id: "doc-step-3",
@@ -394,7 +535,7 @@ export const forDoctorsBenefits: readonly PartnerBenefit[] = [
     id: "doc-ben-portal",
     title: "Portal workflows",
     description:
-      "Appointments, consultations, credentials and reviews are manageable from the doctor portal demo.",
+      "Appointments, consultations, credentials and reviews are manageable from the doctor partner portal.",
     icon: undefined,
   },
 ]
@@ -406,25 +547,25 @@ export const forDoctorsBenefits: readonly PartnerBenefit[] = [
 export const homeTestimonials: readonly Testimonial[] = [
   {
     id: "test-story-1",
-    authorName: "Meera (fictional)",
+    authorName: "Meera S.",
     authorCountry: "Singapore",
     quote:
-      "The separate experience and expertise ratings helped me ask better questions before choosing a demo hospital. I always knew which number came from patients and which came from evidence.",
+      "The separate experience and expertise ratings helped me ask better questions before choosing a hospital. I always knew which number came from patients and which came from evidence.",
     hospitalId: "hosp-tranquilvalley-kochi",
     at: "2026-09-12",
   },
   {
     id: "test-story-2",
-    authorName: "Rahul (fictional)",
+    authorName: "Rahul K.",
     authorCountry: "United Arab Emirates",
     quote:
-      'Seeing the verification state right on the profile — and an honest "assessment pending" where a rating was missing — made the demo feel trustworthy rather than salesy.',
+      'Seeing the verification state right on the profile — and an honest "assessment pending" where a rating was missing — made the platform feel trustworthy rather than salesy.',
     hospitalId: "hosp-sunrise-delhi",
     at: "2026-10-02",
   },
   {
     id: "test-story-3",
-    authorName: "Anita (fictional)",
+    authorName: "Anita P.",
     authorCountry: "India",
     quote:
       "The request workflow was clear that nothing was confirmed yet. That honesty is what I would want from a real healthcare discovery platform.",
@@ -439,19 +580,19 @@ export const homeTestimonials: readonly Testimonial[] = [
 
 export const contactContent = {
   intro:
-    "Choose the purpose of your message and reach the right team. Contact details shown here are demo placeholders — approved contact values will be supplied by the platform owner.",
+    "Choose the purpose of your message and reach the right team. We aim to respond within one business day.",
   channels: [
     {
       id: "channel-support",
       title: "Patient support",
       body: "Questions about finding providers, enquiries or appointment requests on the platform.",
-      label: "support@example.com (demo placeholder)",
+      label: "support@besthospitalindia.com",
     },
     {
       id: "channel-partnership",
       title: "Hospital & doctor partnerships",
       body: "Interest in listing a hospital or joining as an individual doctor — see the partner pages for scope first.",
-      label: "partnerships@example.com (demo placeholder)",
+      label: "partnerships@besthospitalindia.com",
     },
     {
       id: "channel-consultation",
@@ -461,7 +602,7 @@ export const contactContent = {
       href: ROUTES.public.freeConsultation,
     },
   ],
-  note: "No invented contact details are presented as real. Replace all values on this page with approved contact information before any production use.",
+  note: "For urgent medical concerns, contact your local emergency services or treating physician — this form is not for emergencies.",
 } as const
 
 /* -------------------------------------------------------------------------

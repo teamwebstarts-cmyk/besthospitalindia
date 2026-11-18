@@ -2,7 +2,7 @@
  * /hospitals — Hospital directory (Agent A04).
  *
  * Spec: implementation/pages/04-hospitals.md — Breadcrumb; heading; filters;
- * result count/sort; hospital cards with separate PER/CER; pagination; FAQ.
+ * hospital cards with separate PER/CER; pagination; FAQ.
  *
  * URL-driven (10-routing-and-layouts.md): filters, sort and page live in the
  * search params. Filters compose AND (lib/search contract). Sorting operates
@@ -10,7 +10,7 @@
  * are separate sort options, and no combined score exists anywhere. Missing
  * scores sort last (lib/search), never as 0.
  *
- * A03's discovery shell (ListingFilters / ResultsToolbar / UrlPagination) is
+ * A03's discovery shell (ListingFilters / UrlPagination) is
  * consumed in Server-Component URL mode: the page awaits searchParams, derives
  * filter values via readFilterValues, and the shell components write changes
  * back to the URL themselves.
@@ -20,39 +20,63 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { Building2Icon } from "lucide-react"
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
 import { Breadcrumbs } from "@/components/shared/breadcrumbs"
+import { FaqList } from "@/features/content/faq-list"
 import { EmptyState } from "@/components/shared/empty-state"
 import { SectionHeading } from "@/components/shared/section-heading"
 import { HospitalCard } from "@/features/providers/components/hospital-card"
 import {
   ListingFilters,
 } from "@/features/discovery/listing-filters"
-import { ResultsToolbar } from "@/features/discovery/results-toolbar"
 import { UrlPagination } from "@/features/discovery/url-pagination"
+import { HospitalListingSearch } from "@/features/discovery/hospital-listing-search"
 import {
+  buildFilterQueryString,
   readFilterValues,
 } from "@/features/discovery/types"
 import { hospitals, specialties } from "@/data"
 import { paginate, searchHospitals, type SearchSort } from "@/lib/search"
 import { ROUTES } from "@/constants/routes"
 import { NOT_RATED_MESSAGE } from "@/constants/rating"
+import { homeSectionInnerClassName } from "@/features/content/home-sections"
+import { fullBleedClassName } from "@/lib/full-bleed"
+import { cn } from "@/lib/utils"
 
-const PAGE_SIZE = 6
+const PAGE_SIZE = 10
 const BASE_PATH = ROUTES.public.hospitals
 
-/** Canonical sort param values — PER and CER sorts stay separate (never combined). */
-const SORT_OPTIONS = [
-  { value: "relevance", label: "Sort: Featured" },
-  { value: "name-asc", label: "Name (A → Z)" },
-  { value: "name-desc", label: "Name (Z → A)" },
-  { value: "rating-desc-per", label: "PER (high → low)" },
-  { value: "rating-desc-cer", label: "CER (high → low)" },
+const hospitalDirectoryFaqs = [
+  {
+    id: "hospital-faq-ratings",
+    order: 1,
+    question: "What do PER and CER mean on a hospital card?",
+    answer: `PER (Patient Experience Rating) reflects patient feedback about care and service. CER (Clinical Expertise Rating) is an evidence-based clinical assessment. They are always displayed separately — we never combine them into one score. Ratings without an approved score show “${NOT_RATED_MESSAGE}”, never 0/5.`,
+  },
+  {
+    id: "hospital-faq-missing",
+    order: 2,
+    question: 'Why do some hospitals show “Not yet rated”?',
+    answer:
+      "Some providers have not completed an assessment workflow yet. A missing score is a missing score — the directory never substitutes 0 or a placeholder average.",
+  },
+  {
+    id: "hospital-faq-verification",
+    order: 3,
+    question: "How are hospitals and ratings verified?",
+    answer: (
+      <>
+        Each hospital profile lists accreditations and independent PER and CER ratings with evidence
+        metadata. See the{" "}
+        <Link
+          href={ROUTES.public.ratingMethodology}
+          className="font-medium text-primary underline-offset-4 hover:underline"
+        >
+          rating methodology
+        </Link>{" "}
+        page for how ratings are presented.
+      </>
+    ),
+  },
 ] as const
 
 const DEFAULT_SORT: SearchSort = "relevance"
@@ -76,7 +100,7 @@ function resolveSort(raw: string | undefined): { sort: SearchSort; ratingKind?: 
 export const metadata: Metadata = {
   title: "Hospitals",
   description:
-    "Browse demo hospitals across India with independent patient experience (PER) and clinical expertise (CER) ratings, filters and city coverage. Fictional demo directory.",
+    "Browse hospitals across India with independent patient experience (PER) and clinical expertise (CER) ratings, filters and city coverage.",
   alternates: { canonical: BASE_PATH },
 }
 
@@ -134,6 +158,7 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
 
   const filtered = accreditationFiltered
   const { items, total, totalPages } = paginate(filtered, page, PAGE_SIZE)
+  const paginationPage = Math.min(Math.max(1, page), totalPages)
 
   // Facet options derived from fixtures — no hardcoded arrays in JSX.
   const cities = [...new Set(hospitals.map((hospital) => hospital.city))].sort((a, b) => a.localeCompare(b))
@@ -146,24 +171,36 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
     ...(ratingStatus ? { "rating-status": [ratingStatus] } : {}),
   }
 
+  const preservedScalars = { q: q ?? "" }
+
   return (
-    <div className="space-y-8 py-8">
-      <Breadcrumbs
-        items={[
-          { label: "Home", href: ROUTES.public.home },
-          { label: "Hospitals" },
-        ]}
-      />
-
-      <header className="space-y-2">
-        <SectionHeading
-          as="h1"
-          title="Hospitals"
-          description="Compare demo hospitals across India. Patient experience (PER) and clinical expertise (CER) ratings are shown independently — they are never combined into a single score."
+    <div className="flex flex-col">
+      <div className="space-y-3 pt-8">
+        <Breadcrumbs
+          items={[
+            { label: "Home", href: ROUTES.public.home },
+            { label: "Hospitals" },
+          ]}
         />
-      </header>
 
-      <div className="grid gap-8 lg:grid-cols-[16rem_minmax(0,1fr)]">
+        <header className="space-y-2">
+          <SectionHeading
+            as="h1"
+            title="Hospitals"
+            description="Compare hospitals across India. Patient experience (PER) and clinical expertise (CER) ratings are shown independently — they are never combined into a single score."
+          />
+        </header>
+      </div>
+
+      <section
+        aria-label="Hospital directory"
+        className={cn(
+          fullBleedClassName,
+          "border-b border-border/70 bg-background py-8 sm:py-10",
+        )}
+      >
+        <div className={homeSectionInnerClassName}>
+          <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
         <aside aria-label="Hospital filters" className="lg:sticky lg:top-24 lg:self-start">
           <ListingFilters
             facets={[
@@ -204,25 +241,38 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
             ]}
             values={facetValues}
             basePath={BASE_PATH}
-            extraParams={{ sort: rawSort }}
+            extraParams={{ ...preservedScalars, ...(rawSort ? { sort: rawSort } : {}) }}
           />
         </aside>
 
         <div className="space-y-6">
-          <ResultsToolbar
-            total={total}
-            entityLabel="hospital"
-            sortOptions={[...SORT_OPTIONS]}
-            sortValue={rawSort ?? "relevance"}
+          <HospitalListingSearch
             basePath={BASE_PATH}
-            currentParams={params}
+            initialQuery={q ?? ""}
+            filterValues={filterValues}
+            sort={rawSort}
           />
+
+          {q ? (
+            <p className="text-sm text-muted-foreground">
+              Matching “{q}”.{" "}
+              <a
+                href={`${BASE_PATH}${buildFilterQueryString(
+                  { ...filterValues, q: undefined },
+                  rawSort ? { sort: rawSort } : undefined,
+                )}`}
+                className="font-medium text-primary underline-offset-4 hover:underline"
+              >
+                Clear the search text
+              </a>
+            </p>
+          ) : null}
 
           {total === 0 ? (
             <EmptyState
               icon={Building2Icon}
               title="No hospitals match these filters"
-              description="Try removing a filter — for example the specialty or rating status — or clear everything to browse the full demo directory."
+              description="Try removing a filter — for example the specialty or rating status — or clear everything to browse the full directory."
               action={{
                 label: "Clear all filters",
                 href: BASE_PATH,
@@ -238,17 +288,20 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
                   action={{ label: "Back to page 1", href: BASE_PATH }}
                 />
               ) : (
-                <ul className="grid gap-5 lg:grid-cols-2 xl:grid-cols-2" aria-label="Hospital results">
+                <ul
+                  className="grid items-stretch gap-4 sm:grid-cols-2"
+                  aria-label="Hospital results"
+                >
                   {items.map((hospital) => (
-                    <li key={hospital.id} className="min-w-0">
-                      <HospitalCard hospital={hospital} />
+                    <li key={hospital.id} className="flex min-w-0">
+                      <HospitalCard hospital={hospital} layout="stacked" className="h-full w-full" />
                     </li>
                   ))}
                 </ul>
               )}
 
               <UrlPagination
-                page={page}
+                page={paginationPage}
                 totalPages={totalPages}
                 basePath={BASE_PATH}
                 values={filterValues}
@@ -256,40 +309,26 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
               />
             </>
           )}
+          </div>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <section className="space-y-4 border-t pt-8">
-        <SectionHeading as="h2" title="Hospital directory FAQ" />
-        <Accordion className="max-w-3xl">
-          <AccordionItem value="faq-ratings">
-            <AccordionTrigger>What do PER and CER mean on a hospital card?</AccordionTrigger>
-            <AccordionContent>
-              PER (Patient Experience Rating) reflects patient feedback about care and service. CER (Clinical
-              Expertise Rating) is an evidence-based clinical assessment. They are always displayed separately —
-              this demo never combines them into one score. Ratings without an approved score show
-              “{NOT_RATED_MESSAGE}”, never 0/5.
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="faq-missing">
-            <AccordionTrigger>Why do some hospitals show “Not yet rated”?</AccordionTrigger>
-            <AccordionContent>
-              In this demo dataset, some providers have not completed an assessment workflow yet. A missing score
-              is a missing score — the directory never substitutes 0 or a placeholder average.
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="faq-verification">
-            <AccordionTrigger>Are these hospitals and ratings real?</AccordionTrigger>
-            <AccordionContent>
-              No. Every hospital, rating, review and accreditation in this directory is fictional demo data
-              exercising the product’s trust-first display rules. See the{" "}
-              <Link href={ROUTES.public.ratingMethodology} className="font-medium text-primary underline-offset-4 hover:underline">
-                rating methodology
-              </Link>{" "}
-              page for how ratings are presented.
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+      <section
+        aria-labelledby="hospitals-directory-faq-heading"
+        className={cn(
+          fullBleedClassName,
+          "border-t border-border/70 bg-white py-8 sm:py-10",
+        )}
+      >
+        <div className={homeSectionInnerClassName}>
+          <SectionHeading
+            as="h2"
+            id="hospitals-directory-faq-heading"
+            title="Hospital directory FAQ"
+          />
+          <FaqList faqs={hospitalDirectoryFaqs} variant="cards" />
+        </div>
       </section>
     </div>
   )

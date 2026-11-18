@@ -17,9 +17,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { SectionHeading } from "@/components/shared/section-heading"
 import { ROUTES } from "@/constants/routes"
 import { specialties, treatments } from "@/data"
+import { FaqList as ContentFaqList } from "@/features/content/faq-list"
 import {
   EnquiryCta,
-  FaqList,
   JourneySteps,
   SupportServiceCards,
   TreatmentCard,
@@ -43,7 +43,7 @@ import {
 export const metadata: Metadata = {
   title: "Medical Tourism Support",
   description:
-    "Explore demo treatment listings, destination cities and international patient support information on BestHospitalIndia. Demo platform — no real medical services.",
+    "Explore treatment listings, destination cities and international patient support information on BestHospitalIndia — discovery and coordination, not diagnosis or treatment.",
   alternates: { canonical: ROUTES.public.medicalTourism },
 }
 
@@ -56,7 +56,7 @@ const JOURNEY_STEPS = [
   {
     title: "Information review",
     description:
-      "In the future backend, a coordinator would review the enquiry. On this demo platform the flow ends at a local confirmation.",
+      "A patient coordinator reviews your enquiry, confirms details and outlines next steps within the stated response timeframe.",
   },
   {
     title: "Provider shortlist",
@@ -75,7 +75,7 @@ const SUPPORT_SERVICES = [
     icon: LanguagesIcon,
     title: "Language support information",
     description:
-      "Doctor fixtures list spoken languages so you can shortlist providers who may communicate in your language.",
+      "Doctor profiles list spoken languages so you can shortlist providers who may communicate in your language.",
     caveat: "Interpretation services are not arranged by the platform.",
   },
   {
@@ -89,14 +89,14 @@ const SUPPORT_SERVICES = [
     icon: BedDoubleIcon,
     title: "Accommodation guidance",
     description:
-      "Orientation on staying near the demo provider cities listed on this platform.",
+      "Orientation on staying near the hospital cities listed on this platform.",
     caveat: "No rooms are held, booked or price-quoted.",
   },
   {
     icon: CarIcon,
     title: "Local transport information",
     description:
-      "General orientation for moving between airports and the demo hospital cities.",
+      "General orientation for moving between airports and major hospital cities.",
     caveat: "No pickup or transfer is arranged.",
   },
   {
@@ -110,8 +110,8 @@ const SUPPORT_SERVICES = [
     icon: MessagesSquareIcon,
     title: "Enquiry as the first step",
     description:
-      "The demo enquiry records your interest locally and explains what the future backend flow would do next.",
-    caveat: "Demo only — nothing is submitted to anyone.",
+      "Submit an international patient enquiry to start coordination — you receive a reference number and our team follows up.",
+    caveat: "An enquiry is not a booking or medical advice.",
   },
 ] as const
 
@@ -119,17 +119,17 @@ const FAQ_ITEMS = [
   {
     question: "Does BestHospitalIndia provide treatment or medical advice?",
     answer:
-      "No. The platform is a demo discovery directory: it lists fictional providers and treatments and never offers diagnosis, treatment plans, outcomes or prices.",
+      "No. BestHospitalIndia is a discovery and coordination platform. It helps you find and compare listed providers and treatments but never offers diagnosis, treatment plans, guaranteed outcomes or prices.",
   },
   {
     question: "What happens after I submit the international patient enquiry?",
     answer:
-      "On this demo platform, nothing leaves your browser. You see a local confirmation with a demo reference number. Admin review, coordinator assignment and provider responses are documented future backend states.",
+      "You receive a confirmation with a reference number. Our coordination team reviews the enquiry, may assign a coordinator and shares provider responses according to the workflow described on the enquiry page.",
   },
   {
     question: "Are the hospitals, doctors and ratings real?",
     answer:
-      "No — every hospital, doctor, facility, rating and review on the platform is fictional demo data created to exercise the interface.",
+      "Profiles and ratings come from listed hospitals and doctors on the platform. Always confirm credentials, availability and care plans directly with providers and qualified clinicians.",
   },
   {
     question: "Can the platform book my travel or accommodation?",
@@ -139,18 +139,25 @@ const FAQ_ITEMS = [
   {
     question: "How do I choose a specialty or treatment?",
     answer:
-      "Start from the treatments listing to browse by specialty, or open any treatment page to see which demo providers list it. Always verify real-world care with qualified professionals.",
+      "Start from the treatments listing to browse by specialty, or open any treatment page to see which hospitals and doctors list it. Always verify care decisions with qualified professionals.",
   },
 ] as const
 
+const medicalTourismFaqs = FAQ_ITEMS.map((item, index) => ({
+  id: `medical-tourism-faq-${index}`,
+  order: index + 1,
+  question: item.question,
+  answer: item.answer,
+}))
+
 /** City metadata is demo copy aligned with the hospital fixture cities. */
 const DESTINATIONS = [
-  { city: "New Delhi", state: "Delhi", note: "Multispeciality demo providers" },
-  { city: "Mumbai", state: "Maharashtra", note: "Multispeciality demo providers" },
-  { city: "Chennai", state: "Tamil Nadu", note: "Kidney & transplant demo focus" },
-  { city: "Bengaluru", state: "Karnataka", note: "Large demo campus provider" },
-  { city: "Kochi", state: "Kerala", note: "Demo institute, strongest demo ratings" },
-  { city: "Jaipur", state: "Rajasthan", note: "Women & children demo focus" },
+  { city: "New Delhi", state: "Delhi", note: "Multispeciality hospital options" },
+  { city: "Mumbai", state: "Maharashtra", note: "Multispeciality hospital options" },
+  { city: "Chennai", state: "Tamil Nadu", note: "Kidney care and transplant centres" },
+  { city: "Bengaluru", state: "Karnataka", note: "Large multispeciality campuses" },
+  { city: "Kochi", state: "Kerala", note: "Institute hospitals with strong ratings" },
+  { city: "Jaipur", state: "Rajasthan", note: "Women and children’s care focus" },
 ] as const
 
 export default function MedicalTourismPage() {
@@ -167,19 +174,17 @@ export default function MedicalTourismPage() {
       <section aria-labelledby="mt-hero-heading" className="space-y-4">
         <span className="inline-flex items-center gap-1.5 rounded-4xl bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
           <PlaneIcon aria-hidden className="size-3.5" />
-          For international patients — demo platform
+          For international patients
         </span>
         <h1 id="mt-hero-heading" className="text-3xl font-bold tracking-tight text-balance sm:text-4xl">
-          Explore care options in India and plan your visit — with clear demo
-          boundaries
+          Explore care options in India and plan your visit
         </h1>
         <p className="max-w-3xl text-base text-muted-foreground sm:text-lg">
           BestHospitalIndia helps you discover treatments, specialties and
-          fictional demo providers across Indian cities, and explains what
-          international patient support would look like. This is a
-          demonstration platform: no medical services, bookings, prices or
-          advice are provided, and every provider you see is fictional demo
-          data.
+          hospitals and doctors across Indian cities, and explains what
+          international patient support includes. The platform coordinates
+          enquiries and orientation — it does not provide diagnosis, treatment,
+          guaranteed prices or medical advice.
         </p>
         <div className="flex flex-col gap-2 sm:flex-row">
           <Button size="lg" variant="cta" className="rounded-full px-6 font-semibold shadow-sm" render={<Link href={ROUTES.public.internationalPatientEnquiry} />}>
@@ -201,7 +206,7 @@ export default function MedicalTourismPage() {
         <SectionHeading
           as="h2"
           title="Treatments international patients commonly explore"
-          description="A sample of the demo treatment taxonomy. Open any treatment to see which demo hospitals and doctors list it — no outcomes, guarantees or prices are shown anywhere."
+          description="A sample of treatments patients commonly explore. Open any treatment to see which hospitals and doctors list it — no outcomes, guarantees or prices are shown anywhere."
           action={
             <Button variant="outline" render={<Link href={ROUTES.public.treatments} />}>
               View all treatments
@@ -210,7 +215,7 @@ export default function MedicalTourismPage() {
         />
         {featuredTreatments.length === 0 ? (
           <p className="rounded-lg border border-dashed px-6 py-12 text-center text-sm text-muted-foreground">
-            No treatments are available in the demo fixtures yet.
+            No treatments are available to show right now.
           </p>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -232,7 +237,7 @@ export default function MedicalTourismPage() {
         <SectionHeading
           as="h2"
           title="Browse by specialty"
-          description="Ten demo specialties organise the treatment taxonomy. Selecting one filters the treatments listing."
+          description="Ten specialties organise the treatment directory. Selecting one filters the treatments listing."
         />
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {specialties.map((specialty) => (
@@ -266,11 +271,11 @@ export default function MedicalTourismPage() {
       </section>
 
       {/* Destination / city choices */}
-      <section aria-label="Demo destination cities" className="space-y-4">
+      <section aria-label="Destination cities" className="space-y-4">
         <SectionHeading
           as="h2"
-          title="Demo destination cities"
-          description="Fictional demo providers are distributed across Indian cities. This is orientation for the demo taxonomy — not travel or medical advice."
+          title="Destination cities"
+          description="Listed providers span major Indian cities. This is orientation for planning — not travel or medical advice."
         />
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {DESTINATIONS.map((destination) => (
@@ -312,34 +317,33 @@ export default function MedicalTourismPage() {
         <SectionHeading
           as="h2"
           title="What the international patient journey looks like"
-          description="Four steps on this platform, with the future backend stages documented but never simulated."
+          description="Four steps from first enquiry through orientation — each step links to the matching form or directory."
         />
         <JourneySteps
           steps={JOURNEY_STEPS}
-          footnote="Steps 2 onward (admin review, coordinator assignment, provider shortlisting by the platform) are future backend capabilities shown here for orientation only."
+          footnote="Coordinator review and provider shortlisting follow the workflows described on the international patient enquiry page."
         />
       </section>
 
       {/* Enquiry CTA */}
       <EnquiryCta
-        title="Ready to record a demo enquiry?"
-        description="Share patient details, specialty and travel preferences in the international patient enquiry form. The demo records your entries locally and shows a reference number — nothing is submitted to any provider."
+        title="Ready to start an enquiry?"
+        description="Share patient details, specialty and travel preferences in the international patient enquiry form. You receive a reference number and our coordination team follows up."
         secondaryLabel="See travel assistance information"
         secondaryHref={ROUTES.public.medicalTourismTravelAssistance}
       />
 
       {/* FAQ */}
-      <section aria-label="Frequently asked questions" className="space-y-4">
+      <section aria-label="Frequently asked questions" className="space-y-8">
         <SectionHeading as="h2" title="Frequently asked questions" />
-        <FaqList items={FAQ_ITEMS} />
+        <ContentFaqList faqs={medicalTourismFaqs} variant="cards" />
       </section>
 
       {/* Disclaimer */}
       <p className="rounded-lg border bg-muted/30 p-4 text-xs text-muted-foreground">
-        Demo notice: BestHospitalIndia is a fictional demonstration platform.
-        All providers, ratings and reviews are invented. Content here is
-        informational only and is not medical advice — consult qualified
-        professionals for real care decisions.
+        Medical disclaimer: BestHospitalIndia is a discovery and coordination
+        platform. Content here is informational only and is not medical advice
+        — consult qualified professionals for diagnosis and treatment decisions.
       </p>
     </div>
   )

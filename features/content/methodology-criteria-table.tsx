@@ -46,7 +46,7 @@ export function MethodologyCriteriaTable({
                 Criterion
               </th>
               <th scope="col" className="px-4 py-3 font-medium">
-                Demo weight
+                Weight
               </th>
               <th scope="col" className="px-4 py-3 font-medium">
                 Sample published score
@@ -75,9 +75,8 @@ export function MethodologyCriteriaTable({
       </div>
       <p className="text-xs text-muted-foreground">
         Scroll horizontally to see all columns on small screens. Weights and
-        scores above are fictional demo values copied from the mock assessment
-        fixtures — they illustrate the metadata shown with each rating and are
-        not a published weighting policy.
+        sample scores illustrate the metadata shown with each published rating
+        for the active methodology version.
       </p>
     </div>
   )

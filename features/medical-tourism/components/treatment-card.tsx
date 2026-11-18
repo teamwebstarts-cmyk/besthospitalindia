@@ -52,12 +52,12 @@ export function TreatmentCard({
           ) : null}
           {typeof hospitalCount === "number" ? (
             <span className="inline-flex items-center rounded-4xl bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-              {hospitalCount} {hospitalCount === 1 ? "hospital" : "hospitals"} (demo)
+              {hospitalCount} {hospitalCount === 1 ? "hospital" : "hospitals"}
             </span>
           ) : null}
           {typeof doctorCount === "number" ? (
             <span className="inline-flex items-center rounded-4xl bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-              {doctorCount} {doctorCount === 1 ? "doctor" : "doctors"} (demo)
+              {doctorCount} {doctorCount === 1 ? "doctor" : "doctors"}
             </span>
           ) : null}
         </div>

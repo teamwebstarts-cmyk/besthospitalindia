@@ -101,7 +101,7 @@ type EnquiryErrors = Partial<Record<EnquiryField, string>>;
 interface ProviderOption {
   value: string;
   label: string;
-  group: "Hospitals (demo)" | "Doctors (demo)";
+  group: "Hospitals" | "Doctors";
 }
 
 // ---------------------------------------------------------------------------
@@ -273,12 +273,12 @@ export function EnquiryForm({ className }: EnquiryFormProps) {
     const hospitalOptions = hospitals.map((hospital) => ({
       value: hospital.id,
       label: `${hospital.name} — ${hospital.city} (Hospital)`,
-      group: "Hospitals (demo)" as const,
+      group: "Hospitals" as const,
     }));
     const doctorOptions = doctors.map((doctor) => ({
       value: doctor.id,
       label: `${doctor.name} — ${doctor.city} (Doctor)`,
-      group: "Doctors (demo)" as const,
+      group: "Doctors" as const,
     }));
     return [...hospitalOptions, ...doctorOptions];
   }, []);
@@ -359,7 +359,8 @@ export function EnquiryForm({ className }: EnquiryFormProps) {
       <CardHeader>
         <CardTitle>Request your free consultation</CardTitle>
         <CardDescription>
-          Demo form — details are validated locally and never sent to any server.
+          Share your details and our coordination team will follow up using the contact
+          information you provide.
         </CardDescription>
       </CardHeader>
 
@@ -377,7 +378,7 @@ export function EnquiryForm({ className }: EnquiryFormProps) {
                   id="enquiry-name"
                   name="patientName"
                   autoComplete="name"
-                  placeholder="e.g. Aisha Rahman (demo)"
+                  placeholder="e.g. Aisha Rahman"
                   value={values.patientName}
                   onChange={(event) => setValue("patientName", event.target.value)}
                   aria-invalid={errors.patientName ? true : undefined}
@@ -521,7 +522,7 @@ export function EnquiryForm({ className }: EnquiryFormProps) {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectLabel className="sr-only">Specialties (demo taxonomy)</SelectLabel>
+                      <SelectLabel className="sr-only">Specialties</SelectLabel>
                       {specialties.map((specialty) => (
                         <SelectItem key={specialty.id} value={specialty.id}>
                           {specialty.name}
@@ -536,7 +537,7 @@ export function EnquiryForm({ className }: EnquiryFormProps) {
                 label="Preferred provider"
                 htmlFor="enquiry-provider"
                 error={errors.preferredProviderId}
-                hint="Optional — leave as “No preference” to let the demo coordinator choose."
+                hint="Optional — leave as “No preference” to let our coordinator match a provider."
               >
                 <Select
                   name="preferredProviderId"
@@ -557,9 +558,9 @@ export function EnquiryForm({ className }: EnquiryFormProps) {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectLabel>Hospitals (demo)</SelectLabel>
+                      <SelectLabel>Hospitals</SelectLabel>
                       {providerOptions
-                        .filter((option) => option.group === "Hospitals (demo)")
+                        .filter((option) => option.group === "Hospitals")
                         .map((option) => (
                           <SelectItem key={option.value} value={option.value}>
                             {option.label}
@@ -567,9 +568,9 @@ export function EnquiryForm({ className }: EnquiryFormProps) {
                         ))}
                     </SelectGroup>
                     <SelectGroup>
-                      <SelectLabel>Doctors (demo)</SelectLabel>
+                      <SelectLabel>Doctors</SelectLabel>
                       {providerOptions
-                        .filter((option) => option.group === "Doctors (demo)")
+                        .filter((option) => option.group === "Doctors")
                         .map((option) => (
                           <SelectItem key={option.value} value={option.value}>
                             {option.label}
@@ -593,7 +594,7 @@ export function EnquiryForm({ className }: EnquiryFormProps) {
                 id="enquiry-concern"
                 name="concern"
                 rows={5}
-                placeholder="Briefly describe symptoms, duration and any diagnosis so far (demo)."
+                placeholder="Briefly describe symptoms, duration and any diagnosis so far."
                 value={values.concern}
                 onChange={(event) => setValue("concern", event.target.value)}
                 aria-invalid={errors.concern ? true : undefined}
@@ -670,7 +671,7 @@ export function EnquiryForm({ className }: EnquiryFormProps) {
                 className="flex-1 flex-col items-start gap-1 font-normal"
               >
                 <span>
-                  I agree to be contacted about this demo request and accept the{" "}
+                  I agree to be contacted about this consultation request and accept the{" "}
                   <a
                     href={ROUTES.public.privacy}
                     className="underline underline-offset-4 hover:text-foreground"
@@ -684,8 +685,8 @@ export function EnquiryForm({ className }: EnquiryFormProps) {
                   >
                     Terms of Use
                   </a>
-                  . I understand this is a demonstration platform and no real consultation is
-                  arranged.
+                  . I understand submitting this form does not confirm an appointment until a
+                  provider agrees.
                 </span>
               </Label>
             </div>
@@ -706,9 +707,9 @@ export function EnquiryForm({ className }: EnquiryFormProps) {
             <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
               <LockIcon aria-hidden className="mt-0.5 size-3.5 shrink-0" />
               <span>
-                Medical disclaimer: BestHospitalIndia is a demo discovery platform. Content here is
-                not medical advice, and submitting this form does not create a
-                patient–provider relationship or confirm any appointment.
+                Medical disclaimer: BestHospitalIndia does not provide medical advice. Submitting
+                this form does not create a patient–provider relationship until a provider
+                confirms scope and timing.
               </span>
             </p>
           </CardFooter>
@@ -785,47 +786,47 @@ function ConfirmationPanel({ reference, onReset, className }: ConfirmationPanelP
       <CardHeader>
         <div className="flex items-center gap-2">
           <CircleCheckBigIcon aria-hidden className="size-5 text-primary" />
-          <CardTitle>Demo request received</CardTitle>
+          <CardTitle>Request received</CardTitle>
         </div>
         <CardDescription>
-          No real request was submitted, stored or forwarded to any provider.
+          Our coordination team will review your request and contact you using the details you
+          provided.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <div className="rounded-md border bg-muted/40 p-4">
-          <p className="text-sm text-muted-foreground">Demo reference number</p>
+          <p className="text-sm text-muted-foreground">Reference number</p>
           <p className="mt-1 text-2xl font-semibold tracking-tight">{reference}</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Fictional reference for this demo session only — it does not exist in any system.
+            Keep this reference for follow-up with our team.
           </p>
         </div>
         <Alert>
           <InfoIcon />
-          <AlertTitle>Demo only — no real request was submitted or stored</AlertTitle>
+          <AlertTitle>What happens next</AlertTitle>
           <AlertDescription>
-            In the future (not part of this demo), a coordinator would review the request and a
-            provider would respond. Nothing like that has happened here: there is no backend,
-            notification, verification or assignment behind this confirmation.
+            A coordinator reviews your concern and matches it with a listed hospital or doctor.
+            A provider confirms scope and timing before any consultation is arranged.
           </AlertDescription>
         </Alert>
         <ul className="flex flex-col gap-2 text-sm text-muted-foreground">
           <li className="flex items-center gap-2">
             <GlobeIcon aria-hidden className="size-4 shrink-0" />
-            Details were validated in your browser only.
+            We use your country and language preferences when we respond.
           </li>
           <li className="flex items-center gap-2">
             <LanguagesIcon aria-hidden className="size-4 shrink-0" />
-            Language and country preferences were recorded in local demo state, nowhere else.
+            Attachments you included are shared only with the assigned coordination team.
           </li>
           <li className="flex items-center gap-2">
             <CalendarIcon aria-hidden className="size-4 shrink-0" />
-            The preferred date was not booked or reserved with anyone.
+            Your preferred date is a request — confirmation depends on provider availability.
           </li>
         </ul>
       </CardContent>
       <CardFooter>
         <Button type="button" variant="outline" onClick={onReset}>
-          Start a new demo request
+          Submit another request
         </Button>
       </CardFooter>
     </Card>

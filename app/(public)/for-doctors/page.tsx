@@ -76,12 +76,12 @@ export default function ForDoctorsPage() {
 
       <PageSection
         title="Individual interest form"
-        description="Tell us about your practice. In this demo, submission produces a local confirmation only."
+        description="Tell us about your practice. Our partnerships team reviews your interest and follows up."
         id="interest-form"
       >
         <DemoNotice
-          title="Demo form — no registration happens"
-          message="This interest form is part of the mock build. Nothing is transmitted, stored or reviewed; the confirmation you will see is generated locally in your browser."
+          title="Interest form — not instant registration"
+          message="Submitting this form starts a review workflow. You receive a reference number on screen; our team contacts you about next steps for joining the platform."
         />
         <PartnerInterestForm kind="doctor" />
       </PageSection>

@@ -31,6 +31,8 @@ export interface DashboardKpiProps {
   delta?: { direction: "up" | "down" | "flat"; value: string }
   /** Optional internal route — renders the whole card as a link. */
   href?: string
+  /** Hide the “View” affordance (card remains clickable when href is set). */
+  hideViewLink?: boolean
   /** Optional leading icon. */
   icon?: React.ComponentType<{ className?: string }>
   className?: string
@@ -42,6 +44,7 @@ export function DashboardKpi({
   hint,
   delta,
   href,
+  hideViewLink,
   icon: Icon,
   className,
 }: DashboardKpiProps) {
@@ -76,7 +79,7 @@ export function DashboardKpi({
         ) : null}
       </div>
       {hint ? <p className="text-xs text-balance text-muted-foreground">{hint}</p> : null}
-      {href ? (
+      {href && !hideViewLink ? (
         <p className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-primary">
           View
           <ArrowRightIcon aria-hidden className="size-3" />
@@ -90,6 +93,7 @@ export function DashboardKpi({
     return (
       <Link
         href={href}
+        aria-label={`Open ${label}`}
         className={cn(
           "group/kpi rounded-xl bg-card text-card-foreground shadow-xs ring-1 ring-foreground/10 outline-none transition-shadow focus-visible:ring-3 focus-visible:ring-ring/50 hover:ring-foreground/20",
           className,

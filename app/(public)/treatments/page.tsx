@@ -42,7 +42,7 @@ import {
 export const metadata: Metadata = {
   title: "Treatments",
   description:
-    "Browse the demo treatment taxonomy by specialty, search by name and open treatment pages listing demo hospitals and doctors. Demo platform — no prices, outcomes or medical advice.",
+    "Browse treatments by specialty, search by name and open treatment pages listing hospitals and doctors. No prices, outcomes or medical advice on this site.",
   alternates: { canonical: ROUTES.public.treatments },
 }
 
@@ -103,11 +103,10 @@ export default async function TreatmentsPage({
           Treatments
         </h1>
         <p className="max-w-3xl text-base text-muted-foreground">
-          The demo treatment taxonomy across {specialties.length} specialties.
-          Search, filter and sort genuinely operate on the fixture set via the
-          URL. Every listing links to demo hospitals and doctors — this
-          platform shows no prices, outcomes or guarantees, and provides no
-          medical advice.
+          The treatment directory across {specialties.length} specialties.
+          Search, filter and sort update the URL so you can share any view.
+          Every listing links to hospitals and doctors — this platform shows no
+          prices, outcomes or guarantees, and provides no medical advice.
         </p>
       </section>
 
@@ -152,8 +151,8 @@ export default async function TreatmentsPage({
           title={`${results.length} ${results.length === 1 ? "treatment" : "treatments"} found`}
           description={
             query || specialty
-              ? "Filtering is applied to the fixture set; adjust the controls above to change the URL."
-              : "Showing the full fixture set in featured order."
+              ? "Filters are applied to the directory; adjust the controls above to change the URL."
+              : "Showing the full directory in featured order."
           }
         />
 
@@ -161,7 +160,7 @@ export default async function TreatmentsPage({
           <EmptyState
             icon={StethoscopeIcon}
             title="No treatments match your filters"
-            description="Try a different search term or clear the specialty filter — the demo taxonomy only contains fixture entries."
+            description="Try a different search term or clear the specialty filter to see more treatments."
             action={{ label: "Clear all filters", href: ROUTES.public.treatments }}
           />
         ) : (
@@ -225,8 +224,8 @@ export default async function TreatmentsPage({
 
       {/* Enquiry CTA */}
       <EnquiryCta
-        title="Need help choosing? Record a demo enquiry"
-        description="Tell the demo form which specialty or treatment interests you. Entries stay in this browser session — no provider is contacted."
+        title="Need help choosing? Start an enquiry"
+        description="Tell us which specialty or treatment interests you. Our coordination team reviews your enquiry and follows up."
         enquiryParams={
           specialty && specialty !== "all" ? { specialty } : undefined
         }

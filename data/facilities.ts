@@ -19,7 +19,7 @@ const facilityList = [
     state: 'Delhi',
     country: 'India',
     specialties: ['spec-cardiology', 'spec-oncology', 'spec-orthopaedics'],
-    services: ['24×7 emergency (demo)', 'Operation theatres (demo)', 'Pharmacy (demo)'],
+    services: ['24×7 emergency', 'Operation theatres', 'Pharmacy'],
     verificationStatus: 'verified',
   },
   {
@@ -31,7 +31,7 @@ const facilityList = [
     state: 'Kerala',
     country: 'India',
     specialties: ['spec-maternity-neonatal', 'spec-ophthalmology'],
-    services: ['Day-care surgery (demo)', 'Neonatal unit (demo)', 'Pharmacy (demo)'],
+    services: ['Day-care surgery', 'Neonatal unit', 'Pharmacy'],
     verificationStatus: 'verified',
   },
   {
@@ -43,7 +43,7 @@ const facilityList = [
     state: 'Tamil Nadu',
     country: 'India',
     specialties: ['spec-cardiology'],
-    services: ['Cardiac day-care clinic (demo)', 'Non-invasive testing (demo)'],
+    services: ['Cardiac day-care clinic', 'Non-invasive testing'],
     verificationStatus: 'verified',
   },
   {
@@ -55,7 +55,7 @@ const facilityList = [
     state: 'Maharashtra',
     country: 'India',
     specialties: ['spec-oncology'],
-    services: ['Day-care chemotherapy chairs (demo)', 'Counselling rooms (demo)'],
+    services: ['Day-care chemotherapy chairs', 'Counselling rooms'],
     verificationStatus: 'pending',
   },
   {
@@ -67,7 +67,7 @@ const facilityList = [
     state: 'Delhi',
     country: 'India',
     specialties: ['spec-endocrinology', 'spec-pulmonology'],
-    services: ['Home sample pickup (demo)', 'Walk-in lab tests (demo)', 'Digital reports (demo)'],
+    services: ['Home sample pickup', 'Walk-in lab tests', 'Digital reports'],
     verificationStatus: 'verified',
   },
   {
@@ -79,7 +79,7 @@ const facilityList = [
     state: 'Karnataka',
     country: 'India',
     specialties: ['spec-neurology', 'spec-orthopaedics'],
-    services: ['Imaging appointments (demo)', 'Report consultations (demo)'],
+    services: ['Imaging appointments', 'Report consultations'],
     verificationStatus: 'unverified',
   },
   {
@@ -91,7 +91,7 @@ const facilityList = [
     state: 'Telangana',
     country: 'India',
     specialties: ['spec-orthopaedics', 'spec-neurology'],
-    services: ['Inpatient rehab (demo)', 'Physiotherapy suites (demo)', 'Mobility training (demo)'],
+    services: ['Inpatient rehab', 'Physiotherapy suites', 'Mobility training'],
     verificationStatus: 'verified',
   },
   {
@@ -103,7 +103,7 @@ const facilityList = [
     state: 'West Bengal',
     country: 'India',
     specialties: ['spec-neurology'],
-    services: ['Post-acute care (demo)', 'Speech therapy (demo)'],
+    services: ['Post-acute care', 'Speech therapy'],
     verificationStatus: 'pending',
   },
   {
@@ -115,7 +115,7 @@ const facilityList = [
     state: 'Goa',
     country: 'India',
     specialties: ['spec-endocrinology'],
-    services: ['Lifestyle programmes (demo)', 'Nutrition consults (demo)'],
+    services: ['Lifestyle programmes', 'Nutrition consults'],
     verificationStatus: 'unverified',
   },
   {
@@ -127,7 +127,7 @@ const facilityList = [
     state: 'Uttarakhand',
     country: 'India',
     specialties: ['spec-pulmonology'],
-    services: ['Breathing-care sessions (demo)', 'Stress-management programmes (demo)'],
+    services: ['Breathing-care sessions', 'Stress-management programmes'],
     verificationStatus: 'pending',
   },
   {
@@ -139,7 +139,7 @@ const facilityList = [
     state: 'Haryana',
     country: 'India',
     specialties: ['spec-cardiology', 'spec-orthopaedics', 'spec-oncology'],
-    services: ['Treatment coordination (demo)', 'Travel desk (demo)', 'Interpreter support (demo)'],
+    services: ['Treatment coordination', 'Travel desk', 'Interpreter support'],
     verificationStatus: 'verified',
   },
   {
@@ -151,7 +151,7 @@ const facilityList = [
     state: 'Kerala',
     country: 'India',
     specialties: ['spec-maternity-neonatal', 'spec-ophthalmology', 'spec-nephrology-urology'],
-    services: ['Case coordination (demo)', 'Visa-document assistance (demo)', 'Follow-up desk (demo)'],
+    services: ['Case coordination', 'Visa-document assistance', 'Follow-up desk'],
     verificationStatus: 'verified',
   },
 ] satisfies readonly Facility[];

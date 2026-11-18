@@ -12,6 +12,8 @@ export interface AdminCasePageHeaderProps {
   description?: string
   /** Optional page-level action (rendered right of the heading). */
   action?: ReactNode
+  /** One-line demo boundary instead of the full DemoNotice (overview-style pages). */
+  compact?: boolean
   className?: string
 }
 
@@ -31,6 +33,7 @@ export function AdminCasePageHeader({
   label,
   description,
   action,
+  compact = false,
   className,
 }: AdminCasePageHeaderProps) {
   const items: BreadcrumbItem[] = [
@@ -39,13 +42,22 @@ export function AdminCasePageHeader({
   ]
 
   return (
-    <header className={cn("space-y-4", className)}>
+    <header className={cn(compact ? "space-y-2" : "space-y-4", className)}>
       <Breadcrumbs items={items} />
-      <SectionHeading as="h1" title={label} description={description} action={action} />
-      <DemoNotice
-        title="Admin demo — mock data only"
-        message="This queue is a frontend demo using fictional fixtures. No real patient, provider, booking, moderation or rating activity exists behind it."
+      <SectionHeading
+        as="h1"
+        title={label}
+        description={compact ? undefined : description}
+        action={action}
       />
+      {compact ? (
+        <p className="text-xs text-muted-foreground">Demo workspace — mock data only.</p>
+      ) : (
+        <DemoNotice
+          title="Admin demo — mock data only"
+          message="This queue is a frontend demo using fictional fixtures. No real patient, provider, booking, moderation or rating activity exists behind it."
+        />
+      )}
     </header>
   )
 }

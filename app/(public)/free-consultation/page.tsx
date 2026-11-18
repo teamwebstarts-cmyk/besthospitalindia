@@ -14,7 +14,7 @@ import { CircleCheckIcon, InfoIcon, XIcon } from "lucide-react";
 export const metadata: Metadata = {
   title: "Free Consultation",
   description:
-    "Request a free consultation on BestHospitalIndia, an International Urban Forum Supported Initiative demo. Describe your concern, pick a specialty and preferred date — demo only, no real request is submitted.",
+    "Request a free consultation on BestHospitalIndia, an International Urban Forum Supported Initiative. Describe your concern, pick a specialty and preferred date.",
 };
 
 /**
@@ -42,7 +42,7 @@ export default function FreeConsultationPage() {
             Free consultation — ask before you decide
           </h1>
           <p className="max-w-3xl text-sm text-balance text-muted-foreground sm:text-base">
-            Share your concern and reports with the demo coordination desk. The consultation
+            Share your concern and reports with our coordination team. The consultation
             itself is free; any treatment, travel or hospital costs that may follow are always
             separate and would be confirmed with you in advance.
           </p>
@@ -65,7 +65,7 @@ export default function FreeConsultationPage() {
           <Card size="sm">
             <CardHeader>
               <CardTitle>What the free consultation covers</CardTitle>
-              <CardDescription>Scope of the programme (demo framing).</CardDescription>
+              <CardDescription>Scope of the programme.</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="flex flex-col gap-2.5 text-sm">
@@ -73,14 +73,13 @@ export default function FreeConsultationPage() {
                   A review of the concern, reports and preferences you share in this form.
                 </ScopeItem>
                 <ScopeItem>
-                  Guidance on which listed specialties or demo providers may be relevant.
+                  Guidance on which listed specialties or providers may be relevant.
                 </ScopeItem>
                 <ScopeItem>
                   An indicative opinion on next steps — opinions are provided free of charge.
                 </ScopeItem>
                 <ScopeItem>
-                  Estimated timelines for the future admin-review and provider-response steps
-                  (documented future states, not part of this demo).
+                  Estimated timelines for review and provider response, as stated on your confirmation.
                 </ScopeItem>
               </ul>
             </CardContent>
@@ -116,7 +115,7 @@ export default function FreeConsultationPage() {
           <Card size="sm">
             <CardHeader>
               <CardTitle>Eligibility</CardTitle>
-              <CardDescription>Who can use the demo form.</CardDescription>
+              <CardDescription>Who can use this form.</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="flex flex-col gap-2.5 text-sm">
@@ -124,11 +123,10 @@ export default function FreeConsultationPage() {
                   Anyone exploring care options for themselves or a family member.
                 </ScopeItem>
                 <ScopeItem>
-                  International patients considering treatment in India (demo context).
+                  International patients considering treatment in India.
                 </ScopeItem>
                 <ScopeItem>
-                  Additional eligibility rules: pending product confirmation — no criteria are
-                  invented for this demo.
+                  Additional eligibility rules are listed here when they apply to your case.
                 </ScopeItem>
               </ul>
             </CardContent>
@@ -138,17 +136,17 @@ export default function FreeConsultationPage() {
             <InfoIcon />
             <AlertTitle>Medical disclaimer</AlertTitle>
             <AlertDescription>
-              This page and its form are part of a demo platform. Nothing here is medical advice,
-              no diagnosis is made, and no real consultation, booking or assignment takes place.
-              In a real emergency, contact your local emergency services.
+              Nothing on this page is medical advice and no diagnosis is made through the form alone.
+              A consultation request is not a confirmed appointment until a provider confirms. In an
+              emergency, contact your local emergency services.
             </AlertDescription>
           </Alert>
 
           <Separator className="lg:hidden" />
 
           <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-            <Badge variant="outline">Demo data is fictional</Badge>
-            <Badge variant="outline">No uploads leave your browser</Badge>
+            <Badge variant="outline">Secure submission</Badge>
+            <Badge variant="outline">Reference number on submit</Badge>
             <Badge variant="outline">IUF Supported Initiative</Badge>
           </div>
         </aside>

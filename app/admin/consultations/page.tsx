@@ -25,11 +25,8 @@ export const metadata: Metadata = {
 
 export default function AdminConsultationsPage() {
   return (
-    <div className="space-y-8">
-      <AdminCasePageHeader
-        label="Consultations"
-        description="Patient enquiries from the IUF-supported free consultation initiative and general enquiry forms. Review, validate, assign a provider and close cases — every action stays inside this demo."
-      />
+    <div className="space-y-6 py-6">
+      <AdminCasePageHeader compact label="Consultations" />
       <AdminConsultationManager enquiries={patientEnquiries} />
     </div>
   )

@@ -2,10 +2,8 @@ import Link from "next/link"
 import { HeartPulseIcon, MailIcon, PhoneIcon } from "lucide-react"
 
 import { footerGroups } from "@/constants/navigation"
+import { SITE_CONTACT, SITE_DISCLAIMER } from "@/constants/site-contact"
 import { cn } from "@/lib/utils"
-
-const DEMO_NOTICE =
-  "BestHospitalIndia is a demonstration platform. Hospitals, doctors, facilities and reviews shown are illustrative mock data, not verified medical advice."
 
 export interface PublicFooterProps {
   className?: string
@@ -42,16 +40,16 @@ export function PublicFooter({ className }: PublicFooterProps) {
               <li className="flex items-center gap-2">
                 <MailIcon aria-hidden className="size-4" />
                 <a
-                  href="mailto:hello@besthospitalindia.example"
+                  href={SITE_CONTACT.mainEmailHref}
                   className="transition-colors hover:text-background"
                 >
-                  hello@besthospitalindia.example
+                  {SITE_CONTACT.mainEmail}
                 </a>
               </li>
               <li className="flex items-center gap-2">
                 <PhoneIcon aria-hidden className="size-4" />
-                <a href="tel:+910000000000" className="transition-colors hover:text-background">
-                  +91 (0) 00000 00000
+                <a href={SITE_CONTACT.phoneHref} className="transition-colors hover:text-background">
+                  {SITE_CONTACT.phoneDisplay}
                 </a>
               </li>
             </ul>
@@ -78,7 +76,7 @@ export function PublicFooter({ className }: PublicFooterProps) {
         </div>
         <div className="mt-12 space-y-3 border-t border-background/15 pt-6">
           <p className="text-xs leading-relaxed text-pretty text-background/60">
-            {DEMO_NOTICE}
+            {SITE_DISCLAIMER}
           </p>
           <p className="text-xs text-background/60">
             © {new Date().getFullYear()} BestHospitalIndia. All rights reserved.

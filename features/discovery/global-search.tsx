@@ -69,7 +69,38 @@ export function GlobalSearch({
 
   const isHeader = layout === "header"
 
-  const entitySelect = (
+  const headerSelectField = (
+    <div className="flex h-full shrink-0 items-center self-stretch border-r border-border/70">
+      <Select
+        value={entityType}
+        items={ENTITY_TYPE_ITEMS}
+        onValueChange={(nextValue) => {
+          if (typeof nextValue === "string") {
+            setEntityType(nextValue as SearchEntityType)
+          }
+        }}
+      >
+        <SelectTrigger
+          aria-label="Search entity type"
+          size="default"
+          className="h-full w-[7.25rem] gap-1 rounded-none rounded-l-full border-0 bg-transparent px-3 py-0 text-sm font-normal text-foreground shadow-none focus-visible:ring-0 data-[size=default]:h-full sm:w-[7.75rem]"
+        >
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {(Object.keys(ENTITY_TYPE_LABELS) as SearchEntityType[]).map((type) => (
+            <SelectItem key={type} value={type}>
+              {ENTITY_TYPE_LABELS[type]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  )
+
+  const entitySelect = isHeader ? (
+    headerSelectField
+  ) : (
     <Select
       value={entityType}
       items={ENTITY_TYPE_ITEMS}
@@ -79,15 +110,7 @@ export function GlobalSearch({
         }
       }}
     >
-      <SelectTrigger
-        aria-label="Search entity type"
-        size={isHeader ? "sm" : "default"}
-        className={cn(
-          "w-full",
-          isHeader &&
-            "h-9 w-[5.25rem] shrink-0 rounded-none border-0 border-r border-border/80 bg-transparent px-2 shadow-none sm:w-[6.75rem] sm:px-2.5"
-        )}
-      >
+      <SelectTrigger aria-label="Search entity type" size="default" className="w-full">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -101,7 +124,12 @@ export function GlobalSearch({
   )
 
   const queryInput = (
-    <div className={cn("relative min-w-0 flex-1", isHeader && "flex h-9 items-center")}>
+    <div
+      className={cn(
+        "relative min-w-0 flex-1",
+        isHeader && "flex h-full items-center self-stretch"
+      )}
+    >
       {!isHeader && (
         <SearchIcon
           aria-hidden
@@ -117,24 +145,20 @@ export function GlobalSearch({
         name="q"
         value={query}
         onChange={(event) => setQuery(event.target.value)}
-        placeholder={
-          isHeader
-            ? "Search doctors, hospitals…"
-            : "Search by name, city or service…"
-        }
+        placeholder={isHeader ? "Search…" : "Search by name, city or service…"}
         className={cn(
           isHeader
-            ? "h-9 min-w-0 rounded-none rounded-r-full border-0 bg-transparent px-2 pr-9 text-sm shadow-none focus-visible:ring-0 sm:px-3"
+            ? "h-full min-h-0 min-w-0 rounded-none rounded-r-full border-0 bg-transparent py-0 pl-3 pr-10 text-sm leading-normal text-foreground shadow-none placeholder:text-muted-foreground focus-visible:ring-0"
             : "pl-9"
         )}
       />
       {isHeader && (
         <button
           type="submit"
-          className="absolute top-1/2 right-0 flex size-9 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
+          className="absolute top-1/2 right-1 flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted/80 hover:text-foreground"
           aria-label={submitLabel}
         >
-          <SearchIcon aria-hidden className="size-4" />
+          <SearchIcon aria-hidden className="size-4 shrink-0" />
         </button>
       )}
     </div>
@@ -152,7 +176,7 @@ export function GlobalSearch({
         role="search"
         onSubmit={handleSubmit}
         className={cn(
-          "flex h-9 w-full min-w-0 items-stretch overflow-hidden rounded-full border border-border/80 bg-muted/40",
+          "flex h-10 w-full min-w-0 items-center overflow-hidden rounded-full border border-border/80 bg-background shadow-xs",
           className
         )}
       >

@@ -115,7 +115,7 @@ export default function RatingMethodologyPage() {
               </h3>
             </div>
             <MethodologyCriteriaTable
-              caption="Clinical Expertise Rating criteria with demo weights and sample scores"
+              caption="Clinical Expertise Rating criteria with weights and sample scores"
               rows={
                 sampleCriteria("CER").length > 0
                   ? sampleCriteria("CER")
@@ -133,7 +133,7 @@ export default function RatingMethodologyPage() {
               </h3>
             </div>
             <MethodologyCriteriaTable
-              caption="Medical Expertise Rating criteria with demo weights and sample scores"
+              caption="Medical Expertise Rating criteria with weights and sample scores"
               rows={
                 sampleCriteria("MER").length > 0
                   ? sampleCriteria("MER")
@@ -143,8 +143,7 @@ export default function RatingMethodologyPage() {
           </div>
 
           <p className="rounded-lg border border-dashed px-4 py-3 text-sm text-muted-foreground">
-            PER is survey-based and does not use weighted criteria in the demo
-            fixtures; its metadata (sample size, assessed date, methodology
+            PER is survey-based and does not use weighted criteria tables; its metadata (sample size, assessed date, methodology
             version) appears directly on hospital and doctor profiles. Note: PER
             is displayed alongside CER/MER but is a fully separate rating — the
             categories are never added, averaged or reconciled with each other.

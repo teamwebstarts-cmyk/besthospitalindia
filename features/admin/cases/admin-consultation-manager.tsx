@@ -632,12 +632,6 @@ export function AdminConsultationManager({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-        Demo boundary: assignments, statuses and notes update local state only. No provider
-        accepts or declines in reality, and no patient notification is sent.
-        <Badge variant="outline">Mock phase</Badge>
-      </p>
     </div>
   )
 }

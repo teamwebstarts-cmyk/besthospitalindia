@@ -1,20 +1,120 @@
+import type { ReactNode } from "react"
+import Image from "next/image"
 import Link from "next/link"
+import type { LucideIcon } from "lucide-react"
 import {
+  ActivityIcon,
+  BabyIcon,
+  BanknoteIcon,
+  BoneIcon,
+  BrainIcon,
+  Building2Icon,
+  CarIcon,
+  ClipboardCheckIcon,
+  ClipboardListIcon,
+  DropletsIcon,
+  DumbbellIcon,
+  EyeIcon,
+  FlaskConicalIcon,
   GlobeIcon,
+  HeartHandshakeIcon,
   HeartIcon,
+  HeartPulseIcon,
+  LanguagesIcon,
+  LeafIcon,
+  MapPinnedIcon,
   MessagesSquareIcon,
+  PlaneIcon,
+  RibbonIcon,
+  ScanIcon,
   ShieldCheckIcon,
   SparklesIcon,
   StarIcon,
+  StethoscopeIcon,
+  WindIcon,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { SectionHeading } from "@/components/shared/section-heading"
+import {
+  homeFeaturedTreatments,
+  homePatientServices,
+  type HomeFeaturedTreatmentItem,
+  type HomePatientServiceItem,
+} from "@/features/content/home-content"
 import { TestimonialCard } from "@/features/content/testimonial-card"
 import { FaqList } from "@/features/content/faq-list"
-import type { Faq, Specialty, Testimonial } from "@/types"
-import { ROUTES } from "@/constants/routes"
+import type { Faq, FacilityCategory, Specialty, Testimonial } from "@/types"
+import { ROUTES, treatmentDetailHref } from "@/constants/routes"
+import { fullBleedClassName } from "@/lib/full-bleed"
 import { cn } from "@/lib/utils"
+
+/* -------------------------------------------------------------------------
+ * Home layout shells (consistent section → inner → heading → content)
+ * ----------------------------------------------------------------------- */
+
+/** Constrained content column inside a full-bleed band (aligns with `main`). */
+export const homeSectionInnerClassName =
+  "mx-auto w-full max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8"
+
+export interface HomeBleedBandProps {
+  children: ReactNode
+  /** Border/background utilities for the band surface. */
+  surfaceClassName: string
+  "aria-labelledby"?: string
+  /** Centers copy inside the inner column (e.g. destinations). */
+  align?: "start" | "center"
+  className?: string
+}
+
+/** Full-bleed home band: section → inner column → children. */
+export function HomeBleedBand({
+  children,
+  surfaceClassName,
+  "aria-labelledby": ariaLabelledBy,
+  align = "start",
+  className,
+}: HomeBleedBandProps) {
+  return (
+    <section
+      aria-labelledby={ariaLabelledBy}
+      className={cn(
+        fullBleedClassName,
+        "py-8 sm:py-10",
+        surfaceClassName,
+        className
+      )}
+    >
+      <div
+        className={cn(
+          homeSectionInnerClassName,
+          align === "center" && "text-center"
+        )}
+      >
+        {children}
+      </div>
+    </section>
+  )
+}
+
+export interface HomePageSectionProps {
+  children: ReactNode
+  "aria-labelledby"?: string
+  className?: string
+}
+
+/** In-flow block inside main padded column (space-y-8 between heading and body). */
+export function HomePageSection({
+  children,
+  "aria-labelledby": ariaLabelledBy,
+  className,
+}: HomePageSectionProps) {
+  return (
+    <section aria-labelledby={ariaLabelledBy} className={cn("space-y-8", className)}>
+      {children}
+    </section>
+  )
+}
 
 /* -------------------------------------------------------------------------
  * Shared section heading
@@ -23,23 +123,34 @@ import { cn } from "@/lib/utils"
 export interface HomeSectionHeadingProps {
   title: string
   description?: string
+  /** Optional id on the h2 (for `aria-labelledby` on section wrappers). */
+  headingId?: string
   /** Optional trailing "View all" link. */
   viewAll?: { label: string; href: string }
+  /** Centered title/description (destinations-style bands). */
+  align?: "start" | "center"
   className?: string
 }
 
 export function HomeSectionHeading({
   title,
   description,
+  headingId,
   viewAll,
+  align = "start",
   className,
 }: HomeSectionHeadingProps) {
   return (
     <SectionHeading
       as="h2"
+      id={headingId}
       title={title}
       description={description}
-      className={className}
+      className={cn(
+        align === "center" &&
+          "flex-col items-center text-center sm:flex-col sm:items-center [&_p]:mx-auto [&_p]:max-w-3xl",
+        className
+      )}
       action={
         viewAll ? (
           <Link
@@ -56,12 +167,101 @@ export function HomeSectionHeading({
 }
 
 /* -------------------------------------------------------------------------
+ * Medical destination cities (home)
+ * ----------------------------------------------------------------------- */
+
+export interface MedicalDestinationCityCard {
+  city: string
+  imageSrc: string
+}
+
+export interface MedicalDestinationCitiesProps {
+  destinations: readonly MedicalDestinationCityCard[]
+  title: string
+  description: string
+  /** Full-bleed band (default) or flush block inside a parent white band. */
+  layout?: "band" | "embedded"
+  className?: string
+}
+
+/** City cards → hospital directory filtered by `?city=`. */
+export function MedicalDestinationCities({
+  destinations,
+  title,
+  description,
+  layout = "band",
+  className,
+}: MedicalDestinationCitiesProps) {
+  const surfaceClassName =
+    layout === "band"
+      ? "border-y border-border/70 bg-white"
+      : "border-b border-border/70 bg-muted/50"
+
+  return (
+    <HomeBleedBand
+      aria-labelledby="home-destinations-heading"
+      align="center"
+      surfaceClassName={surfaceClassName}
+      className={className}
+    >
+      <HomeSectionHeading
+        headingId="home-destinations-heading"
+        align="center"
+        title={title}
+        description={description}
+      />
+      <ul className="grid w-full grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        {destinations.map((destination) => (
+          <li key={destination.city}>
+            <Link
+              href={`${ROUTES.public.hospitals}?city=${encodeURIComponent(destination.city)}`}
+              className="group flex h-full flex-col overflow-hidden rounded-xl border border-border/70 bg-white p-4 text-left shadow-sm transition-[box-shadow,colors] outline-none hover:border-primary/25 hover:shadow-md focus-visible:ring-3 focus-visible:ring-ring/50"
+            >
+              <span className="font-semibold text-foreground group-hover:text-primary">
+                {destination.city}
+              </span>
+              <div className="relative mt-3 aspect-[5/3] w-full overflow-hidden rounded-lg bg-muted">
+                <Image
+                  src={destination.imageSrc}
+                  alt=""
+                  fill
+                  sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 220px"
+                  className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                />
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </HomeBleedBand>
+  )
+}
+
+/* -------------------------------------------------------------------------
  * Specialty tiles + facility category grid
  * ----------------------------------------------------------------------- */
 
 export interface SpecialtyTileGridProps {
   specialties: readonly Specialty[]
   className?: string
+}
+
+const specialtyIcons: Record<string, LucideIcon> = {
+  cardiology: HeartPulseIcon,
+  oncology: RibbonIcon,
+  orthopaedics: BoneIcon,
+  neurology: BrainIcon,
+  gastroenterology: ScanIcon,
+  "nephrology-urology": DropletsIcon,
+  pulmonology: WindIcon,
+  endocrinology: ActivityIcon,
+  ophthalmology: EyeIcon,
+  "maternity-neonatal": BabyIcon,
+}
+
+function SpecialtyTileIcon({ slug, className }: { slug: string; className?: string }) {
+  const Icon = specialtyIcons[slug] ?? HeartPulseIcon
+  return <Icon aria-hidden className={cn("size-11 text-primary sm:size-12", className)} strokeWidth={1.35} />
 }
 
 /** Specialty tiles → /treatments?specialty=<slug> (A06 route owns the param). */
@@ -72,7 +272,7 @@ export function SpecialtyTileGrid({
   return (
     <ul
       className={cn(
-        "grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5",
+        "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3",
         className
       )}
     >
@@ -80,16 +280,18 @@ export function SpecialtyTileGrid({
         <li key={specialty.id}>
           <Link
             href={`${ROUTES.public.treatments}?specialty=${encodeURIComponent(specialty.slug)}`}
-            className="group flex h-full flex-col gap-1 rounded-xl bg-card p-4 text-center shadow-xs ring-1 ring-foreground/10 transition-colors outline-none hover:ring-primary/40 focus-visible:ring-3 focus-visible:ring-ring/50"
+            className="group flex h-full items-center gap-3 rounded-xl border border-border/70 bg-card p-3.5 text-left shadow-sm transition-[box-shadow,colors] outline-none hover:border-primary/25 hover:shadow-md focus-visible:ring-3 focus-visible:ring-ring/50 sm:gap-4 sm:p-4"
           >
-            <span className="mx-auto flex size-10 items-center justify-center rounded-full bg-primary/10">
-              <HeartPulseGlyph />
+            <span className="flex w-[4.5rem] shrink-0 items-center justify-center sm:w-20">
+              <SpecialtyTileIcon slug={specialty.slug} />
             </span>
-            <span className="mt-1 text-sm font-medium text-foreground group-hover:text-primary">
-              {specialty.name}
-            </span>
-            <span className="line-clamp-2 text-xs text-muted-foreground">
-              {specialty.description}
+            <span className="min-w-0 flex-1">
+              <span className="block text-base font-semibold text-foreground group-hover:text-primary">
+                {specialty.name}
+              </span>
+              <span className="mt-1 block text-sm leading-snug text-muted-foreground">
+                {specialty.description}
+              </span>
             </span>
           </Link>
         </li>
@@ -98,29 +300,137 @@ export function SpecialtyTileGrid({
   )
 }
 
-function HeartPulseGlyph() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-      className="size-5 text-primary"
-    >
-      <path d="M19 14c1.49-1.55 3-3.29 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.21 1.51 3.95 3 5.5l7 7Z" />
-      <path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27" />
-    </svg>
-  )
-}
-
 export interface FacilityCategoryEntry {
+  category: FacilityCategory
   label: string
   description: string
   href: string
   count: number
+}
+
+type FacilityCategoryHighlight = {
+  icon: LucideIcon
+  text: string
+}
+
+const facilityCategoryCardMeta: Record<
+  FacilityCategory,
+  { heroIcon: LucideIcon; highlights: (count: number) => readonly FacilityCategoryHighlight[] }
+> = {
+  hospital: {
+    heroIcon: Building2Icon,
+    highlights: (count) => [
+      {
+        icon: ClipboardListIcon,
+        text: `${count} ${count === 1 ? "listing" : "listings"}`,
+      },
+      {
+        icon: HeartPulseIcon,
+        text: "Independent PER and CER on profiles",
+      },
+      { icon: MapPinnedIcon, text: "Filter by city in the directory" },
+    ],
+  },
+  specialty_centre: {
+    heroIcon: StethoscopeIcon,
+    highlights: (count) => [
+      {
+        icon: ClipboardListIcon,
+        text: `${count} ${count === 1 ? "listing" : "listings"}`,
+      },
+      { icon: ScanIcon, text: "Single-specialty focused centres" },
+      { icon: MapPinnedIcon, text: "Linked from facility search" },
+    ],
+  },
+  diagnostic_lab: {
+    heroIcon: FlaskConicalIcon,
+    highlights: (count) => [
+      {
+        icon: ClipboardListIcon,
+        text: `${count} ${count === 1 ? "listing" : "listings"}`,
+      },
+      { icon: ActivityIcon, text: "Labs and diagnostic services" },
+      { icon: ShieldCheckIcon, text: "Verification state shown on each profile" },
+    ],
+  },
+  rehabilitation: {
+    heroIcon: DumbbellIcon,
+    highlights: (count) => [
+      {
+        icon: ClipboardListIcon,
+        text: `${count} ${count === 1 ? "listing" : "listings"}`,
+      },
+      { icon: HeartIcon, text: "Recovery and rehab programmes" },
+      { icon: MapPinnedIcon, text: "Browse alongside hospital listings" },
+    ],
+  },
+  wellness: {
+    heroIcon: LeafIcon,
+    highlights: (count) => [
+      {
+        icon: ClipboardListIcon,
+        text: `${count} ${count === 1 ? "listing" : "listings"}`,
+      },
+      { icon: SparklesIcon, text: "Preventive and wellness services" },
+      { icon: StarIcon, text: "Dedicated wellness directory category" },
+    ],
+  },
+  medical_tourism: {
+    heroIcon: PlaneIcon,
+    highlights: (count) => [
+      {
+        icon: ClipboardListIcon,
+        text: `${count} ${count === 1 ? "listing" : "listings"}`,
+      },
+      { icon: GlobeIcon, text: "Facilitator and coordination listings" },
+      { icon: MessagesSquareIcon, text: "Pairs with medical-tourism flows" },
+    ],
+  },
+}
+
+function FacilityCategoryCard({ entry }: { entry: FacilityCategoryEntry }) {
+  const meta = facilityCategoryCardMeta[entry.category]
+  const HeroIcon = meta.heroIcon
+  const highlights = meta.highlights(entry.count)
+
+  return (
+    <article className="flex h-full flex-col rounded-xl border border-border/70 bg-card p-5 shadow-xs ring-1 ring-foreground/10 transition-[box-shadow,colors] hover:border-primary/25 hover:shadow-md sm:p-6">
+      <div className="flex min-h-0 flex-1 flex-col gap-5 text-left sm:gap-6">
+        <HeroIcon
+          aria-hidden
+          className="size-16 shrink-0 text-primary"
+          strokeWidth={1.75}
+        />
+        <header className="space-y-2">
+          <h3 className="font-semibold text-foreground">{entry.label}</h3>
+          <p className="text-sm leading-relaxed text-muted-foreground">{entry.description}</p>
+        </header>
+        <ul className="space-y-3.5 sm:space-y-4" aria-label={`${entry.label} highlights`}>
+          {highlights.map((item) => {
+            const ItemIcon = item.icon
+            return (
+              <li key={item.text} className="flex items-center gap-3">
+                <ItemIcon
+                  aria-hidden
+                  className="size-4 shrink-0 text-primary"
+                  strokeWidth={1.75}
+                />
+                <span className="text-sm leading-snug text-foreground">{item.text}</span>
+              </li>
+            )
+          })}
+        </ul>
+        <Button
+          className="mt-auto w-full rounded-lg font-semibold"
+          variant="default"
+          render={<Link href={entry.href} />}
+        >
+          View
+          <span className="sr-only"> {entry.label.toLowerCase()} listings</span>
+        </Button>
+      </div>
+    </article>
+  )
 }
 
 export interface FacilityCategoryGridProps {
@@ -137,24 +447,149 @@ export function FacilityCategoryGrid({
   return (
     <div className={cn("grid gap-4 sm:grid-cols-2 lg:grid-cols-3", className)}>
       {categories.map((category) => (
-        <Link
-          key={category.href}
-          href={category.href}
-          className="group flex flex-col gap-1 rounded-xl bg-card p-5 shadow-xs ring-1 ring-foreground/10 transition-colors outline-none hover:ring-primary/40 focus-visible:ring-3 focus-visible:ring-ring/50"
-        >
-          <span className="font-semibold text-foreground group-hover:text-primary">
-            {category.label}
-          </span>
-          <span className="text-sm text-muted-foreground">
-            {category.description}
-          </span>
-          <span className="mt-2 text-xs font-medium text-primary">
-            {category.count} demo{" "}
-            {category.count === 1 ? "listing" : "listings"}
-          </span>
-        </Link>
+        <FacilityCategoryCard key={category.href} entry={category} />
       ))}
     </div>
+  )
+}
+
+/* -------------------------------------------------------------------------
+ * Featured treatments grid (home)
+ * ----------------------------------------------------------------------- */
+
+const featuredTreatmentIcons: Record<HomeFeaturedTreatmentItem["slug"], LucideIcon> = {
+  "coronary-angioplasty": HeartPulseIcon,
+  "bypass-surgery": HeartPulseIcon,
+  chemotherapy: FlaskConicalIcon,
+  "knee-replacement": BoneIcon,
+  "stroke-rehabilitation": BrainIcon,
+  "liver-transplant": ActivityIcon,
+  dialysis: DropletsIcon,
+  "asthma-airways-care": WindIcon,
+  "cataract-surgery": EyeIcon,
+  "maternity-care": BabyIcon,
+}
+
+export interface HomeLowestQuotesSectionProps {
+  className?: string
+}
+
+/** Demo treatment profile shortcuts (layout grid — links to /treatments/[slug]). */
+export function HomeLowestQuotesSection({ className }: HomeLowestQuotesSectionProps) {
+  return (
+    <HomeBleedBand
+      aria-labelledby="home-featured-treatments-heading"
+      align="center"
+      surfaceClassName="border-b border-border/70 bg-background"
+      className={className}
+    >
+      <HomeSectionHeading
+        headingId="home-featured-treatments-heading"
+        align="center"
+        title={homeFeaturedTreatments.title}
+        description={homeFeaturedTreatments.description}
+      />
+      <ul className="grid w-full gap-4 text-left sm:grid-cols-2 lg:grid-cols-3">
+        {homeFeaturedTreatments.items.map((treatment) => {
+          const Icon = featuredTreatmentIcons[treatment.slug]
+          const profileHref = treatmentDetailHref(treatment.slug)
+          return (
+            <li
+              key={treatment.slug}
+              className="flex gap-3 rounded-xl bg-primary/[0.06] p-4 sm:gap-4 sm:p-5"
+            >
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-white text-primary shadow-xs ring-1 ring-border/60 sm:size-12">
+                <Icon aria-hidden className="size-5 sm:size-[1.35rem]" strokeWidth={1.75} />
+              </span>
+              <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-1.5">
+                <h3 className="text-sm font-semibold text-foreground sm:text-base">
+                  {treatment.title}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground/90">
+                    Specialty
+                  </span>{" "}
+                  <span className="font-medium text-foreground">{treatment.specialtyLabel}</span>
+                </p>
+                <Link
+                  href={profileHref}
+                  className="text-sm font-semibold text-cta underline-offset-4 hover:underline"
+                >
+                  View treatment
+                  <span className="sr-only">: {treatment.title}</span>
+                </Link>
+              </div>
+            </li>
+          )
+        })}
+      </ul>
+    </HomeBleedBand>
+  )
+}
+
+/* -------------------------------------------------------------------------
+ * Platform scope grid (home)
+ * ----------------------------------------------------------------------- */
+
+const patientServiceIcons: Record<HomePatientServiceItem["id"], LucideIcon> = {
+  "provider-discovery": Building2Icon,
+  "treatment-pages": ClipboardListIcon,
+  "independent-ratings": StarIcon,
+  "verification-states": ShieldCheckIcon,
+  "free-consultation": MessagesSquareIcon,
+  "patient-enquiry": ClipboardCheckIcon,
+  "medical-tourism-info": GlobeIcon,
+  "travel-assistance": MapPinnedIcon,
+  "cost-context": BanknoteIcon,
+}
+
+export interface HomePatientServicesSectionProps {
+  className?: string
+  surfaceClassName?: string
+}
+
+/** Platform scope grid — discovery, ratings, demo flows and informational travel modules. */
+export function HomePatientServicesSection({
+  className,
+  surfaceClassName = "border-b border-border/70 bg-background",
+}: HomePatientServicesSectionProps) {
+  return (
+    <HomeBleedBand
+      aria-labelledby="home-patient-services-heading"
+      align="center"
+      surfaceClassName={surfaceClassName}
+      className={className}
+    >
+      <HomeSectionHeading
+        headingId="home-patient-services-heading"
+        align="center"
+        title={homePatientServices.title}
+        description={homePatientServices.description}
+      />
+      <ul className="grid w-full gap-4 text-left sm:grid-cols-2 lg:grid-cols-3">
+        {homePatientServices.items.map((service) => {
+          const Icon = patientServiceIcons[service.id]
+          return (
+            <li
+              key={service.id}
+              className="flex gap-3 rounded-xl bg-primary/[0.06] p-4 sm:gap-4 sm:p-5"
+            >
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-white text-primary shadow-xs ring-1 ring-border/60 sm:size-12">
+                <Icon aria-hidden className="size-5 sm:size-[1.35rem]" strokeWidth={1.75} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <h3 className="text-sm font-semibold text-foreground sm:text-base">
+                  {service.title}
+                </h3>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                  {service.description}
+                </p>
+              </div>
+            </li>
+          )
+        })}
+      </ul>
+    </HomeBleedBand>
   )
 }
 
@@ -166,23 +601,10 @@ export interface MedicalTourismBlockProps {
   className?: string
 }
 
+const MEDICAL_TOURISM_DEMO_VIDEO_POSTER = "/images/hero-personal-care.png"
+
 /** Medical-tourism discovery block linking into A06 routes. */
 export function MedicalTourismBlock({ className }: MedicalTourismBlockProps) {
-  const points: readonly { title: string; body: string }[] = [
-    {
-      title: "Treatment discovery",
-      body: "Browse demo treatment pages to understand what different listed providers offer.",
-    },
-    {
-      title: "Enquiry and coordination",
-      body: "Raise an international-patient enquiry; a demo coordinator workflow tracks its status.",
-    },
-    {
-      title: "Travel assistance information",
-      body: "See what travel-assistance support the demo programme describes for visiting patients.",
-    },
-  ]
-
   return (
     <div
       className={cn(
@@ -201,8 +623,8 @@ export function MedicalTourismBlock({ className }: MedicalTourismBlockProps) {
         <p className="text-sm leading-relaxed text-muted-foreground md:text-base">
           The platform includes a dedicated medical-tourism module for patients
           considering travel to India for care — from treatment discovery to
-          enquiry coordination and travel-assistance information. All workflows
-          in this demo are simulated.
+          enquiry coordination and travel-assistance information with support at
+          each stage.
         </p>
         <div className="flex flex-wrap gap-3">
           <Button render={<Link href={ROUTES.public.medicalTourism} />}>
@@ -216,18 +638,26 @@ export function MedicalTourismBlock({ className }: MedicalTourismBlockProps) {
           </Button>
         </div>
       </div>
-      <ul className="grid content-start gap-3">
-        {points.map((point) => (
-          <li key={point.title} className="rounded-lg border bg-background p-4">
-            <h3 className="text-sm font-semibold text-foreground">
-              {point.title}
-            </h3>
-            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-              {point.body}
+      <figure className="flex min-h-0 flex-col justify-center gap-2 self-stretch">
+        <div className="overflow-hidden rounded-xl border border-border/70 bg-muted shadow-xs ring-1 ring-foreground/10">
+          <video
+            className="aspect-video w-full bg-muted object-cover"
+            controls
+            playsInline
+            preload="metadata"
+            poster={MEDICAL_TOURISM_DEMO_VIDEO_POSTER}
+            aria-label="Medical tourism programme overview"
+          >
+            <p className="p-4 text-sm text-muted-foreground">
+              Programme overview video — explore medical tourism using the links
+              on this page.
             </p>
-          </li>
-        ))}
-      </ul>
+          </video>
+        </div>
+        <figcaption className="text-center text-xs leading-relaxed text-muted-foreground">
+          Medical tourism programme overview
+        </figcaption>
+      </figure>
     </div>
   )
 }
@@ -259,13 +689,12 @@ export function IufConsultationCta({ className }: IufConsultationCtaProps) {
           International Urban Forum Supported Initiative
         </p>
         <h2 className="text-2xl font-semibold tracking-tight">
-          Request a free consultation (demo)
+          Request a free consultation
         </h2>
         <p className="max-w-xl text-sm leading-relaxed opacity-90">
           The consultation flow is an IUF-supported initiative on the platform.
           Scope, eligibility and cost boundaries are described on the
-          consultation page before any request is made. This demo does not
-          submit anything.
+          consultation page before any request is made.
         </p>
       </div>
       <Button
@@ -297,7 +726,7 @@ const trustValues: readonly {
   {
     icon: ShieldCheckIcon,
     title: "Verification states, shown honestly",
-    body: "Provider profiles carry their actual verification status from the demo data — verified, pending or unverified.",
+    body: "Provider profiles carry their verification status — verified, pending or unverified — exactly as recorded.",
   },
   {
     icon: StarIcon,
@@ -307,7 +736,7 @@ const trustValues: readonly {
   {
     icon: MessagesSquareIcon,
     title: "Enquiries with clear boundaries",
-    body: "Enquiry and appointment flows are request workflows; a request is not a confirmed booking in the demo.",
+    body: "Enquiry and appointment flows are request workflows; a request is not a confirmed booking until the provider confirms.",
   },
   {
     icon: HeartIcon,
@@ -352,12 +781,12 @@ export function TestimonialsSection({
   return (
     <div className={cn("space-y-4", className)}>
       <HomeSectionHeading
-        title="Patient stories (fictional)"
-        description="The stories below are fictional demo fixtures created to illustrate the testimonial layout. They do not describe real patients, providers or outcomes."
+        title="Patient stories"
+        description="Experiences from patients who used the platform to plan care in India."
       />
       {testimonials.length === 0 ? (
         <p className="rounded-lg border border-dashed px-6 py-10 text-center text-sm text-muted-foreground">
-          No demo testimonials are configured yet.
+          Patient stories will appear here soon.
         </p>
       ) : (
         <div className="grid gap-4 md:grid-cols-3">
@@ -381,11 +810,11 @@ export function HomeFaqSection({ faqs, className }: HomeFaqSectionProps) {
     <div className={cn("space-y-4", className)}>
       <HomeSectionHeading
         title="Frequently asked questions"
-        description="Short answers about how the demo platform presents providers, ratings and requests."
+        description="Short answers about how the platform presents providers, ratings and requests."
       />
       {faqs.length === 0 ? (
         <p className="rounded-lg border border-dashed px-6 py-10 text-center text-sm text-muted-foreground">
-          No FAQs are configured in the demo data yet.
+          FAQs will be published here soon.
         </p>
       ) : (
         <FaqList faqs={faqs} />

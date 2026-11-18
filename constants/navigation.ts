@@ -59,11 +59,12 @@ export interface FooterNavGroup {
  * Routes follow docs/implementation/02-page-inventory.md.
  */
 export const publicNav: NavLink[] = [
+  { label: "Home", href: "/" },
   { label: "Hospitals", href: "/hospitals" },
   { label: "Doctors", href: "/doctors" },
   { label: "Facilities", href: "/facilities" },
-  { label: "Medical Tourism", href: "/medical-tourism" },
-  { label: "Treatments", href: "/treatments" },
+  // { label: "Medical Tourism", href: "/medical-tourism" },
+  // { label: "Treatments", href: "/treatments" }, // restore when treatments nav is required
   { label: "Free Consultation", href: "/free-consultation" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },

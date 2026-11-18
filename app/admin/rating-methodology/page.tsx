@@ -26,11 +26,8 @@ export const metadata: Metadata = {
 
 export default function AdminRatingMethodologyPage() {
   return (
-    <div className="space-y-8">
-      <AdminCasePageHeader
-        label="Rating Methodology"
-        description="The criteria, weightages and versions that govern each rating kind. PER, hospital CER and doctor MER are separate methodologies; the draft editor below is an explicit demonstration that changes nothing outside this session."
-      />
+    <div className="space-y-6 py-6">
+      <AdminCasePageHeader compact label="Rating methodology" />
       <AdminRatingMethodologyManager assessments={ratingAssessments} />
     </div>
   )

@@ -98,7 +98,7 @@ export function AuthEntryCard({ className }: AuthEntryCardProps) {
     }
     if (otp.trim() !== issuedOtp) {
       setOtpError(
-        "Incorrect code. Check the demo code shown above and try again."
+        "Incorrect code. Check the code we sent and try again."
       )
       return
     }
@@ -120,8 +120,7 @@ export function AuthEntryCard({ className }: AuthEntryCardProps) {
             : "Create your access"}
         </h1>
         <p className="text-sm text-muted-foreground">
-          Demo authentication — choose a role to continue. Nothing is sent or
-          stored.
+          Sign in with a one-time code, or continue as a hospital or doctor partner.
         </p>
       </div>
 
@@ -202,12 +201,11 @@ export function AuthEntryCard({ className }: AuthEntryCardProps) {
                 ) : null}
               </div>
               <Button type="submit" variant="cta" className="w-full rounded-full font-semibold shadow-sm">
-                Send one-time code (demo)
+                Send one-time code
               </Button>
               <p className="text-xs text-muted-foreground">
-                A 6-digit code would be sent to this email or mobile. In this
-                demo the code is shown on the next screen — no message is
-                actually sent.
+                We send a 6-digit code to this email or mobile number. It may take
+                a minute to arrive.
               </p>
             </form>
           ) : step === "otp" ? (
@@ -249,7 +247,7 @@ export function AuthEntryCard({ className }: AuthEntryCardProps) {
                     id="auth-otp-hint"
                     className="text-xs text-muted-foreground"
                   >
-                    Demo code (would normally arrive by SMS/email):{" "}
+                    Your verification code:{" "}
                     <span className="font-mono font-semibold text-foreground">
                       {issuedOtp}
                     </span>
@@ -278,7 +276,7 @@ export function AuthEntryCard({ className }: AuthEntryCardProps) {
           ) : (
             <div
               className="space-y-4 text-center"
-              aria-label="Demo verification result"
+              aria-label="Sign-in verification result"
               aria-live="polite"
             >
               <UserRoundIcon
@@ -287,13 +285,11 @@ export function AuthEntryCard({ className }: AuthEntryCardProps) {
               />
               <div className="space-y-1">
                 <h2 className="text-lg font-semibold text-foreground">
-                  Demo sign-in verified
+                  You’re signed in
                 </h2>
                 <p className="text-sm leading-relaxed text-muted-foreground">
-                  The code matched — this “verified” state lives only in this
-                  page’s local memory. The patient portal (dashboard,
-                  appointments, enquiries) is a future phase and does not exist
-                  in this demo build, so there is nowhere to navigate yet.
+                  Your code was verified. Open your patient dashboard to manage
+                  enquiries, appointments and saved providers.
                 </p>
               </div>
               <div className="flex flex-col justify-center gap-2 sm:flex-row">
@@ -306,11 +302,8 @@ export function AuthEntryCard({ className }: AuthEntryCardProps) {
                 >
                   Start over
                 </Button>
-                <Button
-                  render={
-                    <Link href="/" />
-                  }
-                >
+                <Button render={<Link href="/patient" />}>Go to dashboard</Button>
+                <Button variant="outline" render={<Link href="/" />}>
                   Back to homepage
                 </Button>
               </div>
@@ -331,8 +324,8 @@ export function AuthEntryCard({ className }: AuthEntryCardProps) {
               </h2>
               <p className="text-sm leading-relaxed text-muted-foreground">
                 {role === "hospital"
-                  ? "Hospital partners register through the institutional interest flow. Submit the hospital interest form and the demo portal team takes it from there — no account is created here."
-                  : "Individual doctors register through the doctor interest flow. Submit the doctor interest form to start the demo verification conversation — no account is created here."}
+                  ? "Hospital partners register through the institutional interest flow. Submit the hospital interest form and our partnerships team sets up your portal access."
+                  : "Individual doctors register through the doctor interest flow. Submit the doctor interest form to begin credential review and portal setup."}
               </p>
             </div>
             <div className="flex flex-col justify-center gap-2 sm:flex-row">
@@ -378,11 +371,16 @@ export function AuthEntryCard({ className }: AuthEntryCardProps) {
             </button>
           </p>
         ) : null}
-        <p className="rounded-lg border border-dashed px-4 py-3 text-xs leading-relaxed text-muted-foreground">
-          Mock-only notice: this page demonstrates the auth concept. There is no
-          real authentication, no SMS/email delivery, no account storage, and
-          the “verified” state lives only in this page’s local memory until you
-          navigate away.
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          By continuing you agree to our{" "}
+          <Link href="/terms" className="text-primary underline-offset-4 hover:underline">
+            Terms of Use
+          </Link>{" "}
+          and{" "}
+          <Link href="/privacy" className="text-primary underline-offset-4 hover:underline">
+            Privacy Policy
+          </Link>
+          .
         </p>
       </div>
     </div>

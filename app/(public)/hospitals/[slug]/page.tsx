@@ -68,7 +68,7 @@ export async function generateMetadata({ params }: HospitalProfilePageProps): Pr
   }
   return {
     title: hospital.name,
-    description: `${hospital.name} — ${hospital.facilityType} in ${hospital.city}, ${hospital.state}. Demo profile with independent patient experience (PER) and clinical expertise (CER) ratings. Fictional demo data.`,
+    description: `${hospital.name} — ${hospital.facilityType} in ${hospital.city}, ${hospital.state}. Independent patient experience (PER) and clinical expertise (CER) ratings.`,
     alternates: { canonical: hospitalProfileHref(hospital.slug) },
   }
 }
@@ -166,7 +166,7 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
             <SectionHeading as="h2" title="Overview" />
             <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">{hospital.overview}</p>
             <p className="max-w-3xl text-xs text-muted-foreground">
-              Demo profile — all details are fictional and exist to exercise the product’s trust-first display rules.
+              Profile information is supplied by the hospital and updated through our verification workflows.
             </p>
           </section>
 
@@ -201,7 +201,7 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-sm text-muted-foreground">No specialties listed (demo).</p>
+                    <p className="text-sm text-muted-foreground">No specialties listed.</p>
                   )}
                 </CardContent>
               </Card>
@@ -222,7 +222,7 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-sm text-muted-foreground">No treatments listed (demo).</p>
+                    <p className="text-sm text-muted-foreground">No treatments listed.</p>
                   )}
                 </CardContent>
               </Card>
@@ -234,7 +234,7 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
             <SectionHeading
               as="h2"
               title="Doctors at this hospital"
-              description="Associated doctors from the demo roster."
+              description="Doctors associated with this hospital."
             />
             {doctors.length > 0 ? (
               <ul className="grid gap-2 sm:grid-cols-2">
@@ -259,7 +259,7 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
               <EmptyState
                 icon={UsersIcon}
                 title="No associated doctors listed"
-                description="This demo hospital has no doctors in the fixture roster yet."
+                description="This hospital has no associated doctors listed yet."
               />
             )}
           </section>
@@ -269,7 +269,7 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
             <SectionHeading
               as="h2"
               title="Accreditations"
-              description="Verification states come straight from the demo records — nothing is shown as verified without a verified record."
+              description="Verification states are shown exactly as recorded — nothing is shown as verified without a verified record."
             />
             {hospital.accreditations.length > 0 ? (
               <ul className="space-y-2">
@@ -293,7 +293,7 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
               <EmptyState
                 icon={ShieldCheckIcon}
                 title="No accreditations listed"
-                description="This demo hospital has no accreditation records in the fixture data."
+                description="This hospital has no accreditation records listed yet."
               />
             )}
           </section>
@@ -344,7 +344,7 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
               <EmptyState
                 icon={StarIcon}
                 title="No published reviews yet"
-                description="Demo reviews appear here once published in the fixture data."
+                description="Patient reviews appear here once published."
               />
             )}
           </section>
@@ -358,8 +358,7 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
             </CardHeader>
             <CardContent className="space-y-3">
               <p className="text-sm text-muted-foreground">
-                Submit an enquiry and the demo coordination team will respond. This demo performs no real booking or
-                submission.
+                Submit an enquiry and our coordination team will respond. An enquiry is not a confirmed appointment until the hospital confirms.
               </p>
               <Button variant="cta" className="w-full rounded-full font-semibold shadow-sm" render={<Link href={consultationHref} />}>
                 <CalendarCheckIcon data-icon="inline-start" />
@@ -380,7 +379,7 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
                 <div className="flex items-start gap-1.5">
                   <dt className="sr-only">Data provenance</dt>
                   <ShieldCheckIcon aria-hidden className="mt-0.5 size-3.5 shrink-0" />
-                  <dd>All provider, rating and review content on this profile is fictional demo data.</dd>
+                  <dd>Ratings and reviews reflect recorded assessments and published patient feedback — never a combined score.</dd>
                 </div>
               </dl>
             </CardContent>

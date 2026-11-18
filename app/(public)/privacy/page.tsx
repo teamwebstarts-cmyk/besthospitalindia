@@ -38,9 +38,8 @@ export default function PrivacyPage() {
         <p>
           This draft covers the discovery platform (hospitals, doctors,
           facilities, treatments), enquiry and appointment request flows,
-          patient accounts and partner portals. It applies to demo usage in this
-          build and is intended to be replaced, word for word, by approved legal
-          text before any production use.
+          patient accounts and partner portals. This draft is intended to be
+          replaced, word for word, by approved legal text before production use.
         </p>
       </PageSection>
 
@@ -58,9 +57,10 @@ export default function PrivacyPage() {
           advertising profiles.
         </p>
         <p>
-          In this demo build, no information is actually collected: all forms
-          run locally in the browser, and every record shown is fictional demo
-          data.
+          Information you submit in forms is processed to operate the workflows
+          you request (for example routing an enquiry to a coordinator or provider).
+          Retention periods and data subject rights are set out in the approved
+          policy when published.
         </p>
       </PageSection>
 

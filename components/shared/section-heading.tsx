@@ -9,6 +9,8 @@ export interface SectionHeadingProps {
   action?: ReactNode
   /** Heading level for semantic structure. */
   as?: "h1" | "h2" | "h3" | "h4"
+  /** Optional id on the heading element (e.g. for `aria-labelledby`). */
+  id?: string
   className?: string
 }
 
@@ -27,6 +29,7 @@ export function SectionHeading({
   description,
   action,
   as: Tag = "h2",
+  id,
   className,
 }: SectionHeadingProps) {
   return (
@@ -37,7 +40,9 @@ export function SectionHeading({
       )}
     >
       <div className="space-y-1">
-        <Tag className={headingClasses[Tag]}>{title}</Tag>
+        <Tag id={id} className={headingClasses[Tag]}>
+          {title}
+        </Tag>
         {description ? (
           <p className="max-w-2xl text-sm text-balance text-muted-foreground">
             {description}

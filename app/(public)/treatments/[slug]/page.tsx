@@ -62,7 +62,7 @@ export async function generateMetadata({
   // Safe factual fields only: name + neutral fixture description. No claims.
   return {
     title: treatment.name,
-    description: `${treatment.description} Demo platform — informational listing only, not medical advice.`,
+    description: `${treatment.description} Informational listing only — not medical advice.`,
     alternates: {
       canonical: treatmentDetailHref(treatment.slug),
     },
@@ -108,7 +108,7 @@ export default async function TreatmentDetailPage({ params }: TreatmentPageProps
       {/* Overview */}
       <section aria-label="Treatment overview" className="space-y-4">
         <Badge variant="outline" className="text-muted-foreground">
-          Demo taxonomy entry — fictional data
+          Treatment listing
         </Badge>
         <h1
           id="treatment-overview-heading"
@@ -129,7 +129,7 @@ export default async function TreatmentDetailPage({ params }: TreatmentPageProps
           ) : null}
           <span className="inline-flex items-center gap-1.5 rounded-4xl bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
             <Building2Icon aria-hidden className="size-3.5" />
-            {hospitals.length} demo {hospitals.length === 1 ? "hospital" : "hospitals"} list
+            {hospitals.length} {hospitals.length === 1 ? "hospital" : "hospitals"} list
             this
           </span>
         </div>
@@ -146,7 +146,7 @@ export default async function TreatmentDetailPage({ params }: TreatmentPageProps
         />
         <p>
           <span className="font-medium">Content pending medical review.</span>{" "}
-          This page is demo taxonomy copy. Descriptions have not been reviewed
+          Descriptions on this page have not been reviewed
           by medical professionals and are not guidance of any kind.
         </p>
       </aside>
@@ -163,13 +163,13 @@ export default async function TreatmentDetailPage({ params }: TreatmentPageProps
             <ul className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
               <li className="flex items-start gap-2">
                 <InfoIcon aria-hidden className="mt-0.5 size-4 shrink-0" />
-                Lists which demo providers include this treatment in their
-                fictional programme data.
+                Lists which hospitals and doctors include this treatment in their
+                programmes.
               </li>
               <li className="flex items-start gap-2">
                 <InfoIcon aria-hidden className="mt-0.5 size-4 shrink-0" />
                 Links to hospital and doctor profile pages where you can read
-                their independent PER/CER/MER demo ratings.
+                their independent PER, CER and MER ratings.
               </li>
               <li className="flex items-start gap-2">
                 <InfoIcon aria-hidden className="mt-0.5 size-4 shrink-0" />
@@ -178,8 +178,8 @@ export default async function TreatmentDetailPage({ params }: TreatmentPageProps
               </li>
               <li className="flex items-start gap-2">
                 <InfoIcon aria-hidden className="mt-0.5 size-4 shrink-0" />
-                The enquiry CTA records a demo entry locally; nothing is sent
-                to any provider.
+                The enquiry form creates a tracked request; our team coordinates
+                follow-up with listed providers.
               </li>
             </ul>
           </CardContent>
@@ -187,16 +187,16 @@ export default async function TreatmentDetailPage({ params }: TreatmentPageProps
       </section>
 
       {/* Related hospitals */}
-      <section aria-label="Related demo hospitals" className="space-y-4">
+      <section aria-label="Related hospitals" className="space-y-4">
         <SectionHeading
           as="h2"
-          title={`Demo hospitals listing ${treatment.name}`}
+          title={`Hospitals listing ${treatment.name}`}
           description="Link list only — full provider cards live on the hospital directory and profiles."
         />
         {hospitals.length === 0 ? (
           <EmptyState
-            title="No demo hospitals list this treatment yet"
-            description="The fixture set has no hospital offering this treatment. Browse the full directory instead."
+            title="No hospitals list this treatment yet"
+            description="No hospital in the directory currently lists this treatment. Browse the full directory instead."
             action={{ label: "Browse hospitals", href: ROUTES.public.hospitals }}
           />
         ) : (
@@ -240,16 +240,16 @@ export default async function TreatmentDetailPage({ params }: TreatmentPageProps
       </section>
 
       {/* Related doctors */}
-      <section aria-label="Related demo doctors" className="space-y-4">
+      <section aria-label="Related doctors" className="space-y-4">
         <SectionHeading
           as="h2"
-          title="Demo doctors listing this treatment"
+          title="Doctors listing this treatment"
           description="Link list only — doctor cards with independent PER/MER live on the doctor directory and profiles."
         />
         {doctors.length === 0 ? (
           <EmptyState
-            title="No demo doctors list this treatment yet"
-            description="The fixture set has no doctor offering this treatment. Browse the full directory instead."
+            title="No doctors list this treatment yet"
+            description="No doctor in the directory currently lists this treatment. Browse the full directory instead."
             action={{ label: "Browse doctors", href: ROUTES.public.doctors }}
           />
         ) : (
@@ -268,7 +268,7 @@ export default async function TreatmentDetailPage({ params }: TreatmentPageProps
                     </CardTitle>
                     <CardDescription className="flex items-center gap-1.5">
                       <MapPinIcon aria-hidden className="size-3.5" />
-                      {doctor.city} · {doctor.yearsExperience ?? "—"} yrs experience (demo)
+                      {doctor.city} · {doctor.yearsExperience ?? "—"} yrs experience
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -294,7 +294,7 @@ export default async function TreatmentDetailPage({ params }: TreatmentPageProps
           <SectionHeading
             as="h2"
             title={`More in ${specialty?.name ?? "this specialty"}`}
-            description="Other demo taxonomy entries under the same specialty."
+            description="Other treatments under the same specialty."
           />
           <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {relatedTreatments.map((item) => (
@@ -317,7 +317,7 @@ export default async function TreatmentDetailPage({ params }: TreatmentPageProps
       {/* Enquiry CTA — preselects specialty + treatment */}
       <EnquiryCta
         title={`Interested in ${treatment.name}?`}
-        description="Start the international patient enquiry with this treatment preselected. The demo records entries locally and shows a reference number — no provider is contacted."
+        description="Start the international patient enquiry with this treatment preselected. You receive a reference number and our coordination team follows up."
         enquiryParams={{
           specialty: treatment.specialtyId,
           treatment: treatment.id,
@@ -329,10 +329,10 @@ export default async function TreatmentDetailPage({ params }: TreatmentPageProps
         aria-label="Medical disclaimer"
         className="rounded-lg border bg-muted/30 p-4 text-xs text-muted-foreground"
       >
-        Medical disclaimer: this page describes fictional demo data on a
-        demonstration platform. It is not medical advice, diagnosis or a
-        treatment recommendation, and no outcome, price or availability is
-        represented. Consult qualified professionals for real care.
+        Medical disclaimer: this page is an informational listing. It is not
+        medical advice, diagnosis or a treatment recommendation, and no outcome,
+        price or availability is guaranteed. Consult qualified professionals for
+        care decisions.
       </aside>
     </div>
   )

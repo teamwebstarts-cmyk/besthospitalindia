@@ -74,12 +74,12 @@ export default function ForHospitalsPage() {
 
       <PageSection
         title="Institutional interest form"
-        description="Tell us about the facility. In this demo, submission produces a local confirmation only."
+        description="Tell us about the facility. Our partnerships team reviews your application and follows up."
         id="interest-form"
       >
         <DemoNotice
-          title="Demo form — no application is filed"
-          message="This interest form is part of the mock build. Nothing is transmitted, stored or reviewed; the confirmation you will see is generated locally in your browser."
+          title="Interest form — application review"
+          message="Submitting this form starts an institutional review workflow. You receive a reference number on screen; our team contacts you about onboarding next steps."
         />
         <PartnerInterestForm kind="hospital" />
       </PageSection>

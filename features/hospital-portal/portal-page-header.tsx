@@ -20,10 +20,18 @@ export interface PortalPageHeaderProps {
   description?: string
   /** Optional page-level action (rendered right of the heading). */
   action?: ReactNode
+  /** When false, skips the page-level DemoNotice (shell topbar already states demo scope). */
+  showDemoNotice?: boolean
   className?: string
 }
 
-export function PortalPageHeader({ label, description, action, className }: PortalPageHeaderProps) {
+export function PortalPageHeader({
+  label,
+  description,
+  action,
+  showDemoNotice = true,
+  className,
+}: PortalPageHeaderProps) {
   const items: BreadcrumbItem[] = [
     { label: "Dashboard", href: "/hospital-portal" },
     { label },
@@ -33,10 +41,14 @@ export function PortalPageHeader({ label, description, action, className }: Port
     <header className={cn("space-y-4", className)}>
       <Breadcrumbs items={items} />
       <SectionHeading as="h1" title={label} description={description} action={action} />
-      <DemoNotice
-        title="Demo portal — mock data only"
-        message="This workspace is a frontend demo using fictional fixtures. No real hospital, patient, booking, document or rating activity exists behind it."
-      />
+      {showDemoNotice ? (
+        <DemoNotice
+          title="Demo portal — mock data only"
+          message="Fictional fixture data only — nothing here is sent or stored."
+        />
+      ) : (
+        <p className="text-xs text-muted-foreground lg:hidden">Demo — fixture data only.</p>
+      )}
     </header>
   )
 }

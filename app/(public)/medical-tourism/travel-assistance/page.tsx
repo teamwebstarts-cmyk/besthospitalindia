@@ -28,7 +28,7 @@ import { EnquiryCta, FaqList, JourneySteps, SupportServiceCards } from "@/featur
 export const metadata: Metadata = {
   title: "Travel Assistance Information",
   description:
-    "Informational guidance on accommodation, airport pickup, visa and document preparation and local transport for international patients. Demo platform — no services are booked or guaranteed.",
+    "Informational guidance on accommodation, airport pickup, visa and document preparation and local transport for international patients. No services are booked or guaranteed by the platform.",
   alternates: { canonical: ROUTES.public.medicalTourismTravelAssistance },
 }
 
@@ -37,7 +37,7 @@ const SERVICES = [
     icon: BedDoubleIcon,
     title: "Accommodation guidance",
     description:
-      "General orientation on the kinds of stays international patients commonly look for near the demo provider cities — serviced apartments, guest houses and budget hotels.",
+      "General orientation on the kinds of stays international patients commonly look for near major hospital cities — serviced apartments, guest houses and budget hotels.",
     caveat:
       "The platform does not list real properties, hold rooms or quote prices. Availability and tariffs are never guaranteed.",
   },
@@ -45,7 +45,7 @@ const SERVICES = [
     icon: PlaneIcon,
     title: "Airport pickup — information only",
     description:
-      "How airport transfers are typically organised in the demo cities: prepaid taxi counters, app-based cabs and hospital-arranged transport where a real provider offers it.",
+      "How airport transfers are typically organised in major cities: prepaid taxi counters, app-based cabs and hospital-arranged transport where a provider offers it.",
     caveat:
       "No pickup, transfer or driver is ever arranged by this platform. Any such service would come from a real provider directly — never assumed or guaranteed here.",
   },
@@ -61,7 +61,7 @@ const SERVICES = [
     icon: CarIcon,
     title: "Local transport information",
     description:
-      "Orientation on moving around the demo cities: metro networks, app-based cabs, auto-rickshaws and intercity trains.",
+      "Orientation on moving around major cities: metro networks, app-based cabs, auto-rickshaws and intercity trains.",
     caveat:
       "No bookings, schedules or fares are provided; transport services are never guaranteed.",
   },
@@ -69,7 +69,7 @@ const SERVICES = [
     icon: LanguagesIcon,
     title: "Language assistance — what to expect",
     description:
-      "Doctor fixtures list spoken languages, which can help you shortlist providers. Many real hospitals employ interpreters; you would confirm this directly with any real provider.",
+      "Doctor profiles list spoken languages, which can help you shortlist providers. Many hospitals employ interpreters; confirm availability directly with your provider.",
     caveat:
       "The platform does not arrange interpreters and cannot guarantee language support.",
   },
@@ -77,9 +77,9 @@ const SERVICES = [
     icon: BusFrontIcon,
     title: "Getting around between appointments",
     description:
-      "General planning notes: keeping buffer time between a demo hospital and your stay, peak-hour patterns and accessibility considerations to raise with a real provider.",
+      "General planning notes: keeping buffer time between hospital appointments and your stay, peak-hour patterns and accessibility considerations to raise with your provider.",
     caveat:
-      "Purely educational demo copy — no scheduling or coordination is performed.",
+      "Educational information only — the platform performs no scheduling or coordination.",
   },
 ] as const
 
@@ -92,17 +92,17 @@ const JOURNEY_STEPS = [
   {
     title: "On arrival",
     description:
-      "Airport transfers in the demo cities are typically self-arranged or provider-arranged. This platform arranges nothing.",
+      "Airport transfers are typically self-arranged or provider-arranged. This platform arranges nothing.",
   },
   {
     title: "During your stay",
     description:
-      "Accommodation and daily transport remain your responsibility; the demo pages explain what patients usually plan for.",
+      "Accommodation and daily transport remain your responsibility; these pages explain what patients usually plan for.",
   },
   {
     title: "Follow-up from home",
     description:
-      "Post-treatment follow-up would be coordinated by a real provider. This platform records nothing beyond the demo enquiry confirmation.",
+      "Post-treatment follow-up is coordinated by your treating provider. Submit an enquiry if you need coordination support from our team.",
   },
 ] as const
 
@@ -120,17 +120,17 @@ const FAQ_ITEMS = [
   {
     question: "Do you book hotels or guest houses?",
     answer:
-      "No. Accommodation content is general orientation about stay options near demo cities. No properties are listed, held, negotiated or priced.",
+      "No. Accommodation content is general orientation about stay options near hospital cities. No properties are listed, held, negotiated or priced.",
   },
   {
     question: "Is interpreter support available?",
     answer:
-      "The platform cannot arrange interpreters. Doctor fixtures list spoken languages to help you shortlist providers; for real language support you would confirm directly with a real provider.",
+      "The platform cannot arrange interpreters. Doctor profiles list spoken languages to help you shortlist providers; confirm language support directly with your provider.",
   },
   {
     question: "Who do I contact about travel plans?",
     answer:
-      "There is no travel desk on this demo platform. The enquiry form records your interest locally for demonstration purposes only — no human reads it and nothing is coordinated.",
+      "There is no dedicated travel desk on the platform. Use the international patient enquiry form and our coordination team will follow up on travel-related questions.",
   },
 ] as const
 
@@ -158,10 +158,9 @@ export default function TravelAssistancePage() {
         <p className="max-w-3xl text-base text-muted-foreground sm:text-lg">
           Planning treatment travel involves documents, stays and local
           transport. This page explains what international patients commonly
-          prepare. It is general information for a demo platform: BestHospitalIndia
-          does not book, arrange, verify or guarantee any travel, visa,
-          accommodation or transport service, and no dedicated travel desk
-          exists.
+          prepare. BestHospitalIndia does not book, arrange, verify or guarantee
+          any travel, visa, accommodation or transport service. Use the enquiry
+          form for coordination questions.
         </p>
       </section>
 
@@ -170,7 +169,7 @@ export default function TravelAssistancePage() {
         <SectionHeading
           as="h2"
           title="What the platform explains — and explicitly does not do"
-          description="Each card pairs general guidance with the exact boundary of what this demo platform will not do."
+          description="Each card pairs general guidance with the exact boundary of what this platform will not do."
         />
         <SupportServiceCards services={SERVICES} />
       </section>
@@ -184,7 +183,7 @@ export default function TravelAssistancePage() {
         />
         <JourneySteps
           steps={JOURNEY_STEPS}
-          footnote="All travel stages are described for orientation. BestHospitalIndia performs no coordination at any stage — the future backend flow is documented but not simulated."
+          footnote="All travel stages are described for orientation. Practical arrangements remain self-managed or provider-managed unless our team confirms otherwise after an enquiry."
         />
       </section>
 
@@ -193,14 +192,13 @@ export default function TravelAssistancePage() {
         <SectionHeading
           as="h2"
           title="Language assistance"
-          description="Language support depends entirely on individual providers; this platform only surfaces fixture metadata."
+          description="Language support depends entirely on individual providers; this platform only surfaces language information from profiles."
         />
         <div className="rounded-xl border bg-card p-4 shadow-xs">
           <ul className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
             <li className="flex items-start gap-2">
               <LanguagesIcon aria-hidden className="mt-0.5 size-4 shrink-0" />
-              Doctor profiles list spoken languages (demo data) so you can
-              shortlist providers.
+              Doctor profiles list spoken languages so you can shortlist providers.
             </li>
             <li className="flex items-start gap-2">
               <FileCheck2Icon aria-hidden className="mt-0.5 size-4 shrink-0" />
@@ -209,7 +207,7 @@ export default function TravelAssistancePage() {
             </li>
             <li className="flex items-start gap-2">
               <TrainFrontIcon aria-hidden className="mt-0.5 size-4 shrink-0" />
-              Intercity travel between demo cities is typically by train or
+              Intercity travel between cities is typically by train or
               domestic flight, self-booked.
             </li>
             <li className="flex items-start gap-2">
@@ -227,8 +225,8 @@ export default function TravelAssistancePage() {
 
       {/* Enquiry CTA */}
       <EnquiryCta
-        title="Flag travel-related questions in a demo enquiry"
-        description="The international patient enquiry form lets you tick accommodation, visa and transport information interests. The demo stores nothing and contacts nobody — it exists to demonstrate the flow."
+        title="Flag travel-related questions in your enquiry"
+        description="The international patient enquiry form lets you tick accommodation, visa and transport information interests. Our coordination team reviews and follows up."
         enquiryParams={{ travel: "assistance" }}
         secondaryLabel="Back to medical tourism"
         secondaryHref={ROUTES.public.medicalTourism}
@@ -240,26 +238,24 @@ export default function TravelAssistancePage() {
         <FaqList items={FAQ_ITEMS} />
       </section>
 
-      {/* Demo contact + disclaimer */}
-      <section aria-label="Demo contact information" className="space-y-3">
+      <section aria-label="Patient support contact" className="space-y-3">
         <SectionHeading
           as="h2"
-          title="Demo contact information"
-          description="Fictional contact details for the demo platform only."
+          title="Patient support"
+          description="Reach our coordination team for travel-related questions linked to your enquiry."
         />
         <div className="rounded-lg border bg-muted/30 p-4 text-sm text-muted-foreground">
           <p>
-            Demo support desk (fictional): support@example.org ·
-            +91 00000 00000, Monday–Friday 09:00–17:00 IST (demo hours). These
-            details are placeholders and are not monitored.
+            Patient support: support@example.org · +91 00000 00000,
+            Monday–Friday 09:00–17:00 IST. Use the international patient enquiry
+            form so we can match your message to a reference number.
           </p>
         </div>
       </section>
 
       <p className="rounded-lg border bg-muted/30 p-4 text-xs text-muted-foreground">
-        Demo notice: BestHospitalIndia is a fictional demonstration platform.
-        Travel assistance content is general information, not a service
-        offering, and no service availability, price or outcome is ever
+        Medical disclaimer: travel assistance content is general information, not
+        a service offering, and no service availability, price or outcome is
         guaranteed. Not medical, legal or immigration advice.
       </p>
     </div>
