@@ -19,12 +19,17 @@ export function HospitalPortalShell({ children }: HospitalPortalShellProps) {
     hospitals.map((hospital) => hospital.id),
   )
   const hospital = hospitalById[providerId] ?? fallbackHospital
+  const items = hospitalPortalNav.map((item) =>
+    ["/hospital-portal/profile", "/hospital-portal/specialities", "/hospital-portal/doctors"].includes(item.href)
+      ? { ...item, href: item.href + "?hospitalId=" + encodeURIComponent(providerId) }
+      : item,
+  )
 
   return (
     <PortalShell
-      items={hospitalPortalNav}
+      items={items}
       title="Hospital Portal"
-      description="Demo hospital workspace — mock provider preview"
+      description="Demo hospital workspace — selected hospital preview"
       actions={
         <span className="flex items-center gap-2 text-sm text-muted-foreground">
           <span
@@ -36,9 +41,7 @@ export function HospitalPortalShell({ children }: HospitalPortalShellProps) {
           <span className="hidden xl:inline">
             {hospital.name} · Hospital (demo)
           </span>
-          <span className="sr-only">
-            Previewing demo hospital {hospital.name}
-          </span>
+          <span className="sr-only">Previewing demo hospital {hospital.name}</span>
         </span>
       }
     >

@@ -115,6 +115,9 @@ export function HospitalMvpDashboard({
     hospitalOptions.map((item) => item.id),
   )
   const activeHospital = hospitalById[providerId] ?? hospital
+  const hospitalProfileUrl = ROUTES.hospitalPortal.profile + "?hospitalId=" + encodeURIComponent(activeHospital.id)
+  const hospitalSpecialtiesUrl = ROUTES.hospitalPortal.specialities + "?hospitalId=" + encodeURIComponent(activeHospital.id)
+  const hospitalDoctorsUrl = ROUTES.hospitalPortal.doctors + "?hospitalId=" + encodeURIComponent(activeHospital.id)
   const requests = useDemoAppointmentRequests(
     initialAppointments,
     (item) => item.providerType === "hospital" && item.providerId === activeHospital.id,
@@ -145,20 +148,20 @@ export function HospitalMvpDashboard({
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <ProviderPreviewSelect providerType="hospital" value={providerId} options={hospitalOptions} onChange={selectProvider} />
-          <Button render={<Link href={ROUTES.hospitalPortal.profile} />}>Edit hospital profile</Button>
+          <Button render={<Link href={hospitalProfileUrl} />}>Edit hospital profile</Button>
         </div>
       </section>
       <section aria-label="Hospital overview" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <HospitalKpi label="Profile status" value={activeHospital.verificationStatus === "verified" ? "Verified" : "In review"} icon={Building2Icon} href={ROUTES.hospitalPortal.profile} hideViewLink />
-        <HospitalKpi label="Specialties" value={String(activeHospital.specialties.length)} icon={HeartPulseIcon} href={ROUTES.hospitalPortal.specialities} hideViewLink />
-        <HospitalKpi label="Associated doctors" value={String(associatedDoctors.length)} icon={StethoscopeIcon} href={ROUTES.hospitalPortal.doctors} hideViewLink />
+        <HospitalKpi label="Profile status" value={activeHospital.verificationStatus === "verified" ? "Verified" : "In review"} icon={Building2Icon} href={hospitalProfileUrl} hideViewLink />
+        <HospitalKpi label="Specialties" value={String(activeHospital.specialties.length)} icon={HeartPulseIcon} href={hospitalSpecialtiesUrl} hideViewLink />
+        <HospitalKpi label="Associated doctors" value={String(associatedDoctors.length)} icon={StethoscopeIcon} href={hospitalDoctorsUrl} hideViewLink />
         <HospitalKpi label="Appointments" value={String(requests.length)} icon={CalendarDaysIcon} href={ROUTES.hospitalPortal.appointments} hideViewLink />
       </section>
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Hospital profile</CardTitle>
-            <Button variant="ghost" size="sm" render={<Link href={ROUTES.hospitalPortal.profile} />}>Manage <ArrowRightIcon className="ml-1 size-4" /></Button>
+            <Button variant="ghost" size="sm" render={<Link href={hospitalProfileUrl} />}>Manage <ArrowRightIcon className="ml-1 size-4" /></Button>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             <Detail label="Facility type" value={activeHospital.facilityType} />
@@ -183,7 +186,7 @@ export function HospitalMvpDashboard({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Specialties & treatments</CardTitle>
-            <Button variant="ghost" size="sm" render={<Link href={ROUTES.hospitalPortal.specialities} />}>Manage <ArrowRightIcon className="ml-1 size-4" /></Button>
+            <Button variant="ghost" size="sm" render={<Link href={hospitalSpecialtiesUrl} />}>Manage <ArrowRightIcon className="ml-1 size-4" /></Button>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             <div>
@@ -204,7 +207,7 @@ export function HospitalMvpDashboard({
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Associated doctors</CardTitle>
-          <Button variant="outline" size="sm" render={<Link href={ROUTES.hospitalPortal.doctors} />}>Manage doctors</Button>
+          <Button variant="outline" size="sm" render={<Link href={hospitalDoctorsUrl} />}>Manage doctors</Button>
         </CardHeader>
         <CardContent>
           {associatedDoctors.length ? (
@@ -255,6 +258,9 @@ export function DoctorMvpDashboard({
     doctorOptions.map((item) => item.id),
   )
   const activeDoctor = doctorById[providerId] ?? doctor
+  const doctorProfileUrl = ROUTES.doctorPortal.profile + "?doctorId=" + encodeURIComponent(activeDoctor.id)
+  const doctorHospitalsUrl = ROUTES.doctorPortal.hospitals + "?doctorId=" + encodeURIComponent(activeDoctor.id)
+  const doctorAvailabilityUrl = ROUTES.doctorPortal.availability + "?doctorId=" + encodeURIComponent(activeDoctor.id)
   const requests = useDemoAppointmentRequests(
     initialAppointments,
     (item) => item.providerType === "doctor" && item.providerId === activeDoctor.id,
@@ -287,8 +293,8 @@ export function DoctorMvpDashboard({
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <SummaryCard icon={CalendarDaysIcon} label="Appointments" value={String(requests.length)} href={ROUTES.doctorPortal.appointments} />
         <SummaryCard icon={ClockIcon} label="Awaiting response" value={String(pending.length)} href={ROUTES.doctorPortal.appointments} />
-        <SummaryCard icon={Building2Icon} label="Hospitals" value={String(associatedHospitals.length)} href={ROUTES.doctorPortal.hospitals} />
-        <SummaryCard icon={StethoscopeIcon} label="Profile status" value={activeDoctor.verificationStatus === "verified" ? "Verified" : "In review"} href={ROUTES.doctorPortal.profile} />
+        <SummaryCard icon={Building2Icon} label="Hospitals" value={String(associatedHospitals.length)} href={doctorHospitalsUrl} />
+        <SummaryCard icon={StethoscopeIcon} label="Profile status" value={activeDoctor.verificationStatus === "verified" ? "Verified" : "In review"} href={doctorProfileUrl} />
       </section>
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(280px,1fr)]">
         <Card>
@@ -328,8 +334,8 @@ export function DoctorMvpDashboard({
               <p className="text-muted-foreground">Hospital associations</p>
               <ul className="mt-1 space-y-1">{associatedHospitals.map((hospital) => <li key={hospital.id}>{hospital.name}</li>)}</ul>
             </div>
-            <Button variant="outline" className="w-full" render={<Link href={ROUTES.doctorPortal.profile} />}>Edit profile</Button>
-            <Button variant="outline" className="w-full" render={<Link href={ROUTES.doctorPortal.availability} />}>Manage availability</Button>
+            <Button variant="outline" className="w-full" render={<Link href={doctorProfileUrl} />}>Edit profile</Button>
+            <Button variant="outline" className="w-full" render={<Link href={doctorAvailabilityUrl} />}>Manage availability</Button>
           </CardContent>
         </Card>
       </div>
