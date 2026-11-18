@@ -1,310 +1,45 @@
-/**
- * /doctor-portal — Doctor Dashboard (pages/57).
- *
- * One screen-level question: "what needs me today?" Composition per spec:
- * KPI row (appointment/consultation/profile counts + rating states), urgent
- * action queue (pending appointment requests), consultation queue, availability
- * summary, verification status. Totals reconcile with the underlying fixtures
- * because every number is derived from the same selectors the queues render.
- *
- * Server Component — the page reads frozen fixtures through pure selectors and
- * renders links; the only interactive queue actions live on their module pages.
- * RATINGS RULE: PER and MER KPIs are independent modules; MER has no approved
- * score in the demo session, so it renders "Not assessed" — never 0/5.
- */
-
+import type { Metadata } from "next"
 import Link from "next/link"
-import {
-  ArrowRightIcon,
-  CalendarDaysIcon,
-  CircleUserIcon,
-  ClipboardListIcon,
-  ClockIcon,
-  MessagesSquareIcon,
-  ShieldCheckIcon,
-  StarIcon,
-} from "lucide-react"
-
+import { CalendarDaysIcon, ClockIcon, HospitalIcon, UserRoundIcon, ArrowRightIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { EmptyState } from "@/components/shared/empty-state"
-import { StatusBadge } from "@/components/shared/status-badge"
-import { VerificationBadge } from "@/features/providers/components/verification-badge"
-import { RATING_LABELS, RATING_SCALE_MAX } from "@/constants/rating"
-import { ROUTES } from "@/constants/routes"
-import {
-  appointmentsForDoctor,
-  consultationQueueForDoctor,
-  formatDate,
-  formatDateTime,
-  patientDisplayName,
-  specialtyLabel,
-  treatmentLabel,
-} from "@/features/doctor-portal"
 import { PortalPageHeader } from "@/features/doctor-portal/components/portal-page-header"
-import { DoctorKpi } from "@/features/doctor-portal/components/doctor-kpi"
 import { getSessionDoctor } from "@/features/doctor-portal/session"
+import { appointmentsForDoctor, formatDate, patientDisplayName, treatmentLabel } from "@/features/doctor-portal"
+import { ROUTES } from "@/constants/routes"
+import { hospitalById } from "@/data"
 
-// -- Queue rows -------------------------------------------------------------
-
-const OPEN_APPOINTMENT_STATUSES = new Set(["requested", "under_review"])
-const OPEN_CONSULTATION_STATUSES = new Set(["submitted", "under_review", "assigned"])
-
-function QueueRow({
-  title,
-  meta,
-  status,
-  href,
-  linkLabel,
-}: {
-  title: string
-  meta: string
-  status: React.ComponentProps<typeof StatusBadge>["status"]
-  href: string
-  linkLabel: string
-}) {
-  return (
-    <li className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
-      <div className="min-w-0 space-y-1">
-        <p className="truncate text-sm font-medium text-foreground">{title}</p>
-        <p className="truncate text-xs text-muted-foreground">{meta}</p>
-      </div>
-      <div className="flex shrink-0 items-center gap-3">
-        <StatusBadge status={status} />
-        <Button
-          variant="ghost"
-          size="sm"
-          render={<Link href={href} />}
-          className="gap-1"
-        >
-          {linkLabel}
-          <ArrowRightIcon aria-hidden className="size-3.5" />
-          <span className="sr-only"> — {title}</span>
-        </Button>
-      </div>
-    </li>
-  )
-}
+export const metadata: Metadata = { title: "Doctor Dashboard", description: "Manage your doctor profile, hospital associations, availability and appointments." }
 
 export default function DoctorDashboardPage() {
   const doctor = getSessionDoctor()
+  if (!doctor) return <div className="py-8"><PortalPageHeader items={[{label:"Doctor Portal"}]} title="Dashboard" /><p className="text-sm text-muted-foreground">Doctor demo profile could not be loaded.</p></div>
+  const appointments = appointmentsForDoctor(doctor.id)
+  const pending = appointments.filter((item) => ["requested","under_review"].includes(item.status))
+  const hospitals = doctor.hospitalIds.map((id) => hospitalById[id]).filter(Boolean)
 
-  // Fixture-not-found guard: renders the explicit error state (pages/22 §6)
-  // instead of an exception or blank screen if the demo session id ever
-  // fails to resolve.
-  if (!doctor) {
-    return (
-      <div className="space-y-6 py-8">
-        <PortalPageHeader items={[{ label: "Doctor Portal" }]} title="Dashboard" />
-        <Card>
-          <CardContent>
-            <EmptyState
-              icon={ShieldCheckIcon}
-              title="Demo session could not be resolved"
-              description="The demo doctor fixture behind this portal session is missing from the demo data. This is a fixture mismatch, not an account problem."
-              action={{ label: "Open portal settings", href: ROUTES.doctorPortal.settings }}
-            />
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
-  const appointmentQueue = appointmentsForDoctor(doctor.id)
-  const openAppointments = appointmentQueue.filter((a) =>
-    OPEN_APPOINTMENT_STATUSES.has(a.status),
-  )
-  const consultations = consultationQueueForDoctor(doctor.id)
-  const openConsultations = consultations.filter((e) =>
-    OPEN_CONSULTATION_STATUSES.has(e.status),
-  )
-  const per = doctor.ratings.per
-  const mer = doctor.ratings.mer
-  const hasAppointments = appointmentQueue.length > 0
-  const hasConsultations = consultations.length > 0
-
-  return (
-    <div className="space-y-6 py-8">
-      <PortalPageHeader
-        items={[{ label: "Doctor Portal" }, { label: "Dashboard" }]}
-        title={`Welcome, ${doctor.name}`}
-        description="One view of your appointment requests, consultation queue, weekly availability and profile verification status. Use the queue links to act on a request."
-        action={
-          <Button render={<Link href={ROUTES.doctorPortal.appointments} />}>
-            Manage appointment requests
-          </Button>
-        }
-      />
-
-      {/* KPI row — every value is derived from the fixtures the queues render. */}
-      <section aria-label="Today at a glance" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <DoctorKpi
-          icon={CalendarDaysIcon}
-          tone="info"
-          label="Appointment requests"
-          value={String(appointmentQueue.length)}
-          hint={`${openAppointments.length} awaiting your response`}
-          href={ROUTES.doctorPortal.appointments}
-        />
-        <DoctorKpi
-          icon={MessagesSquareIcon}
-          tone={openConsultations.length > 0 ? "warning" : "neutral"}
-          label="Consultation queue"
-          value={String(consultations.length)}
-          hint={`${openConsultations.length} awaiting a status update`}
-          href={ROUTES.doctorPortal.consultations}
-        />
-        <DoctorKpi
-          icon={StarIcon}
-          tone="info"
-          label={RATING_LABELS.PER}
-          value={per.score !== null ? `${per.score} / ${RATING_SCALE_MAX}` : "Not yet rated"}
-          hint={`${per.sampleSize ?? 0} demo data points · ${formatDate(per.lastAssessedAt, "never assessed")}`}
-          href={ROUTES.doctorPortal.reviews}
-        />
-        <DoctorKpi
-          icon={StarIcon}
-          tone="success"
-          label={RATING_LABELS.MER}
-          value={mer.score !== null ? `${mer.score} / ${RATING_SCALE_MAX}` : "Not assessed"}
-          hint="Independent of PER — separate evidence track"
-          href={ROUTES.doctorPortal.credentials}
-        />
-      </section>
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Urgent action queue */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Appointment requests needing action</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Accept, reject or reschedule from the appointments module — changes are local
-              demo state only.
-            </p>
-          </CardHeader>
-          <CardContent className="gap-0">
-            {hasAppointments ? (
-              <ul className="divide-y">
-                {appointmentQueue.map((appointment) => (
-                  <QueueRow
-                    key={appointment.id}
-                    title={`${patientDisplayName(appointment.patientId)} — ${treatmentLabel(appointment.treatmentId) ?? "General consultation"}`}
-                    meta={`${formatDate(appointment.preferredDate)} · ${appointment.mode === "in_person" ? "In person" : appointment.mode === "video" ? "Video" : "Phone"} · requested ${formatDateTime(appointment.createdAt)}`}
-                    status={appointment.status}
-                    href={ROUTES.doctorPortal.appointments}
-                    linkLabel="Review"
-                  />
-                ))}
-              </ul>
-            ) : (
-              <EmptyState
-                icon={CalendarDaysIcon}
-                title="No appointment requests in the demo queue"
-                description="New demo patient requests would appear here with accept / reject / reschedule controls."
-                action={{ label: "Open availability settings", href: ROUTES.doctorPortal.availability }}
-              />
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Verification + availability summary */}
-        <div className="flex flex-col gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Profile verification status</CardTitle>
-            </CardHeader>
-            <CardContent className="gap-3">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-sm text-muted-foreground">Profile</span>
-                <VerificationBadge status={doctor.verificationStatus} />
-              </div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-sm text-muted-foreground">Registration</span>
-                <VerificationBadge status={doctor.registration.status} />
-              </div>
-              <Separator />
-              <p className="text-xs leading-relaxed text-muted-foreground">
-                Registration authority: {doctor.registration.authority} · number{" "}
-                <span className="font-mono">{doctor.registration.numberMasked}</span>
-                (fictional demo registration; masked in all portal views).
-              </p>
-              <Button
-                variant="outline"
-                size="sm"
-                render={<Link href={ROUTES.doctorPortal.credentials} />}
-                className="self-start"
-              >
-                Review credentials
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-1.5">
-                <ClockIcon aria-hidden className="size-4 text-muted-foreground" />
-                Weekly availability
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="gap-3">
-              <p className="text-sm text-muted-foreground">
-                Set and edit consulting hours and demo slots in the availability module.
-              </p>
-              <ul className="space-y-1.5 text-sm">
-                <li className="flex items-center justify-between gap-2">
-                  <span className="text-muted-foreground">Configured days</span>
-                  <span className="font-medium text-foreground">0 of 7</span>
-                </li>
-              </ul>
-              <Button
-                variant="outline"
-                size="sm"
-                render={<Link href={ROUTES.doctorPortal.availability} />}
-                className="self-start"
-              >
-                Edit availability
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Consultation queue */}
-        <Card className="lg:col-span-3">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-1.5">
-              <ClipboardListIcon aria-hidden className="size-4 text-muted-foreground" />
-              Consultation queue
-            </CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Enquiries the demo coordination desk has pointed at your profile. Update the
-              next-step status from the consultations module.
-            </p>
-          </CardHeader>
-          <CardContent className="gap-0">
-            {hasConsultations ? (
-              <ul className="divide-y">
-                {consultations.map((enquiry) => (
-                  <QueueRow
-                    key={enquiry.id}
-                    title={`${enquiry.patientName} — ${specialtyLabel(enquiry.specialty)}`}
-                    meta={`${enquiry.country} · preferred date ${formatDate(enquiry.preferredDate, "not stated")} · consent ${formatDateTime(enquiry.consentAt)}`}
-                    status={enquiry.status}
-                    href={ROUTES.doctorPortal.consultations}
-                    linkLabel="Open"
-                  />
-                ))}
-              </ul>
-            ) : (
-              <EmptyState
-                icon={CircleUserIcon}
-                title="No consultations assigned to the demo profile"
-                description="When the demo coordination desk assigns an enquiry to this doctor profile it appears here with an update-status control."
-              />
-            )}
-          </CardContent>
-        </Card>
-      </div>
+  return <div className="space-y-6 py-6">
+    <PortalPageHeader items={[{label:"Doctor Portal"},{label:"Dashboard"}]} title={`Welcome, ${doctor.name}`} description="Your profile and appointment requests in one place." action={<Button render={<Link href={ROUTES.doctorPortal.appointments} />}>View appointments</Button>} />
+    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <SummaryCard icon={CalendarDaysIcon} label="Appointments" value={String(appointments.length)} href={ROUTES.doctorPortal.appointments} />
+      <SummaryCard icon={ClockIcon} label="Awaiting response" value={String(pending.length)} href={ROUTES.doctorPortal.appointments} />
+      <SummaryCard icon={HospitalIcon} label="Associated hospitals" value={String(hospitals.length)} href={ROUTES.doctorPortal.hospitals} />
+      <SummaryCard icon={UserRoundIcon} label="Profile status" value={doctor.verificationStatus === "verified" ? "Verified" : "In review"} href={ROUTES.doctorPortal.profile} />
+    </section>
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(280px,1fr)]">
+      <Card><CardHeader className="flex flex-row items-center justify-between"><CardTitle>Appointment requests</CardTitle><Button variant="ghost" size="sm" render={<Link href={ROUTES.doctorPortal.appointments} />}>View all <ArrowRightIcon className="ml-1 size-4" /></Button></CardHeader>
+        <CardContent>{appointments.length ? <ul className="divide-y">{appointments.slice(0,6).map((item) => <li key={item.id} className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"><div className="min-w-0"><p className="text-sm font-medium">{patientDisplayName(item.patientId)}</p><p className="text-xs text-muted-foreground">{treatmentLabel(item.treatmentId) ?? "Consultation"} · {formatDate(item.preferredDate)}</p></div><span className="rounded-full bg-muted px-2.5 py-1 text-xs capitalize">{item.status.replace(/_/g," ")}</span></li>)}</ul> : <p className="text-sm text-muted-foreground">No appointment requests yet. New requests for your profile will appear here.</p>}</CardContent>
+      </Card>
+      <Card><CardHeader><CardTitle>Profile overview</CardTitle></CardHeader><CardContent className="space-y-4 text-sm">
+        <div><p className="text-muted-foreground">Specialization</p><p className="font-medium">{doctor.specialization}</p></div>
+        <div><p className="text-muted-foreground">Location</p><p className="font-medium">{doctor.city}, {doctor.state}</p></div>
+        <div><p className="text-muted-foreground">Hospitals</p><p className="font-medium">{hospitals.map((hospital) => hospital.name).join(", ") || "Not associated"}</p></div>
+        <Button variant="outline" className="w-full" render={<Link href={ROUTES.doctorPortal.profile} />}>Edit profile</Button>
+        <Button variant="outline" className="w-full" render={<Link href={ROUTES.doctorPortal.availability} />}>Manage availability</Button>
+      </CardContent></Card>
     </div>
-  )
+  </div>
+}
+function SummaryCard({icon:Icon,label,value,href}:{icon:React.ComponentType<{className?:string}>;label:string;value:string;href:string}) {
+ return <Card><CardContent className="flex items-center gap-3 p-5"><span className="rounded-lg bg-primary/10 p-2 text-primary"><Icon className="size-5" /></span><div className="min-w-0"><p className="text-xs text-muted-foreground">{label}</p><p className="text-xl font-semibold">{value}</p><Link href={href} className="text-xs text-primary hover:underline">Manage</Link></div></CardContent></Card>
 }
