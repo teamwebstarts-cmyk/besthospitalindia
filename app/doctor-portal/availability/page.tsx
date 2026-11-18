@@ -11,12 +11,13 @@ export const metadata: Metadata = {
 }
 
 interface DoctorAvailabilityPageProps {
-  searchParams: Promise<{ doctorId?: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
 export default async function DoctorAvailabilityPage({ searchParams }: DoctorAvailabilityPageProps) {
   const params = await searchParams
-  const doctor = (params.doctorId ? doctorById[params.doctorId] : undefined) ?? getSessionDoctor()
+  const doctorId = typeof params.doctorId === "string" ? params.doctorId : undefined
+  const doctor = (doctorId ? doctorById[doctorId] : undefined) ?? getSessionDoctor()
 
   return (
     <div className="space-y-6 py-8">

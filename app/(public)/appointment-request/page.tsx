@@ -12,13 +12,13 @@ export const metadata: Metadata = {
 }
 
 interface AppointmentRequestPageProps {
-  searchParams: Promise<{ providerType?: string; providerId?: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
 export default async function AppointmentRequestPage({ searchParams }: AppointmentRequestPageProps) {
   const params = await searchParams
-  const providerType = params.providerType
-  const providerId = params.providerId
+  const providerType = typeof params.providerType === "string" ? params.providerType : undefined
+  const providerId = typeof params.providerId === "string" ? params.providerId : undefined
   if (!providerId || (providerType !== "doctor" && providerType !== "hospital")) notFound()
 
   let provider: { type: ProviderRefType; id: string; name: string; specialty: string; location: string }

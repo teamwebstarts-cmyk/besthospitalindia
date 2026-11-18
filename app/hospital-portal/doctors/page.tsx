@@ -12,12 +12,13 @@ export const metadata: Metadata = {
 }
 
 interface HospitalPortalDoctorsPageProps {
-  searchParams: Promise<{ hospitalId?: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
 export default async function HospitalPortalDoctorsPage({ searchParams }: HospitalPortalDoctorsPageProps) {
   const params = await searchParams
-  const hospital = (params.hospitalId ? hospitalById[params.hospitalId] : undefined) ?? getDemoHospital()
+  const hospitalId = typeof params.hospitalId === "string" ? params.hospitalId : undefined
+  const hospital = (hospitalId ? hospitalById[hospitalId] : undefined) ?? getDemoHospital()
   const associated = getRelatedDoctors(hospital.id)
 
   return (

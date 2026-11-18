@@ -18,12 +18,13 @@ export const metadata: Metadata = {
 }
 
 interface HospitalPortalProfilePageProps {
-  searchParams: Promise<{ hospitalId?: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
 export default async function HospitalPortalProfilePage({ searchParams }: HospitalPortalProfilePageProps) {
   const params = await searchParams
-  const hospital = (params.hospitalId ? hospitalById[params.hospitalId] : undefined) ?? getDemoHospital()
+  const hospitalId = typeof params.hospitalId === "string" ? params.hospitalId : undefined
+  const hospital = (hospitalId ? hospitalById[hospitalId] : undefined) ?? getDemoHospital()
 
   const specialtyNames = hospital.specialties
     .map((id) => specialtyById[id]?.name)

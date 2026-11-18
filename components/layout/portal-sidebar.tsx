@@ -25,8 +25,8 @@ export interface PortalSidebarProps {
 }
 
 function isItemActive(pathname: string, href: string): boolean {
-  const routePath = href.split("?")[0]
-  return pathname === routePath || pathname.startsWith(routePath + "/")
+  const routePath = href.split("?")[0] ?? href
+  return pathname === routePath
 }
 
 function PortalNavList({
