@@ -27,6 +27,7 @@ import {
   hospitals,
   doctorById,
   hospitalById,
+  patientById,
   specialtyById,
   treatmentById,
 } from "@/data"
@@ -73,7 +74,7 @@ export function AdminMvpDashboard({
                   return (
                     <li key={item.id} className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
                       <div className="min-w-0">
-                        <p className="text-sm font-medium">{item.patientName ?? "Demo patient"} · {provider}</p>
+                        <p className="text-sm font-medium">{patientById[item.patientId]?.name ?? item.patientName ?? "Demo patient"} · {provider}</p>
                         <p className="truncate text-xs text-muted-foreground">{item.id} · {item.preferredDate}</p>
                       </div>
                       <span className="rounded-full bg-muted px-2.5 py-1 text-xs capitalize">{item.status.replace(/_/g, " ")}</span>
@@ -228,7 +229,7 @@ export function HospitalMvpDashboard({
             <ul className="divide-y">
               {latest.map((item) => (
                 <li key={item.id} className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
-                  <div><p className="text-sm font-medium">{item.patientName ?? "Demo patient"}</p><p className="text-xs text-muted-foreground">{item.id} · {item.preferredDate}</p></div>
+                  <div><p className="text-sm font-medium">{patientById[item.patientId]?.name ?? item.patientName ?? "Demo patient"}</p><p className="text-xs text-muted-foreground">{item.id} · {item.preferredDate}</p></div>
                   <span className="rounded-full bg-muted px-2.5 py-1 text-xs capitalize">{item.status.replace(/_/g, " ")}</span>
                 </li>
               ))}
@@ -301,7 +302,7 @@ export function DoctorMvpDashboard({
                 {latest.map((item) => (
                   <li key={item.id} className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
                     <div className="min-w-0">
-                      <p className="text-sm font-medium">{item.patientName ?? "Demo patient"}</p>
+                      <p className="text-sm font-medium">{patientById[item.patientId]?.name ?? item.patientName ?? "Demo patient"}</p>
                       <p className="text-xs text-muted-foreground">{item.id} · {treatmentById[item.treatmentId ?? ""]?.name ?? "Consultation"} · {item.preferredDate}</p>
                     </div>
                     <span className="rounded-full bg-muted px-2.5 py-1 text-xs capitalize">{item.status.replace(/_/g, " ")}</span>
