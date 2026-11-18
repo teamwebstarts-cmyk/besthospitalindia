@@ -201,7 +201,8 @@ export function AppointmentQueueManager({
               {patient?.name ?? request.patientName ?? "Demo patient"}
             </span>
             <span className="block truncate text-xs text-muted-foreground">
-              {patient?.country ?? "—"} · {patient?.preferredLanguage ?? "—"}
+              {request.patientPhone ? `Phone: ${request.patientPhone}` : patient?.country ?? "—"}
+              {request.patientEmail ? ` · ${request.patientEmail}` : patient?.preferredLanguage ? ` · ${patient.preferredLanguage}` : ""}
             </span>
           </span>
         )
@@ -423,6 +424,8 @@ export function AppointmentQueueManager({
                     {patientById[activeRequest.patientId]?.name ?? activeRequest.patientName ?? "Demo patient"}
                   </dd>
                 </div>
+                {activeRequest.patientPhone ? <div className="flex justify-between gap-3"><dt className="text-muted-foreground">Phone</dt><dd className="text-right font-medium">{activeRequest.patientPhone}</dd></div> : null}
+                {activeRequest.patientEmail ? <div className="flex justify-between gap-3"><dt className="text-muted-foreground">Email</dt><dd className="break-all text-right font-medium">{activeRequest.patientEmail}</dd></div> : null}
                 <div className="flex justify-between gap-3">
                   <dt className="text-muted-foreground">Treatment</dt>
                   <dd className="text-right font-medium">

@@ -332,6 +332,14 @@ export function AppointmentsClient({ requests, className }: AppointmentsClientPr
           <p className="text-xs text-muted-foreground">
             {record.request.id} · {modeLabel(record.request.mode)}
           </p>
+          {record.request.patientPhone || record.request.patientEmail ? (
+            <p className="text-xs text-muted-foreground">
+              {[
+                record.request.patientPhone ? `Phone: ${record.request.patientPhone}` : "",
+                record.request.patientEmail ? `Email: ${record.request.patientEmail}` : "",
+              ].filter(Boolean).join(" · ")}
+            </p>
+          ) : null}
         </div>
       ),
     },
@@ -499,6 +507,14 @@ export function AppointmentsClient({ requests, className }: AppointmentsClientPr
                       {record.request.id} · {modeLabel(record.request.mode)} ·{" "}
                       {formatDate(record.request.preferredDate)}
                     </p>
+                    {record.request.patientPhone || record.request.patientEmail ? (
+                      <p className="text-xs text-muted-foreground">
+                        {[
+                          record.request.patientPhone ? `Phone: ${record.request.patientPhone}` : "",
+                          record.request.patientEmail ? `Email: ${record.request.patientEmail}` : "",
+                        ].filter(Boolean).join(" · ")}
+                      </p>
+                    ) : null}
                     <p className="text-sm text-foreground">
                       {treatmentLabel(record.request.treatmentId) ?? "General consultation"}
                     </p>
@@ -565,7 +581,7 @@ export function AppointmentsClient({ requests, className }: AppointmentsClientPr
             <DialogTitle>Reject appointment request (demo)</DialogTitle>
             <DialogDescription>
               {dialog.kind === "reject"
-                ? `Record why you are declining ${dialog.patientName}'s demo request. The reason stays in this page's local state — the demo patient is never notified.`
+                ? `Record why you are declining ${dialog.patientName}'s demo request. The reason is saved in this browser's demo state — the demo patient is never notified.`
                 : null}
             </DialogDescription>
           </DialogHeader>

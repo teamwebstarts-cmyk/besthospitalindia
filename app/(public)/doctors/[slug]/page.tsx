@@ -378,10 +378,9 @@ export default async function DoctorProfilePage({ params }: DoctorProfilePagePro
         <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
           <Card>
             <CardContent className="gap-3">
-              <SectionHeading as="h3" title="Request a consultation" className="block" />
+              <SectionHeading as="h3" title="Request an appointment" className="block" />
               <p className="text-sm text-muted-foreground">
-                Send an appointment request directly to this doctor. The request is not confirmed until the doctor accepts it.
-                A request is not a confirmed appointment until the provider confirms.
+                Send an appointment request directly to this doctor. It is confirmed only after the doctor accepts it.
               </p>
               <Button variant="cta" className="w-full rounded-full font-semibold shadow-sm" render={<Link href={appointmentRequestHref("doctor", doctor.id)} />}>
                 Request appointment

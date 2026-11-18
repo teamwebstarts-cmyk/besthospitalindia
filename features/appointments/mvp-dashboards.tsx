@@ -102,6 +102,8 @@ export function DoctorMvpDashboard({ doctor, initialAppointments }: { doctor: Do
         <Detail label="Location" value={`${doctor.city}, ${doctor.state}`} />
         <Detail label="Experience" value={doctor.yearsExperience === null ? "Not provided" : `${doctor.yearsExperience} years`} />
         <Detail label="Qualifications" value={doctor.qualifications.join(", ") || "Not provided"} />
+        <Detail label="Medical registration" value={`${doctor.registration.authority} · ${doctor.registration.numberMasked} · ${doctor.registration.status}`} />
+        <Detail label="Treatments" value={doctor.treatments.map((id) => treatmentById[id]?.name ?? id).join(", ") || "Not provided"} />
         <Detail label="Languages" value={doctor.languages.join(", ") || "Not provided"} />
         <Detail label="PER rating" value={per} /><Detail label="MER rating" value={mer} />
         <div><p className="text-muted-foreground">Hospital associations</p><ul className="mt-1 space-y-1">{associatedHospitals.map((hospital) => <li key={hospital.id}>{hospital.name}</li>)}</ul></div>
