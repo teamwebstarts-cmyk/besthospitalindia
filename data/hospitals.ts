@@ -11,6 +11,7 @@
  */
 
 import type { Hospital, RatingKind, RatingSummary } from '@/types';
+import { HOSPITAL_HERO_IMAGES_BY_ID } from '@/lib/hospital-hero-images';
 
 /** Typed helper so every fixture rating carries kind + scaleMax correctly. */
 function rating(kind: RatingKind) {
@@ -24,8 +25,13 @@ function rating(kind: RatingKind) {
 const per = rating('PER');
 const cer = rating('CER');
 
-/** Shared demo photograph for hospital card / profile media (build). */
-const HOSPITAL_DEMO_IMAGE = '/images/hospitals/hospital-exterior-demo.png';
+const HOSPITAL_IMAGES = HOSPITAL_HERO_IMAGES_BY_ID;
+
+const HOSPITAL_IMAGE_FALLBACK = '/images/hospitals/placeholder.svg';
+
+function hospitalImageForId(id: string): string {
+  return HOSPITAL_IMAGES[id] ?? HOSPITAL_IMAGE_FALLBACK;
+}
 
 const hospitalList = [
   {
@@ -67,7 +73,7 @@ const hospitalList = [
       }),
     },
     doctorIds: ['doc-aarav-mehta', 'doc-isha-kapoor', 'doc-rohan-sharma'],
-    image: HOSPITAL_DEMO_IMAGE,
+    image: hospitalImageForId('hosp-sunrise-delhi'),
   },
   {
     id: 'hosp-sunrise-mumbai',
@@ -104,7 +110,7 @@ const hospitalList = [
       }),
     },
     doctorIds: ['doc-rohan-sharma', 'doc-priya-nair', 'doc-vikram-rao'],
-    image: HOSPITAL_DEMO_IMAGE,
+    image: hospitalImageForId('hosp-sunrise-mumbai'),
   },
   {
     id: 'hosp-azurecoast-chennai',
@@ -141,7 +147,7 @@ const hospitalList = [
       }),
     },
     doctorIds: ['doc-ananya-desai', 'doc-karan-malhotra'],
-    image: HOSPITAL_DEMO_IMAGE,
+    image: hospitalImageForId('hosp-azurecoast-chennai'),
   },
   {
     id: 'hosp-silverlake-bengaluru',
@@ -182,7 +188,7 @@ const hospitalList = [
       }),
     },
     doctorIds: ['doc-karan-malhotra', 'doc-meera-joshi'],
-    image: HOSPITAL_DEMO_IMAGE,
+    image: hospitalImageForId('hosp-silverlake-bengaluru'),
   },
   {
     id: 'hosp-tranquilvalley-kochi',
@@ -223,7 +229,7 @@ const hospitalList = [
       }),
     },
     doctorIds: ['doc-priya-nair', 'doc-sanjay-pillai', 'doc-leena-fernandes'],
-    image: HOSPITAL_DEMO_IMAGE,
+    image: hospitalImageForId('hosp-tranquilvalley-kochi'),
   },
   {
     id: 'hosp-northganga-varanasi',
@@ -260,7 +266,7 @@ const hospitalList = [
       }),
     },
     doctorIds: ['doc-arjun-khanna', 'doc-nandini-bose'],
-    image: HOSPITAL_DEMO_IMAGE,
+    image: hospitalImageForId('hosp-northganga-varanasi'),
   },
   {
     id: 'hosp-metropulse-ahmedabad',
@@ -298,7 +304,7 @@ const hospitalList = [
       }),
     },
     doctorIds: ['doc-aarav-mehta', 'doc-meera-joshi'],
-    image: HOSPITAL_DEMO_IMAGE,
+    image: hospitalImageForId('hosp-metropulse-ahmedabad'),
   },
   {
     id: 'hosp-goldenpeak-jaipur',
@@ -335,7 +341,7 @@ const hospitalList = [
       }),
     },
     doctorIds: ['doc-arjun-khanna', 'doc-nandini-bose'],
-    image: HOSPITAL_DEMO_IMAGE,
+    image: hospitalImageForId('hosp-goldenpeak-jaipur'),
   },
 ] satisfies readonly Hospital[];
 

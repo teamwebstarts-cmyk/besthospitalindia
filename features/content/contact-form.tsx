@@ -6,13 +6,14 @@ import { EnquiryForm } from "@/features/content/enquiry-form"
 import type { EnquiryFormField } from "@/features/content/enquiry-form"
 import { email, maxLength, minLength, phone, required } from "@/lib/validation"
 import type { ValidationSchema } from "@/lib/validation"
+import { cn } from "@/lib/utils"
 
 const purposeOptions = [
-  { value: "patient-support", label: "Patient support question" },
-  { value: "partnership", label: "Hospital / doctor partnership" },
-  { value: "consultation", label: "Free consultation initiative" },
-  { value: "feedback", label: "Website feedback" },
-  { value: "other", label: "Something else" },
+  { value: "patient-support", label: "Patient support" },
+  { value: "partnership", label: "Partnership" },
+  { value: "consultation", label: "Free consultation" },
+  { value: "feedback", label: "Feedback" },
+  { value: "other", label: "Other" },
 ] as const
 
 const fields: readonly EnquiryFormField[] = [
@@ -76,7 +77,7 @@ export function ContactForm({
   variant = "card",
 }: {
   className?: string
-  variant?: "card" | "hero"
+  variant?: "card" | "hero" | "contact"
 }) {
   const handleSubmit = async () => {
     await new Promise((resolve) => setTimeout(resolve, 450))
@@ -85,23 +86,55 @@ export function ContactForm({
   }
 
   const isHero = variant === "hero"
+  const isContact = variant === "contact"
+  const enquiryVariant = isHero ? "hero" : "card"
+
+  const termsFooter = (
+    <p
+      className={cn(
+        "text-center text-xs leading-relaxed",
+        isHero ? "text-primary-foreground/80" : "text-muted-foreground",
+      )}
+    >
+      By submitting you agree to our{" "}
+      <Link
+        href="/terms"
+        className={cn(
+          "underline underline-offset-2",
+          isHero ? "text-primary-foreground" : "text-primary",
+        )}
+      >
+        Terms
+      </Link>{" "}
+      and{" "}
+      <Link
+        href="/privacy"
+        className={cn(
+          "underline underline-offset-2",
+          isHero ? "text-primary-foreground" : "text-primary",
+        )}
+      >
+        Privacy Policy
+      </Link>
+      .
+    </p>
+  )
 
   return (
     <EnquiryForm
-      title="General contact enquiry"
-      variant={variant}
+      title="Contact message"
+      variant={enquiryVariant}
       intro={
         isHero
           ? {
               title: "Let us help you",
-              description:
-                "Share your details and our team will get back to you shortly.",
+              description: "Share your details — we will get back to you shortly.",
             }
           : undefined
       }
       fields={fields}
       fieldRows={
-        isHero
+        isHero || isContact
           ? [
               ["name", "email"],
               ["phone", "purpose"],
@@ -112,23 +145,13 @@ export function ContactForm({
       schema={schema}
       onSubmit={handleSubmit}
       submitLabel={isHero ? "Continue" : "Send message"}
-      successNote="Our team will respond to the email address you provided, usually within one business day."
-      footer={
-        isHero ? (
-          <p className="text-center text-xs leading-relaxed text-primary-foreground/80">
-            By submitting you agree to our{" "}
-            <Link href="/terms" className="underline underline-offset-2">
-              Terms of Use
-            </Link>{" "}
-            and{" "}
-            <Link href="/privacy" className="underline underline-offset-2">
-              Privacy Policy
-            </Link>
-            .
-          </p>
-        ) : undefined
-      }
-      className={className}
+      successNote="We will reply to the email you provided — usually within one business day."
+      footer={isHero || isContact ? termsFooter : undefined}
+      className={cn(
+        isContact &&
+          "border-border/70 bg-card shadow-md ring-1 ring-border/50",
+        className,
+      )}
     />
   )
 }

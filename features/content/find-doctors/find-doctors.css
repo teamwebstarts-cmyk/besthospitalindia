@@ -1,0 +1,593 @@
+/* Find doctors — layout from the Find Doctors mock (scoped under .fd-section) */
+.fd-section {
+  position: relative;
+  overflow: hidden;
+  padding: 22px 0 60px;
+  background: #fff;
+  color: #0f2b26;
+}
+
+.fd-blob {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+.fd-blob-tl {
+  left: 0;
+  top: 0;
+  width: 310px;
+  height: 230px;
+}
+.fd-blob-tr {
+  right: 0;
+  top: 0;
+  width: 340px;
+  height: 190px;
+}
+.fd-blob-br {
+  right: 0;
+  bottom: 0;
+  width: 220px;
+  height: 120px;
+}
+
+.fd-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* --------------------------------------------------------------------- */
+/* Badge + title + subtitle                                               */
+/* --------------------------------------------------------------------- */
+
+.fd-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: max-content;
+  max-width: calc(100% - 24px);
+  margin: 0 auto;
+  height: clamp(38px, 2.5rem + 0.5vw, 42px);
+  padding-right: 20px;
+  background: #dff3ec;
+  border-radius: 999px;
+  font-size: clamp(0.95rem, 0.85rem + 0.45vw, 1.25rem);
+  font-weight: 700;
+  color: #0d6752;
+  letter-spacing: -0.01em;
+}
+.fd-badge-ico {
+  width: 46px;
+  height: 42px;
+  border-radius: 999px;
+  background: #0f9d7a;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  flex: none;
+}
+
+.fd-title {
+  margin: 16px auto 0;
+  font-size: clamp(1.75rem, 3.2vw, 2.25rem);
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: #0d1f33;
+  text-align: center;
+}
+.fd-title-wrap {
+  display: inline-block;
+  position: relative;
+}
+.fd-title-green {
+  background: linear-gradient(90deg, #3fb598, #0a7a5c);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
+.fd-title-swash {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -12px;
+  width: 100%;
+  height: 14px;
+}
+
+.fd-sub {
+  max-width: min(900px, calc(100% - 32px));
+  margin: 18px auto 0;
+  text-align: center;
+  font-size: clamp(0.9375rem, 0.85rem + 0.55vw, 1.25rem);
+  line-height: 1.55;
+  color: #5b6f7f;
+  padding: 0 16px;
+}
+.fd-sub-short {
+  display: none;
+}
+.fd-sub-full {
+  display: inline;
+}
+
+/* --------------------------------------------------------------------- */
+/* Card grid                                                              */
+/* --------------------------------------------------------------------- */
+
+.fd-grid {
+  width: min(1438px, calc(100% - 24px));
+  margin: 48px auto 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(20px, 3vw, 32px);
+  align-items: stretch;
+}
+@media (min-width: 700px) {
+  .fd-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1180px) {
+  .fd-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.fd-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  background: #fff;
+  border: 1px solid #e4efec;
+  border-radius: 24px;
+  padding: 18px;
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .fd-section .fd-card {
+    transition:
+      border-color 280ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 280ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .fd-section .fd-card:hover {
+    border-color: #b8e5d4;
+    box-shadow: 0 14px 30px rgba(11, 61, 48, 0.07);
+    transform: translateY(-3px);
+  }
+  .fd-avatar img {
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .fd-card:hover .fd-avatar img {
+    transform: scale(1.04);
+  }
+}
+.fd-card-hl {
+  border: 1.5px solid #a8e2cc;
+  box-shadow: none;
+}
+
+.fd-top {
+  display: flex;
+  gap: clamp(10px, 1.5vw, 16px);
+  align-items: flex-start;
+}
+.fd-avatar {
+  width: clamp(76px, 18vw, 104px);
+  height: clamp(76px, 18vw, 104px);
+  border-radius: clamp(12px, 1.5vw, 16px);
+  overflow: hidden;
+  flex: none;
+  background: #d9efea;
+  position: relative;
+}
+.fd-avatar img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.fd-t-info {
+  flex: 1;
+  min-width: 0;
+  padding-top: 2px;
+}
+.fd-t-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.fd-name {
+  font-size: clamp(1rem, 0.35rem + 1.2vw, 1.375rem);
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: #111f1d;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.fd-heart {
+  width: 43px;
+  height: 43px;
+  border-radius: 50%;
+  background: #eef6f3;
+  border: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: #1a2f2c;
+  flex: none;
+  transition:
+    transform 0.15s ease,
+    color 0.15s ease;
+}
+.fd-heart:hover {
+  transform: scale(1.06);
+}
+.fd-heart svg {
+  width: 22px;
+  height: 22px;
+}
+.fd-heart-on {
+  color: #e5484d;
+}
+
+.fd-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 7px;
+}
+.fd-pill svg {
+  width: 16px;
+  height: 16px;
+}
+.fd-pill-verified {
+  background: #d9f5e5;
+  color: #0a9b4a;
+}
+.fd-pill-pending {
+  background: #fff2bd;
+  color: #6b5a00;
+  border: 1px solid #f2df8a;
+}
+
+.fd-spec {
+  margin-top: 7px;
+  font-size: 17px;
+  font-weight: 500;
+  color: #5b6f80;
+}
+.fd-loc {
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+  color: #5b6f80;
+}
+.fd-loc svg {
+  width: 17px;
+  height: 17px;
+  flex: none;
+}
+
+/* Credentials / hospitals / experience rows */
+.fd-info {
+  flex: 1;
+  margin-top: 14px;
+  background: #f5faf8;
+  border: 1px solid #e9f1ee;
+  border-radius: 14px;
+  padding: 13px 14px;
+  min-height: 7.5rem;
+}
+.fd-i-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.fd-i-row + .fd-i-row {
+  margin-top: 9px;
+}
+.fd-i-ico {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  color: #2f3f3c;
+  display: grid;
+  place-items: center;
+  margin-top: 1px;
+}
+.fd-i-ico svg {
+  width: 22px;
+  height: 22px;
+}
+.fd-i-row p {
+  font-size: clamp(0.8rem, 0.72rem + 0.35vw, 0.975rem);
+  line-height: 1.35;
+  color: #1d2f2c;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* PER / MER — always two separate blocks, never a combined score */
+.fd-rating {
+  margin-top: 12px;
+  margin-bottom: 13px;
+  background: #e9f4ef;
+  border-radius: 14px;
+  padding: 11px 15px;
+  display: flex;
+  align-items: center;
+}
+.fd-r-col {
+  flex: 1;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+}
+.fd-r-div {
+  width: 1px;
+  height: 44px;
+  background: #c7ddd5;
+  margin: 0 16px;
+  flex: none;
+}
+.fd-r-ico {
+  width: 42px;
+  height: 32px;
+  color: #16967c;
+  flex: none;
+  display: grid;
+  place-items: center;
+}
+.fd-r-ico svg {
+  width: 40px;
+  height: 30px;
+}
+.fd-r-body {
+  min-width: 0;
+}
+.fd-r-lab {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #243936;
+}
+.fd-r-val {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+}
+.fd-r-val svg {
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+.fd-r-val b {
+  font-size: 23px;
+  font-weight: 800;
+  color: #0f211e;
+  font-variant-numeric: tabular-nums;
+}
+.fd-r-val small {
+  font-size: 16px;
+  color: #6a7f7a;
+  font-weight: 500;
+  margin-left: -3px;
+}
+.fd-r-norate {
+  font-size: 16.5px;
+  font-weight: 600;
+  color: #182826;
+  margin-top: 3px;
+  white-space: nowrap;
+}
+
+/* Full-width conversion button — pinned to the card bottom, min 16px gap */
+.fd-btn {
+  margin-top: auto;
+  width: 100%;
+  height: clamp(2.75rem, 2.25rem + 0.8vw, 3.25rem);
+  border: 0;
+  border-radius: 12px;
+  background: #0c7a60;
+  color: #fff;
+  font-size: clamp(0.9rem, 0.8rem + 0.45vw, 1.25rem);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 8px 16px rgba(12, 122, 96, 0.22);
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease;
+}
+.fd-btn:hover {
+  background: #0a6d56;
+  transform: translateY(-1px);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .fd-btn:active {
+    transform: translateY(0) scale(0.98);
+    transition-duration: 0.1s;
+  }
+}
+.fd-btn:focus-visible {
+  outline: 2px solid #0c7a60;
+  outline-offset: 2px;
+}
+.fd-btn svg {
+  width: 24px;
+  height: 24px;
+  flex: none;
+}
+.fd-arr {
+  margin-left: 6px;
+}
+
+/* --------------------------------------------------------------------- */
+/* Responsive — mock breakpoint (1150px) + phone polish                    */
+/* --------------------------------------------------------------------- */
+
+@media (max-width: 699px) {
+  .fd-section {
+    padding: 18px 0 44px;
+  }
+  .fd-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 16px;
+  }
+  .fd-sub-short {
+    display: inline;
+  }
+  .fd-sub-full {
+    display: none;
+  }
+  .fd-sub {
+    margin-top: 8px;
+    font-size: 0.9375rem;
+    line-height: 1.35;
+    padding: 0 0.25rem;
+  }
+  .fd-grid {
+    width: 100%;
+    max-width: 22.5rem;
+    margin-top: 1.25rem;
+    gap: 1.25rem;
+    justify-items: stretch;
+  }
+  .fd-card {
+    width: 100%;
+    margin-inline: auto;
+    border-radius: 18px;
+    padding: 14px;
+  }
+  .fd-info {
+    display: none;
+  }
+  .fd-rating {
+    flex-direction: row;
+    align-items: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 8px 10px;
+    gap: 0;
+  }
+  .fd-r-div {
+    width: 1px;
+    height: 2rem;
+    margin: 0 10px;
+  }
+  .fd-r-col {
+    flex: 1;
+    justify-content: center;
+    gap: 4px;
+  }
+  .fd-r-ico {
+    display: none;
+  }
+  .fd-r-body {
+    text-align: center;
+    width: 100%;
+  }
+  .fd-r-lab {
+    font-size: 0.6875rem;
+  }
+  .fd-r-val {
+    justify-content: center;
+    gap: 4px;
+    margin-top: 1px;
+  }
+  .fd-r-val b {
+    font-size: 1.125rem;
+  }
+  .fd-r-val small {
+    font-size: 0.75rem;
+  }
+  .fd-r-val svg {
+    width: 14px;
+    height: 14px;
+  }
+  .fd-btn {
+    height: 3rem;
+    min-height: 3rem;
+    font-size: 1rem;
+    border-radius: 10px;
+  }
+}
+
+/* Directory listings — two columns, full width of results column. */
+.fd-grid--directory {
+  display: grid;
+  margin: 0;
+  max-width: none;
+  width: 100%;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+}
+@media (min-width: 700px) {
+  .fd-grid--directory {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Keep header + heart + pill on one screen at the smallest phones */
+@media (max-width: 420px) {
+  .fd-avatar {
+    width: 84px;
+    height: 84px;
+    border-radius: 14px;
+  }
+  .fd-name {
+    font-size: 18px;
+    line-height: 23px;
+  }
+  .fd-heart {
+    width: 36px;
+    height: 36px;
+  }
+  .fd-heart svg {
+    width: 18px;
+    height: 18px;
+  }
+  .fd-card {
+    padding: 16px;
+  }
+  .fd-btn {
+    font-size: 17px;
+    gap: 10px;
+  }
+  .fd-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+}

@@ -8,6 +8,7 @@ export const SITE_CONTACT = {
   partnershipsEmailHref: "mailto:partnerships@besthospitalindia.com",
   phoneDisplay: "+91 11 4050 1200",
   phoneHref: "tel:+911140501200",
+  whatsappHref: "https://wa.me/911140501200",
 } as const
 
 export const SITE_DISCLAIMER =

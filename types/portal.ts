@@ -172,4 +172,10 @@ export interface Testimonial {
   hospitalId: string | null;
   /** ISO date string. */
   at: string;
+  /** Demo portrait URL (stock placeholder). */
+  authorPhoto?: string;
+  /** Demo star rating (1–5) for review-style presentation. */
+  rating?: number;
+  /** Short relative label, e.g. "3 weeks ago". */
+  relativeTime?: string;
 }

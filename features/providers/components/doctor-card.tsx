@@ -6,12 +6,9 @@
  * (@/types); hospital association and specialization names resolve through
  * shared fixture lookups.
  *
- * A16 visual alignment: media-left horizontal composition per the reference
- * doctor-card pattern (round avatar left, credentials middle, CTA footer).
  * PER (patient experience) and MER (medical expertise) always render as two
  * visually distinct, independent modules — never a combined score. Missing
- * scores render "Not yet rated", never 0/5. Verification state uses A04's
- * VerificationBadge so cards are consistent across provider types.
+ * scores render "Not yet rated", never 0/5.
  */
 
 import Link from "next/link"
@@ -23,7 +20,9 @@ import {
   StarIcon,
 } from "lucide-react"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import Image from "next/image"
+
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { VerificationBadge } from "@/features/providers/components/verification-badge"
@@ -36,8 +35,6 @@ import type { Doctor, RatingSummary } from "@/types"
 
 // ---------------------------------------------------------------------------
 // Compact rating module — one rating kind per module, never a composite.
-// Mirrors the RatingPanel/RatingPair contract (08 catalog) at card size —
-// same structure as A04's HospitalCardRatingModule for cross-provider parity.
 // ---------------------------------------------------------------------------
 
 export interface DoctorCardRatingModuleProps {
@@ -48,30 +45,47 @@ export interface DoctorCardRatingModuleProps {
 export function DoctorCardRatingModule({ rating, className }: DoctorCardRatingModuleProps) {
   const isPer = rating.kind === "PER"
   const label = isPer ? RATING_LABELS.PER : RATING_LABELS.MER
+  const accent = isPer ? "text-info" : "text-success"
 
   return (
     <div
       data-slot="doctor-card-rating"
       data-rating-kind={rating.kind}
       className={cn(
-        "min-w-0 flex-1 rounded-lg border p-2.5",
-        isPer ? "border-info/30 bg-info/5" : "border-success/30 bg-success/5",
-        className
+        "min-w-0 flex-1 rounded-md border border-border/70 bg-card px-3 py-2.5",
+        isPer ? "ring-1 ring-info/15" : "ring-1 ring-success/15",
+        className,
       )}
     >
-      <p className="truncate text-[11px] leading-tight font-medium text-muted-foreground">
-        <abbr title={label}>{rating.kind}</abbr>
-      </p>
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
+          <abbr title={label} className="no-underline">
+            {rating.kind}
+          </abbr>
+        </p>
+        <span
+          aria-hidden
+          className={cn("size-1.5 rounded-sm", isPer ? "bg-info/70" : "bg-success/70")}
+        />
+      </div>
       {rating.score === null ? (
-        <p className="mt-0.5 text-sm leading-snug font-medium text-muted-foreground">
+        <p className="mt-1.5 text-sm leading-snug font-medium text-muted-foreground">
           {NOT_RATED_MESSAGE}
         </p>
       ) : (
-        <p className="mt-0.5 flex items-center gap-1 text-sm font-semibold text-foreground">
-          <StarIcon aria-hidden className={cn("size-3.5", isPer ? "text-info" : "text-success")} />
-          {rating.score}/{RATING_SCALE_MAX}
-          <span className="sr-only"> — {label}</span>
-        </p>
+        <div className="mt-1 flex items-center gap-1.5">
+          <StarIcon
+            aria-hidden
+            className={cn("size-4 shrink-0", accent)}
+            fill="currentColor"
+            strokeWidth={0}
+          />
+          <p className="text-lg leading-none font-bold tracking-tight text-foreground tabular-nums">
+            {rating.score}
+            <span className="text-sm font-semibold text-muted-foreground">/{RATING_SCALE_MAX}</span>
+          </p>
+          <span className="sr-only">{label}</span>
+        </div>
       )}
     </div>
   )
@@ -89,8 +103,10 @@ export interface DoctorCardProps {
 /** Number of association names shown before "+N more". */
 const MAX_VISIBLE_HOSPITALS = 2
 
+const avatarClassName =
+  "size-[4.25rem] shrink-0 rounded-md after:rounded-md ring-1 ring-border/60"
+
 export function DoctorCard({ doctor, className }: DoctorCardProps) {
-  // Doctor.specialization holds a Specialty ID (relational), not display text.
   const specializationName = specialtyById[doctor.specialization]?.name ?? "Specialist"
   const hospitals = doctor.hospitalIds
     .map((id) => getHospitalById(id))
@@ -101,86 +117,109 @@ export function DoctorCard({ doctor, className }: DoctorCardProps) {
   const profileHref = doctorProfileHref(doctor.slug)
 
   return (
-    <Card className={cn("flex h-full flex-col gap-0 overflow-hidden p-0", className)}>
-      <CardContent className="min-h-0 flex-1 gap-3 py-4">
-        <div className="flex items-start gap-3">
-          <Avatar className="size-14 shrink-0 ring-2 ring-background">
-            {doctor.photo ? (
-              <AvatarImage src={doctor.photo} alt={`Portrait of ${doctor.name}`} />
-            ) : null}
-            <AvatarFallback aria-hidden>
-              {doctor.name
-                .replace(/^Dr\.?\s*/i, "")
-                .split(/\s+/)
-                .map((part) => part.charAt(0))
-                .slice(0, 2)
-                .join("")
-                .toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <div className="min-w-0 flex-1 space-y-1">
-            <h3 className="truncate font-heading text-base leading-snug font-semibold text-primary">
-              <Link
-                href={profileHref}
-                className="transition-colors outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
-              >
-                {doctor.name}
-              </Link>
-            </h3>
-            <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm text-muted-foreground">
-              <span className="font-medium text-foreground">{specializationName}</span>
-              <span aria-hidden>·</span>
-              <span className="inline-flex items-center gap-1">
-                <MapPinIcon aria-hidden className="size-3.5" />
-                {doctor.city}
-              </span>
-            </p>
+    <Card
+      className={cn(
+        "flex h-full flex-col gap-0 overflow-hidden rounded-xl border border-border/70 bg-card p-0 shadow-none ring-0",
+        className,
+      )}
+    >
+      <CardContent className="min-h-0 flex-1 gap-4 py-4">
+        <div className="relative">
+          <VerificationBadge
+            status={doctor.verificationStatus}
+            className="absolute top-0 right-0 h-6 rounded-md px-2 text-[11px]"
+          />
+          <div className="flex gap-3 pr-[5.75rem]">
+            <Avatar className={avatarClassName}>
+              {doctor.photo ? (
+                <Image
+                  src={doctor.photo}
+                  alt={`Portrait of ${doctor.name}`}
+                  fill
+                  sizes="68px"
+                  className="rounded-md object-cover"
+                  unoptimized={doctor.photo.startsWith("http")}
+                />
+              ) : (
+                <AvatarFallback aria-hidden className="rounded-md text-sm">
+                  {doctor.name
+                    .replace(/^Dr\.?\s*/i, "")
+                    .split(/\s+/)
+                    .map((part) => part.charAt(0))
+                    .slice(0, 2)
+                    .join("")
+                    .toUpperCase()}
+                </AvatarFallback>
+              )}
+            </Avatar>
+            <div className="min-w-0 flex-1 space-y-1 pt-0.5">
+              <h3 className="font-heading text-base leading-snug font-semibold text-primary">
+                <Link
+                  href={profileHref}
+                  className="line-clamp-2 transition-colors outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
+                >
+                  {doctor.name}
+                </Link>
+              </h3>
+              <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm text-muted-foreground">
+                <span className="font-medium text-foreground">{specializationName}</span>
+                <span aria-hidden>·</span>
+                <span className="inline-flex items-center gap-1">
+                  <MapPinIcon aria-hidden className="size-3.5 shrink-0" />
+                  {doctor.city}
+                </span>
+              </p>
+            </div>
           </div>
-          <VerificationBadge status={doctor.verificationStatus} className="shrink-0" />
         </div>
 
-        {qualificationsSummary ? (
-          <p className="flex items-start gap-1.5 text-sm text-muted-foreground">
-            <GraduationCapIcon aria-hidden className="mt-0.5 size-3.5 shrink-0" />
-            <span className="line-clamp-2">{qualificationsSummary}</span>
-          </p>
-        ) : null}
-
-        {visibleHospitals.length > 0 ? (
-          <div className="flex items-start gap-1.5 text-sm text-muted-foreground">
-            <Building2Icon aria-hidden className="mt-0.5 size-3.5 shrink-0" />
-            <p className="min-w-0 flex-1 truncate">
-              {visibleHospitals.map((hospital) => hospital.name).join(", ")}
-              {hiddenHospitalCount > 0 ? (
-                <span className="text-foreground"> +{hiddenHospitalCount} more</span>
-              ) : null}
+        <div className="space-y-2 rounded-md border border-border/60 bg-muted/15 px-3 py-2.5 text-sm text-muted-foreground">
+          {qualificationsSummary ? (
+            <p className="flex items-start gap-2">
+              <GraduationCapIcon aria-hidden className="mt-0.5 size-3.5 shrink-0 text-foreground/70" />
+              <span className="line-clamp-2 leading-snug">{qualificationsSummary}</span>
             </p>
-          </div>
-        ) : null}
+          ) : null}
 
-        {doctor.yearsExperience !== null ? (
-          <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <CalendarClockIcon aria-hidden className="size-3.5" />
-            {doctor.yearsExperience} years experience
-          </p>
-        ) : null}
+          {visibleHospitals.length > 0 ? (
+            <p className="flex items-start gap-2">
+              <Building2Icon aria-hidden className="mt-0.5 size-3.5 shrink-0 text-foreground/70" />
+              <span className="line-clamp-2 leading-snug">
+                {visibleHospitals.map((hospital) => hospital.name).join(", ")}
+                {hiddenHospitalCount > 0 ? (
+                  <span className="text-foreground"> +{hiddenHospitalCount} more</span>
+                ) : null}
+              </span>
+            </p>
+          ) : null}
+
+          {doctor.yearsExperience !== null ? (
+            <p className="flex items-center gap-2">
+              <CalendarClockIcon aria-hidden className="size-3.5 shrink-0 text-foreground/70" />
+              <span>{doctor.yearsExperience} years experience</span>
+            </p>
+          ) : null}
+        </div>
       </CardContent>
 
-      <div className="mt-auto flex flex-col gap-3 px-(--card-spacing) pb-4">
-        <div>
-          <p className="sr-only">
-            Independent ratings for {doctor.name} — patient experience and medical expertise, shown
-            separately
-          </p>
-          <div className="flex gap-2" data-slot="doctor-card-ratings">
-            <DoctorCardRatingModule rating={doctor.ratings.per} />
-            <DoctorCardRatingModule rating={doctor.ratings.mer} />
-          </div>
+      <div className="px-(--card-spacing) pb-4">
+        <p className="sr-only">
+          Independent ratings for {doctor.name} — patient experience and medical expertise, shown
+          separately
+        </p>
+        <div className="grid grid-cols-2 gap-2.5" data-slot="doctor-card-ratings">
+          <DoctorCardRatingModule rating={doctor.ratings.per} />
+          <DoctorCardRatingModule rating={doctor.ratings.mer} />
         </div>
       </div>
 
-      <div className="flex justify-end rounded-b-xl border-t bg-muted/30 px-(--card-spacing) py-3">
-        <Button variant="cta" size="sm" className="rounded-full px-4 font-semibold" render={<Link href={profileHref} />}>
+      <div className="border-t border-border/60 bg-muted/15 px-(--card-spacing) py-4">
+        <Button
+          variant="cta"
+          size="default"
+          className="h-11 w-full rounded-lg px-4 text-sm font-semibold sm:text-[0.9375rem]"
+          render={<Link href={profileHref} />}
+        >
           View profile
           <span className="sr-only"> for {doctor.name}</span>
         </Button>

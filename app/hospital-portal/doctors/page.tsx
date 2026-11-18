@@ -1,38 +1,34 @@
 import type { Metadata } from "next"
+
 import { DoctorAssociationManager } from "@/features/hospital-portal/doctor-association-manager"
 import { PortalPageHeader } from "@/features/hospital-portal/portal-page-header"
-import {
-  DEMO_HOSPITAL_ID,
-  demoAssociatedDoctors,
-} from "@/features/hospital-portal/demo-context"
-import { doctors } from "@/data"
-
-/**
- * /hospital-portal/doctors — doctor management (pages/49).
- *
- * Server Component: resolves associated doctors via the shared relation
- * selector (two-way consistent with Doctor.hospitalIds) and passes the full
- * fixture pool for directory search.
- */
+import { getDemoHospital } from "@/features/hospital-portal/demo-context"
+import { doctors, hospitalById } from "@/data"
+import { getRelatedDoctors } from "@/lib/search"
 
 export const metadata: Metadata = {
   title: "Doctors",
-  description:
-    "Manage doctors associated with the demo hospital: search the demo directory and request or remove local associations (fictional demo data).",
+  description: "Manage doctor associations for the selected demo hospital.",
 }
 
-export default function HospitalPortalDoctorsPage() {
-  const associated = demoAssociatedDoctors()
+interface HospitalPortalDoctorsPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export default async function HospitalPortalDoctorsPage({ searchParams }: HospitalPortalDoctorsPageProps) {
+  const params = await searchParams
+  const hospitalId = typeof params.hospitalId === "string" ? params.hospitalId : undefined
+  const hospital = (hospitalId ? hospitalById[hospitalId] : undefined) ?? getDemoHospital()
+  const associated = getRelatedDoctors(hospital.id)
 
   return (
     <div className="space-y-8">
       <PortalPageHeader
         label="Doctors"
-        description="Manage the doctors associated with your facility. Associations changes made here stay in the demo session and are pending admin review."
+        description={`Manage the doctors associated with ${hospital.name}. Association changes remain local demo state and are pending admin review.`}
       />
-
       <DoctorAssociationManager
-        hospitalId={DEMO_HOSPITAL_ID}
+        hospitalId={hospital.id}
         associatedDoctors={associated}
         allDoctors={doctors}
       />

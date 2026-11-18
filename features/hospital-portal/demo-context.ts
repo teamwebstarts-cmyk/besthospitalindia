@@ -11,9 +11,9 @@
  * Demo scoping decision (documented, not a product rule): the enquiries queue
  * contains enquiries explicitly addressed to the demo hospital
  * (`preferredProviderId`) plus enquiries with NO provider preference whose
- * specialty is listed by the hospital. The appointments queue contains
- * requests against the hospital OR against its associated doctors. Both rules
- * exist only to make the frozen fixture set meaningful for one demo session.
+ * specialty is listed by the hospital. The appointments queue contains only requests addressed directly to the
+ * hospital. Doctor-specific bookings belong to the doctor's portal. This is
+ * deliberate routing, not shared hospital visibility.
  */
 
 import {
@@ -99,20 +99,17 @@ export function openEnquiries(): PatientEnquiry[] {
 // ---------------------------------------------------------------------------
 
 /**
- * Appointment requests against the demo hospital OR against doctors
- * associated with it (demo scoping — see module docblock). Preserves fixture
- * order.
+ * Appointment requests addressed directly to the demo hospital profile.
+ * Requests made to an associated doctor remain in that doctor's portal.
  */
 export function demoAppointments(): AppointmentRequest[] {
-  const associatedDoctorIds = new Set(
-    getRelatedDoctors(DEMO_HOSPITAL_ID).map((doctor) => doctor.id),
+  // A patient booking a doctor is routed to that doctor only. Hospitals see
+  // only requests explicitly addressed to their own hospital profile.
+  return appointments.filter(
+    (appointment) =>
+      appointment.providerType === "hospital" &&
+      appointment.providerId === DEMO_HOSPITAL_ID,
   );
-  return appointments.filter((appointment) => {
-    if (appointment.providerType === "hospital") {
-      return appointment.providerId === DEMO_HOSPITAL_ID;
-    }
-    return associatedDoctorIds.has(appointment.providerId);
-  });
 }
 
 /** Requests the partner still has to answer (requested / under_review). */

@@ -21,17 +21,24 @@ import { ROUTES } from "@/constants/routes"
  * ----------------------------------------------------------------------- */
 
 export const homeHero = {
-  /** H1 — the page's single top-level heading. */
-  heading: "Healthcare Discovery With Personal Care",
+  /** H1 — two lines in `HomeHeroSection` (line 1 → hospital, line 2 → doctor). */
+  headingLineOneLead: "Find the right ",
+  headingHospital: "hospital",
+  headingLineOneEnd: ",",
+  headingLineTwoLead: "meeting the right ",
+  headingDoctor: "doctor",
   subheading:
-    "A trusted platform for hospitals, doctors and medical travel in India.",
+    "Compare hospitals and doctors across India with independent ratings and request coordinated support for your care journey.",
+  /** One-line hero lead on small screens only (`HomeHeroSection`). */
+  subheadingMobile:
+    "Compare hospitals and doctors in India — independent ratings and free consultation support.",
 } as const
 
 /** Copy for the city-destination pill row on the home page. */
 export const homeMedicalDestinations = {
   title: "Top medical destinations",
   description:
-    "Our network spans leading care hubs across India — browse hospitals, doctors and treatments by city.",
+    "Explore hospitals and specialists across India’s leading care states — select a destination to open the directory.",
 } as const
 
 /** Platform capabilities surfaced on the home page (aligned with about scope — demo only). */
@@ -44,7 +51,9 @@ export interface HomePatientServiceItem {
 export const homePatientServices = {
   title: "What you can use on this platform",
   description:
-    "BestHospitalIndia is a healthcare discovery directory — not a concierge or booking service. Use the flows below to find providers, compare ratings and request coordination with listed hospitals and doctors.",
+    "A healthcare discovery directory for India — compare independent ratings, browse providers and send enquiries. Not a concierge or confirmed booking service.",
+  descriptionMobile:
+    "Discover providers in India, compare ratings and send enquiries — not a booking concierge.",
   items: [
     {
       id: "provider-discovery",
@@ -550,27 +559,72 @@ export const homeTestimonials: readonly Testimonial[] = [
     authorName: "Meera S.",
     authorCountry: "Singapore",
     quote:
-      "The separate experience and expertise ratings helped me ask better questions before choosing a hospital. I always knew which number came from patients and which came from evidence.",
+      "PER and CER shown separately — I could see patient feedback and clinical evidence without a blended star rating. Made shortlisting hospitals in Kerala much easier.",
     hospitalId: "hosp-tranquilvalley-kochi",
     at: "2026-09-12",
+    authorPhoto: "https://i.pravatar.cc/96?img=5",
+    rating: 5,
+    relativeTime: "2 months ago",
   },
   {
     id: "test-story-2",
     authorName: "Rahul K.",
     authorCountry: "United Arab Emirates",
     quote:
-      'Seeing the verification state right on the profile — and an honest "assessment pending" where a rating was missing — made the platform feel trustworthy rather than salesy.',
+      'Verification badges and honest "assessment pending" labels felt straightforward. No pressure to book — just clear next steps for an enquiry.',
     hospitalId: "hosp-sunrise-delhi",
     at: "2026-10-02",
+    authorPhoto: "https://i.pravatar.cc/96?img=12",
+    rating: 5,
+    relativeTime: "6 weeks ago",
   },
   {
     id: "test-story-3",
     authorName: "Anita P.",
     authorCountry: "India",
     quote:
-      "The request workflow was clear that nothing was confirmed yet. That honesty is what I would want from a real healthcare discovery platform.",
+      "Appointment request wording was clear it was not confirmed until the hospital replied. Small detail, but it matched what I expect from a directory.",
     hospitalId: null,
     at: "2026-10-18",
+    authorPhoto: "https://i.pravatar.cc/96?img=25",
+    rating: 4,
+    relativeTime: "3 weeks ago",
+  },
+  {
+    id: "test-story-4",
+    authorName: "James W.",
+    authorCountry: "United Kingdom",
+    quote:
+      "Compared cardiologists in Ahmedabad and Bengaluru using MER on doctor cards. Filters by city saved time before I raised a travel enquiry.",
+    hospitalId: "hosp-metropulse-ahmedabad",
+    at: "2026-08-04",
+    authorPhoto: "https://i.pravatar.cc/96?img=33",
+    rating: 5,
+    relativeTime: "4 months ago",
+  },
+  {
+    id: "test-story-5",
+    authorName: "Fatima A.",
+    authorCountry: "Oman",
+    quote:
+      "Medical tourism page outlined visas and stay pointers without pretending they had booked flights for me. Useful orientation before calling the hospital.",
+    hospitalId: "hosp-silverlake-bengaluru",
+    at: "2026-07-19",
+    authorPhoto: "https://i.pravatar.cc/96?img=9",
+    rating: 4,
+    relativeTime: "5 months ago",
+  },
+  {
+    id: "test-story-6",
+    authorName: "Chen L.",
+    authorCountry: "China",
+    quote:
+      "Facility categories helped me find a diagnostic lab in Mumbai separate from hospital listings. Clean directory layout on mobile too.",
+    hospitalId: "hosp-sunrise-mumbai",
+    at: "2026-06-11",
+    authorPhoto: "https://i.pravatar.cc/96?img=44",
+    rating: 5,
+    relativeTime: "6 months ago",
   },
 ]
 
@@ -579,30 +633,31 @@ export const homeTestimonials: readonly Testimonial[] = [
  * ----------------------------------------------------------------------- */
 
 export const contactContent = {
-  intro:
-    "Choose the purpose of your message and reach the right team. We aim to respond within one business day.",
+  intro: "Reach the right team. We usually reply within one business day.",
   channels: [
     {
       id: "channel-support",
-      title: "Patient support",
-      body: "Questions about finding providers, enquiries or appointment requests on the platform.",
+      title: "Patients",
+      body: "Help with search, enquiries or appointments.",
       label: "support@besthospitalindia.com",
+      href: "mailto:support@besthospitalindia.com",
     },
     {
       id: "channel-partnership",
-      title: "Hospital & doctor partnerships",
-      body: "Interest in listing a hospital or joining as an individual doctor — see the partner pages for scope first.",
+      title: "Partners",
+      body: "Hospitals and doctors interested in listing.",
       label: "partnerships@besthospitalindia.com",
+      href: "mailto:partnerships@besthospitalindia.com",
     },
     {
       id: "channel-consultation",
-      title: "Free consultation initiative",
-      body: "The IUF-supported consultation flow has its own request form; use it rather than this general contact form.",
-      label: "Use the consultation request form",
+      title: "Free consultation",
+      body: "IUF-supported — use the dedicated request form.",
+      label: "Open consultation form",
       href: ROUTES.public.freeConsultation,
     },
   ],
-  note: "For urgent medical concerns, contact your local emergency services or treating physician — this form is not for emergencies.",
+  note: "Not for medical emergencies — contact local emergency services or your doctor.",
 } as const
 
 /* -------------------------------------------------------------------------

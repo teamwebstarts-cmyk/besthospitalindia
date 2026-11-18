@@ -47,6 +47,7 @@ import {
 } from "@/features/doctor-portal/selectors"
 import { dateNotInPast, required, validate } from "@/lib/validation"
 import { cn } from "@/lib/utils"
+import { updateDemoAppointmentRequest } from "@/features/appointments/demo-appointment-store"
 import type { AppointmentRequest, AppointmentStatus } from "@/types"
 
 // ---------------------------------------------------------------------------
@@ -254,6 +255,11 @@ export function AppointmentsClient({ requests, className }: AppointmentsClientPr
     [state.records],
   )
 
+  function handleAccept(id: string) {
+    dispatch({ type: "accept", id })
+    updateDemoAppointmentRequest(id, { status: "confirmed", updatedAt: new Date().toISOString() })
+  }
+
   function openReject(id: string, patientName: string) {
     setRejectReason("")
     setRejectError(null)
@@ -268,6 +274,11 @@ export function AppointmentsClient({ requests, className }: AppointmentsClientPr
       return
     }
     dispatch({ type: "reject", id: dialog.id, reason: rejectReason.trim() })
+    updateDemoAppointmentRequest(dialog.id, {
+      status: "cancelled",
+      note: rejectReason.trim(),
+      updatedAt: new Date().toISOString(),
+    })
     setDialog({ kind: "none" })
   }
 
@@ -278,7 +289,7 @@ export function AppointmentsClient({ requests, className }: AppointmentsClientPr
     setDialog({
       kind: "reschedule",
       id: record.request.id,
-      patientName: patientDisplayName(record.request.patientId),
+      patientName: (record.request.patientName ?? patientDisplayName(record.request.patientId)),
       currentDate: record.request.preferredDate,
     })
   }
@@ -299,6 +310,12 @@ export function AppointmentsClient({ requests, className }: AppointmentsClientPr
       date: rescheduleDate,
       note: rescheduleNote,
     })
+    updateDemoAppointmentRequest(dialog.id, {
+      status: "scheduled",
+      preferredDate: rescheduleDate,
+      note: rescheduleNote.trim() || undefined,
+      updatedAt: new Date().toISOString(),
+    })
     setDialog({ kind: "none" })
   }
 
@@ -310,11 +327,19 @@ export function AppointmentsClient({ requests, className }: AppointmentsClientPr
       render: (record) => (
         <div className="min-w-0 space-y-0.5">
           <p className="truncate font-medium text-foreground">
-            {patientDisplayName(record.request.patientId)}
+            {(record.request.patientName ?? patientDisplayName(record.request.patientId))}
           </p>
           <p className="text-xs text-muted-foreground">
             {record.request.id} · {modeLabel(record.request.mode)}
           </p>
+          {record.request.patientPhone || record.request.patientEmail ? (
+            <p className="text-xs text-muted-foreground">
+              {[
+                record.request.patientPhone ? `Phone: ${record.request.patientPhone}` : "",
+                record.request.patientEmail ? `Email: ${record.request.patientEmail}` : "",
+              ].filter(Boolean).join(" · ")}
+            </p>
+          ) : null}
         </div>
       ),
     },
@@ -368,14 +393,14 @@ export function AppointmentsClient({ requests, className }: AppointmentsClientPr
         const terminal =
           record.change !== null || TERMINAL_STATUSES.has(record.request.status)
         const id = record.request.id
-        const patientName = patientDisplayName(record.request.patientId)
+        const patientName = (record.request.patientName ?? patientDisplayName(record.request.patientId))
         return terminal ? (
           <Badge variant="outline" className="text-muted-foreground">
             No actions
           </Badge>
         ) : (
           <div className="flex justify-end gap-1.5">
-            <Button size="xs" onClick={() => dispatch({ type: "accept", id })}>
+            <Button size="xs" onClick={() => handleAccept(id)}>
               Accept
             </Button>
             <Button
@@ -474,7 +499,7 @@ export function AppointmentsClient({ requests, className }: AppointmentsClientPr
                   <div className="space-y-1">
                     <div className="flex items-start justify-between gap-2">
                       <p className="font-medium text-foreground">
-                        {patientDisplayName(record.request.patientId)}
+                        {(record.request.patientName ?? patientDisplayName(record.request.patientId))}
                       </p>
                       <StatusBadge status={record.change?.status ?? record.request.status} />
                     </div>
@@ -482,6 +507,14 @@ export function AppointmentsClient({ requests, className }: AppointmentsClientPr
                       {record.request.id} · {modeLabel(record.request.mode)} ·{" "}
                       {formatDate(record.request.preferredDate)}
                     </p>
+                    {record.request.patientPhone || record.request.patientEmail ? (
+                      <p className="text-xs text-muted-foreground">
+                        {[
+                          record.request.patientPhone ? `Phone: ${record.request.patientPhone}` : "",
+                          record.request.patientEmail ? `Email: ${record.request.patientEmail}` : "",
+                        ].filter(Boolean).join(" · ")}
+                      </p>
+                    ) : null}
                     <p className="text-sm text-foreground">
                       {treatmentLabel(record.request.treatmentId) ?? "General consultation"}
                     </p>
@@ -495,7 +528,7 @@ export function AppointmentsClient({ requests, className }: AppointmentsClientPr
                   </div>
                   {!terminal ? (
                     <div className="mt-3 flex flex-wrap gap-2">
-                      <Button size="sm" onClick={() => dispatch({ type: "accept", id })}>
+                      <Button size="sm" onClick={() => handleAccept(id)}>
                         Accept
                       </Button>
                       <Button
@@ -508,7 +541,7 @@ export function AppointmentsClient({ requests, className }: AppointmentsClientPr
                       <Button
                         size="sm"
                         variant="destructive"
-                        onClick={() => openReject(id, patientDisplayName(record.request.patientId))}
+                        onClick={() => openReject(id, (record.request.patientName ?? patientDisplayName(record.request.patientId)))}
                       >
                         Reject
                       </Button>
@@ -548,7 +581,7 @@ export function AppointmentsClient({ requests, className }: AppointmentsClientPr
             <DialogTitle>Reject appointment request (demo)</DialogTitle>
             <DialogDescription>
               {dialog.kind === "reject"
-                ? `Record why you are declining ${dialog.patientName}'s demo request. The reason stays in this page's local state — the demo patient is never notified.`
+                ? `Record why you are declining ${dialog.patientName}'s demo request. The reason is saved in this browser's demo state — the demo patient is never notified.`
                 : null}
             </DialogDescription>
           </DialogHeader>

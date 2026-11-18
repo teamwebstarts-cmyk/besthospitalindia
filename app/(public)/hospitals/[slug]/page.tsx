@@ -47,7 +47,7 @@ import { RatingPair } from "@/features/ratings/rating-pair"
 import { VerificationBadge } from "@/features/providers/components/verification-badge"
 import { getHospitalBySlug, getRelatedDoctors, getTreatmentById } from "@/lib/search"
 import { hospitals, reviewsForProvider, specialtyById } from "@/data"
-import { doctorProfileHref, hospitalProfileHref, ROUTES } from "@/constants/routes"
+import { appointmentRequestHref, doctorProfileHref, hospitalProfileHref, ROUTES } from "@/constants/routes"
 import { RATING_LABELS } from "@/constants/rating"
 
 export const dynamicParams = false
@@ -90,7 +90,7 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
     .map((id) => getTreatmentById(id)?.name)
     .filter((name): name is string => name !== undefined)
 
-  const consultationHref = ROUTES.public.freeConsultation
+  const consultationHref = appointmentRequestHref("hospital", hospital.id)
   const contactHref = ROUTES.public.contact
 
   const sections = [

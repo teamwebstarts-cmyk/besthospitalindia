@@ -13,6 +13,7 @@ export type HospitalListingSearchProps = Omit<
 export function HospitalListingSearch({ sort, ...props }: HospitalListingSearchProps) {
   return (
     <ListingQuerySearch
+      key={`${props.basePath}:${props.initialQuery}`}
       {...props}
       extraParams={{
         ...props.extraParams,

@@ -50,6 +50,7 @@ import { doctorById, patientById, treatmentById } from "@/data"
 import type { AppointmentRequest, AppointmentStatus, ConsultationMode } from "@/types"
 import { CalendarDaysIcon, CircleAlertIcon, CircleCheckBigIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { updateDemoAppointmentRequest } from "@/features/appointments/demo-appointment-store"
 
 export interface AppointmentQueueManagerProps {
   /** Scoped appointment requests for the demo hospital (fixture order). */
@@ -163,6 +164,12 @@ export function AppointmentQueueManager({
     if (noteParts.length > 0) {
       setNoteById((current) => ({ ...current, [activeRequest.id]: noteParts.join(" · ") }))
     }
+    updateDemoAppointmentRequest(activeRequest.id, {
+      status: nextStatus,
+      preferredDate: actionMode === "reject" ? activeRequest.preferredDate : scheduledDate,
+      note: noteParts.length > 0 ? noteParts.join(" · ") : activeRequest.note,
+      updatedAt: new Date().toISOString(),
+    })
     setHistoryById((current) => ({
       ...current,
       [activeRequest.id]: [
@@ -191,10 +198,11 @@ export function AppointmentQueueManager({
         return (
           <span className="min-w-0">
             <span className="block truncate font-medium text-foreground">
-              {patient?.name ?? "Demo patient"}
+              {patient?.name ?? request.patientName ?? "Demo patient"}
             </span>
             <span className="block truncate text-xs text-muted-foreground">
-              {patient?.country ?? "—"} · {patient?.preferredLanguage ?? "—"}
+              {request.patientPhone ? `Phone: ${request.patientPhone}` : patient?.country ?? "—"}
+              {request.patientEmail ? ` · ${request.patientEmail}` : patient?.preferredLanguage ? ` · ${patient.preferredLanguage}` : ""}
             </span>
           </span>
         )
@@ -413,9 +421,11 @@ export function AppointmentQueueManager({
                 <div className="flex justify-between gap-3">
                   <dt className="text-muted-foreground">Patient</dt>
                   <dd className="text-right font-medium">
-                    {patientById[activeRequest.patientId]?.name ?? "Demo patient"}
+                    {patientById[activeRequest.patientId]?.name ?? activeRequest.patientName ?? "Demo patient"}
                   </dd>
                 </div>
+                {activeRequest.patientPhone ? <div className="flex justify-between gap-3"><dt className="text-muted-foreground">Phone</dt><dd className="text-right font-medium">{activeRequest.patientPhone}</dd></div> : null}
+                {activeRequest.patientEmail ? <div className="flex justify-between gap-3"><dt className="text-muted-foreground">Email</dt><dd className="break-all text-right font-medium">{activeRequest.patientEmail}</dd></div> : null}
                 <div className="flex justify-between gap-3">
                   <dt className="text-muted-foreground">Treatment</dt>
                   <dd className="text-right font-medium">

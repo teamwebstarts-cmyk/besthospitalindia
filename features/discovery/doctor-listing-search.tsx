@@ -18,6 +18,7 @@ export function DoctorListingSearch({
 }: DoctorListingSearchProps) {
   return (
     <ListingQuerySearch
+      key={`${props.basePath}:${props.initialQuery}`}
       {...props}
       extraParams={{
         ...props.extraParams,

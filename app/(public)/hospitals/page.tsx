@@ -20,11 +20,12 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { Building2Icon } from "lucide-react"
 
-import { Breadcrumbs } from "@/components/shared/breadcrumbs"
+import { DirectoryPageIntro } from "@/components/shared/directory-page-intro"
 import { FaqList } from "@/features/content/faq-list"
 import { EmptyState } from "@/components/shared/empty-state"
 import { SectionHeading } from "@/components/shared/section-heading"
-import { HospitalCard } from "@/features/providers/components/hospital-card"
+import { FeaturedHospitalCard } from "@/features/content/featured-hospitals/featured-hospital-card"
+import "@/features/content/featured-hospitals/featured-hospitals.css"
 import {
   ListingFilters,
 } from "@/features/discovery/listing-filters"
@@ -120,13 +121,14 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
   // URL param names align with the SearchFilters contract; values compose AND.
   const q = filterValues.q?.[0]
   const city = filterValues.city?.[0]
+  const state = filterValues.state?.[0]
   const rawSpecialty = filterValues.specialty
   const specialtyIds = Array.isArray(rawSpecialty) ? rawSpecialty : rawSpecialty ? [rawSpecialty] : []
   const accreditation = filterValues.accreditation?.[0]
   const ratingStatus = filterValues["rating-status"]?.[0]
 
   const results = searchHospitals(
-    { query: q, city, specialties: specialtyIds },
+    { query: q, city, state, specialties: specialtyIds },
     undefined,
     sort,
     ratingKind ? { ratingKind } : undefined,
@@ -166,6 +168,7 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
   const facetValues: Record<string, string[]> = {
     ...(q ? { q: [q] } : {}),
     ...(city ? { city: [city] } : {}),
+    ...(state ? { state: [state] } : {}),
     ...(specialtyIds.length > 0 ? { specialty: specialtyIds } : {}),
     ...(accreditation ? { accreditation: [accreditation] } : {}),
     ...(ratingStatus ? { "rating-status": [ratingStatus] } : {}),
@@ -175,23 +178,6 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
 
   return (
     <div className="flex flex-col">
-      <div className="space-y-3 pt-8">
-        <Breadcrumbs
-          items={[
-            { label: "Home", href: ROUTES.public.home },
-            { label: "Hospitals" },
-          ]}
-        />
-
-        <header className="space-y-2">
-          <SectionHeading
-            as="h1"
-            title="Hospitals"
-            description="Compare hospitals across India. Patient experience (PER) and clinical expertise (CER) ratings are shown independently — they are never combined into a single score."
-          />
-        </header>
-      </div>
-
       <section
         aria-label="Hospital directory"
         className={cn(
@@ -200,6 +186,11 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
         )}
       >
         <div className={homeSectionInnerClassName}>
+          <DirectoryPageIntro
+            className="mb-8"
+            title="Hospitals"
+            description="Compare hospitals across India with separate PER and CER ratings — filters, pagination and full profiles."
+          />
           <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
         <aside aria-label="Hospital filters" className="lg:sticky lg:top-24 lg:self-start">
           <ListingFilters
@@ -288,13 +279,10 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
                   action={{ label: "Back to page 1", href: BASE_PATH }}
                 />
               ) : (
-                <ul
-                  className="grid items-stretch gap-4 sm:grid-cols-2"
-                  aria-label="Hospital results"
-                >
+                <ul className="fh-grid fh-grid--directory list-none p-0" aria-label="Hospital results">
                   {items.map((hospital) => (
-                    <li key={hospital.id} className="flex min-w-0">
-                      <HospitalCard hospital={hospital} layout="stacked" className="h-full w-full" />
+                    <li key={hospital.id} className="flex min-h-0 min-w-0">
+                      <FeaturedHospitalCard hospital={hospital} />
                     </li>
                   ))}
                 </ul>

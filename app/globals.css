@@ -54,107 +54,194 @@
     --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/*
+ * BestHospitalIndia — Sea-glass healthcare palette
+ * Primary identity: sea teal + fresh mint + clean white.
+ * Keep the interface light; dark mode is intentionally disabled.
+ */
 :root {
-    color-scheme: light !important; /* beats next-themes' inline color-scheme */
-    --background: oklch(0.975 0.012 100);
-    --foreground: oklch(0.265 0.035 155);
-    --card: oklch(0.995 0.006 100);
-    --card-foreground: oklch(0.265 0.035 155);
-    --popover: oklch(0.995 0.006 100);
-    --popover-foreground: oklch(0.265 0.035 155);
-    --primary: oklch(0.395 0.075 153);
-    --primary-foreground: oklch(0.985 0.008 100);
-    --cta: oklch(0.585 0.115 151);
-    --cta-foreground: oklch(0.99 0.005 100);
-    --secondary: oklch(0.925 0.025 135);
-    --secondary-foreground: oklch(0.335 0.055 153);
-    --muted: oklch(0.947 0.014 120);
-    --muted-foreground: oklch(0.525 0.025 150);
-    --accent: oklch(0.905 0.045 145);
-    --accent-foreground: oklch(0.295 0.065 153);
-    --destructive: oklch(0.555 0.19 27);
-    --border: oklch(0.89 0.018 125);
-    --input: oklch(0.89 0.018 125);
-    --ring: oklch(0.52 0.095 151);
-    --chart-1: oklch(0.78 0.105 150);
-    --chart-2: oklch(0.66 0.12 151);
-    --chart-3: oklch(0.55 0.105 153);
-    --chart-4: oklch(0.44 0.085 155);
-    --chart-5: oklch(0.34 0.065 157);
+    color-scheme: light !important;
+    /* Sticky public header height (desktop two-tier ≈ 7.25–7.5rem, mobile ≈ 7.5rem).
+       Hero sections subtract this so they fill the real visible viewport. */
+    --site-header-offset: 7.5rem;
+    --background: #F7FBF9;
+    --foreground: #183A36;
+
+    --card: #FFFFFF;
+    --card-foreground: #183A36;
+    --popover: #FFFFFF;
+    --popover-foreground: #183A36;
+
+    /* Brand */
+    --primary: #0F766E;
+    --primary-foreground: #FFFFFF;
+    --cta: #0B6E66;
+    --cta-foreground: #FFFFFF;
+
+    /* Supporting surfaces */
+    --secondary: #DDF2ED;
+    --secondary-foreground: #145E59;
+    --muted: #EEF5F2;
+    --muted-foreground: #526A65;
+    --accent: #E6F4F0;
+    --accent-foreground: #145E59;
+
+    /* Form controls and focus */
+    --border: #DCE9E4;
+    --input: #C9DAD4;
+    --ring: #0F766E;
+    --destructive: #B42318;
+
+    /* Data visualisation */
+    --chart-1: #0F766E;
+    --chart-2: #46A99B;
+    --chart-3: #7CCFC0;
+    --chart-4: #D59A62;
+    --chart-5: #54726B;
+
     --radius: 0.625rem;
-    --sidebar: oklch(0.955 0.018 115);
-    --sidebar-foreground: oklch(0.265 0.035 155);
-    --sidebar-primary: oklch(0.395 0.075 153);
-    --sidebar-primary-foreground: oklch(0.985 0.008 100);
-    --sidebar-accent: oklch(0.91 0.035 140);
-    --sidebar-accent-foreground: oklch(0.295 0.065 153);
-    --sidebar-border: oklch(0.89 0.018 125);
-    --sidebar-ring: oklch(0.52 0.095 151);
-    --success: oklch(0.545 0.115 151);
-    --warning: oklch(0.68 0.13 75);
-    --danger: oklch(0.50 0.17 28);
-    --info: oklch(0.56 0.09 220);
-    --surface: oklch(0.995 0.006 100);
+
+    /* Dashboard navigation */
+    --sidebar: #F0F7F4;
+    --sidebar-foreground: #183A36;
+    --sidebar-primary: #0F766E;
+    --sidebar-primary-foreground: #FFFFFF;
+    --sidebar-accent: #DDF2ED;
+    --sidebar-accent-foreground: #145E59;
+    --sidebar-border: #DCE9E4;
+    --sidebar-ring: #0F766E;
+
+    /* Semantic status colours */
+    --success: #16794B;
+    --warning: #8A5300;
+    --danger: #B42318;
+    --info: #0E6977;
+
+    --surface: #FFFFFF;
 }
 
 /*
- * Dark-theme token block deliberately mirrors the light `:root` palette so the
- * whole site renders in light mode regardless of the resolved theme class
- * (A16: site-wide light mode, token-level change only — no component edits).
+ * Some routes may still resolve a .dark class through next-themes.
+ * Mirror the light tokens so every route stays consistently light.
  */
 .dark {
-    color-scheme: light !important; /* keep native controls light even with .dark class */
-    --background: oklch(0.975 0.012 100);
-    --foreground: oklch(0.265 0.035 155);
-    --card: oklch(0.995 0.006 100);
-    --card-foreground: oklch(0.265 0.035 155);
-    --popover: oklch(0.995 0.006 100);
-    --popover-foreground: oklch(0.265 0.035 155);
-    --primary: oklch(0.395 0.075 153);
-    --primary-foreground: oklch(0.985 0.008 100);
-    --cta: oklch(0.585 0.115 151);
-    --cta-foreground: oklch(0.99 0.005 100);
-    --secondary: oklch(0.925 0.025 135);
-    --secondary-foreground: oklch(0.335 0.055 153);
-    --muted: oklch(0.947 0.014 120);
-    --muted-foreground: oklch(0.525 0.025 150);
-    --accent: oklch(0.905 0.045 145);
-    --accent-foreground: oklch(0.295 0.065 153);
-    --destructive: oklch(0.555 0.19 27);
-    --border: oklch(0.89 0.018 125);
-    --input: oklch(0.89 0.018 125);
-    --ring: oklch(0.52 0.095 151);
-    --chart-1: oklch(0.78 0.105 150);
-    --chart-2: oklch(0.66 0.12 151);
-    --chart-3: oklch(0.55 0.105 153);
-    --chart-4: oklch(0.44 0.085 155);
-    --chart-5: oklch(0.34 0.065 157);
-    --sidebar: oklch(0.955 0.018 115);
-    --sidebar-foreground: oklch(0.265 0.035 155);
-    --sidebar-primary: oklch(0.395 0.075 153);
-    --sidebar-primary-foreground: oklch(0.985 0.008 100);
-    --sidebar-accent: oklch(0.91 0.035 140);
-    --sidebar-accent-foreground: oklch(0.295 0.065 153);
-    --sidebar-border: oklch(0.89 0.018 125);
-    --sidebar-ring: oklch(0.52 0.095 151);
-    --success: oklch(0.545 0.115 151);
-    --warning: oklch(0.68 0.13 75);
-    --danger: oklch(0.50 0.17 28);
-    --info: oklch(0.56 0.09 220);
-    --surface: oklch(0.995 0.006 100);
+    color-scheme: light !important;
+    --background: #F7FBF9;
+    --foreground: #183A36;
+    --card: #FFFFFF;
+    --card-foreground: #183A36;
+    --popover: #FFFFFF;
+    --popover-foreground: #183A36;
+    --primary: #0F766E;
+    --primary-foreground: #FFFFFF;
+    --cta: #0B6E66;
+    --cta-foreground: #FFFFFF;
+    --secondary: #DDF2ED;
+    --secondary-foreground: #145E59;
+    --muted: #EEF5F2;
+    --muted-foreground: #526A65;
+    --accent: #E6F4F0;
+    --accent-foreground: #145E59;
+    --destructive: #B42318;
+    --border: #DCE9E4;
+    --input: #C9DAD4;
+    --ring: #0F766E;
+    --chart-1: #0F766E;
+    --chart-2: #46A99B;
+    --chart-3: #7CCFC0;
+    --chart-4: #D59A62;
+    --chart-5: #54726B;
+    --sidebar: #F0F7F4;
+    --sidebar-foreground: #183A36;
+    --sidebar-primary: #0F766E;
+    --sidebar-primary-foreground: #FFFFFF;
+    --sidebar-accent: #DDF2ED;
+    --sidebar-accent-foreground: #145E59;
+    --sidebar-border: #DCE9E4;
+    --sidebar-ring: #0F766E;
+    --success: #16794B;
+    --warning: #8A5300;
+    --danger: #B42318;
+    --info: #0E6977;
+    --surface: #FFFFFF;
+}
+
+@layer utilities {
+  .interactive-surface {
+    @apply transition-[transform,box-shadow,border-color,background-color] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)];
+  }
+  .interactive-surface:hover {
+    @apply -translate-y-0.5 shadow-md;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .interactive-surface {
+      transition: none;
+    }
+    .interactive-surface:hover {
+      transform: none;
+    }
+  }
+
+  .home-testimonials-marquee {
+    animation: home-testimonials-scroll 52s linear infinite;
+  }
+  .home-testimonials-marquee:hover {
+    animation-play-state: paused;
+  }
+  @keyframes home-testimonials-scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .home-testimonials-marquee {
+      animation: none;
+    }
+  }
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    }
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--primary) 22%, var(--secondary));
+    color: var(--foreground);
+  }
+  a:not([class]) {
+    color: var(--primary);
+    text-underline-offset: 0.2em;
+  }
+  a:not([class]):hover {
+    color: var(--cta);
+  }
   body {
     @apply bg-background text-foreground;
-    }
+  }
   button:not(:disabled), [role="button"]:not(:disabled) {
     cursor: pointer;
-    }
+  }
   html {
     @apply font-sans;
+    scroll-behavior: smooth;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
     }
+  }
+  /*
+   * Kill any horizontal scrollbar: full-bleed bands use 100vw (w-screen),
+   * which includes the classic scrollbar width and would otherwise push the
+   * page 15–17px wider than the visible viewport in browsers that draw
+   * classic scrollbars. `clip` (not `hidden`) — it does not create a scroll
+   * container, so the sticky header keeps working.
+   */
+  html,
+  body {
+    overflow-x: clip;
+  }
 }

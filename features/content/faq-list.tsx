@@ -46,7 +46,7 @@ export function FaqList({ faqs, className, variant = "default" }: FaqListProps) 
           value={faq.id}
           className={cn(
             isCards &&
-              "rounded-lg border border-primary/20 border-b-primary/20 bg-white transition-colors hover:bg-primary/[0.06] not-last:!border-b-primary/20"
+              "interactive-surface rounded-lg border border-primary/20 border-b-primary/20 bg-white transition-colors hover:bg-primary/[0.06] not-last:!border-b-primary/20"
           )}
         >
           <AccordionTrigger

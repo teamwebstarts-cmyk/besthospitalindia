@@ -1,19 +1,18 @@
-/**
- * Topbar identity slot for the Doctor Portal (A10).
- *
- * Rendered into PortalShell's `actions` slot. Demo-only: there is no session,
- * no avatar upload and no account — this is a labelled fixture identity so the
- * portal shows role context (10-routing-and-layouts.md, "Portal routes should
- * show role context").
- */
+"use client"
 
 import { ShieldCheckIcon, UserRoundIcon } from "lucide-react"
-
 import { Badge } from "@/components/ui/badge"
-import { getSessionDoctor } from "@/features/doctor-portal/session"
+import { doctors, doctorById } from "@/data"
+import { DEMO_DOCTOR_ID, getSessionDoctor } from "@/features/doctor-portal/session"
+import { useActiveDemoProvider } from "@/features/appointments/use-active-demo-provider"
 
 export function PortalUserChip() {
-  const doctor = getSessionDoctor()
+  const { providerId } = useActiveDemoProvider(
+    "doctor",
+    DEMO_DOCTOR_ID,
+    doctors.map((doctor) => doctor.id),
+  )
+  const doctor = doctorById[providerId] ?? getSessionDoctor()
 
   return (
     <div className="flex items-center gap-2">

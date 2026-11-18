@@ -1,8 +1,7 @@
 import type { Metadata } from "next"
-import Link from "next/link"
-
-import { JourneySteps } from "@/features/content/journey-steps"
-import { TestimonialCard } from "@/features/content/testimonial-card"
+import { JourneyStepsAnimated } from "@/features/content/journey-steps-animated"
+import { ScrollReveal } from "@/components/motion/scroll-reveal"
+import { TestimonialsMarquee } from "@/features/content/testimonials-marquee"
 import { FaqList } from "@/features/content/faq-list"
 import {
   HomeBleedBand,
@@ -21,10 +20,10 @@ import {
   patientJourneySteps,
   homeTestimonials,
 } from "@/features/content/home-content"
-import { DoctorCard } from "@/features/providers/components/doctor-card"
-import { HospitalCard } from "@/features/providers/components/hospital-card"
+import { homeMedicalDestinationStates } from "@/features/content/medical-destination-states"
+import { FeaturedHospitalsSection } from "@/features/content/featured-hospitals/featured-hospitals-section"
+import { FindDoctorsSection } from "@/features/content/find-doctors/find-doctors-section"
 import { FACILITY_CATEGORY_LABELS } from "@/features/discovery/facility-meta"
-import { Button } from "@/components/ui/button"
 import { doctorById, facilities, hospitals, specialties } from "@/data"
 import { searchDoctors, searchHospitals } from "@/lib/search"
 import { ROUTES } from "@/constants/routes"
@@ -35,12 +34,14 @@ export const metadata: Metadata = {
     "Discover hospitals, doctors and treatments in India, compare independent PER, CER and MER ratings, and send enquiries for coordinated follow-up.",
 }
 
-/** Demo hospital rotation for the featured section (fixture ids, stable order). */
+/** Home featured band — six demo cards (3 × 2 grid). */
 const FEATURED_HOSPITAL_IDS = [
   "hosp-sunrise-delhi",
   "hosp-tranquilvalley-kochi",
-  "hosp-goldenpeak-jaipur",
   "hosp-silverlake-bengaluru",
+  "hosp-goldenpeak-jaipur",
+  "hosp-sunrise-mumbai",
+  "hosp-metropulse-ahmedabad",
 ] as const
 
 /** Demo doctor rotation for the discovery section (fixture ids, stable order). */
@@ -86,15 +87,7 @@ export default function HomePage() {
   // Trust bar figures derived from fixtures (counts only, no invented claims).
   const hospitalCount = searchHospitals(undefined, undefined).length
   const doctorCount = searchDoctors(undefined, undefined).length
-  const destinationCities = [...new Set(hospitals.map((hospital) => hospital.city))].sort(
-    (a, b) => a.localeCompare(b)
-  )
-  const cityCount = destinationCities.length
-  const destinationCityImage = "/images/destinations/city-destination-demo.png"
-  const destinationCards = destinationCities.map((city) => ({
-    city,
-    imageSrc: destinationCityImage,
-  }))
+  const stateCount = [...new Set(hospitals.map((hospital) => hospital.state))].length
 
   const faqItems = [
     {
@@ -144,23 +137,24 @@ export default function HomePage() {
       <HomeHeroSection
         hospitalCount={hospitalCount}
         doctorCount={doctorCount}
-        cityCount={cityCount}
+        stateCount={stateCount}
       />
 
       {/* Full-bleed bands — flush stack (no space-y between surfaces) */}
       <div className="flex flex-col">
         <HomeBleedBand surfaceClassName="border-b border-border/70 bg-white">
-          <HomeSectionHeading
-            title="Browse by specialty"
-            description="Ten specialty tiles link into the treatment directory."
-            viewAll={{ label: "All treatments", href: ROUTES.public.treatments }}
-          />
+          <ScrollReveal>
+            <HomeSectionHeading
+              title="Browse by specialty"
+              description="Ten specialty tiles link into the treatment directory."
+            />
+          </ScrollReveal>
           <SpecialtyTileGrid specialties={specialties} />
         </HomeBleedBand>
 
         <MedicalDestinationCities
           layout="embedded"
-          destinations={destinationCards}
+          destinations={homeMedicalDestinationStates}
           title={homeMedicalDestinations.title}
           description={homeMedicalDestinations.description}
         />
@@ -169,60 +163,19 @@ export default function HomePage() {
           aria-labelledby="home-facility-categories-heading"
           surfaceClassName="border-b border-border/70 bg-white"
         >
-          <HomeSectionHeading
-            headingId="home-facility-categories-heading"
-            title="Facility categories"
-            description="Beyond hospitals: the kinds of facilities listed in our directory."
-            viewAll={{ label: "All facilities", href: ROUTES.public.facilities }}
-          />
+          <ScrollReveal>
+            <HomeSectionHeading
+              headingId="home-facility-categories-heading"
+              title="Facility categories"
+              description="Beyond hospitals: the kinds of facilities listed in our directory."
+            />
+          </ScrollReveal>
           <FacilityCategoryGrid categories={facilityCategories} />
         </HomeBleedBand>
 
-        <HomeBleedBand
-          aria-labelledby="home-featured-hospitals-heading"
-          surfaceClassName="border-b border-border/70 bg-background"
-        >
-          <HomeSectionHeading
-            headingId="home-featured-hospitals-heading"
-            title="Featured hospitals"
-            description="Each card shows independent Patient Experience (PER) and Clinical Expertise (CER) ratings — never a combined score."
-            viewAll={{ label: "All hospitals", href: ROUTES.public.hospitals }}
-          />
-          {featuredHospitals.length === 0 ? (
-            <p className="rounded-lg border border-dashed px-6 py-10 text-center text-sm text-muted-foreground">
-              No featured hospitals are available to show right now.
-            </p>
-          ) : (
-            <div className="grid items-stretch gap-4 sm:grid-cols-2">
-              {featuredHospitals.map((hospital) => (
-                <HospitalCard key={hospital.id} hospital={hospital} layout="stacked" className="h-full" />
-              ))}
-            </div>
-          )}
-        </HomeBleedBand>
+        <FeaturedHospitalsSection hospitals={featuredHospitals} />
 
-        <HomeBleedBand
-          aria-labelledby="home-featured-doctors-heading"
-          surfaceClassName="border-b border-border/70 bg-white"
-        >
-          <HomeSectionHeading
-            headingId="home-featured-doctors-heading"
-            title="Find the right doctor"
-            description="Doctor cards show Patient Experience (PER) and Medical Expertise (MER) as two separate ratings with their own evidence metadata."
-            viewAll={{ label: "All doctors", href: ROUTES.public.doctors }}
-          />
-          {featuredDoctors.length === 0 ? (
-            <p className="rounded-lg border border-dashed px-6 py-10 text-center text-sm text-muted-foreground">
-              No featured doctors are available to show right now.
-            </p>
-          ) : (
-            <div className="grid items-stretch gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {featuredDoctors.map((doctor) => (
-                <DoctorCard key={doctor.id} doctor={doctor} className="h-full" />
-              ))}
-            </div>
-          )}
-        </HomeBleedBand>
+        <FindDoctorsSection doctors={featuredDoctors} />
 
         {/* <HomeLowestQuotesSection /> — restore when home treatments grid is required */}
 
@@ -232,50 +185,57 @@ export default function HomePage() {
           aria-labelledby="home-how-it-works-heading"
           surfaceClassName="border-b border-border/70 bg-white"
         >
-          <HomeSectionHeading
-            headingId="home-how-it-works-heading"
-            title="How it works"
-            description="Four steps from first search to supported follow-up."
-            viewAll={{
-              label: "How it works in detail",
-              href: ROUTES.public.howItWorks,
-            }}
-          />
+          <ScrollReveal>
+            <HomeSectionHeading
+              headingId="home-how-it-works-heading"
+              title="How it works"
+              description="Four steps from first search to supported follow-up."
+            />
+          </ScrollReveal>
+          <ScrollReveal delayMs={60}>
           <div className="rounded-3xl bg-primary/[0.045] p-4 ring-1 ring-primary/10 sm:p-5 lg:p-6">
             <div className="space-y-10 sm:space-y-12">
-              <JourneySteps steps={patientJourneySteps} />
+              <JourneyStepsAnimated steps={patientJourneySteps} />
               <MedicalTourismBlock />
               <IufConsultationCta />
             </div>
           </div>
+          </ScrollReveal>
         </HomeBleedBand>
 
         <HomeBleedBand
           aria-labelledby="home-testimonials-heading"
           surfaceClassName="border-b border-border/70 bg-background"
         >
-          <HomeSectionHeading
-            headingId="home-testimonials-heading"
-            title="Patient stories"
-            description="Experiences shared by patients who used the platform to find care. Individual outcomes vary — stories are not medical advice."
-          />
-          <div className="grid gap-4 md:grid-cols-3">
-            {homeTestimonials.map((testimonial) => (
-              <TestimonialCard key={testimonial.id} testimonial={testimonial} />
-            ))}
-          </div>
+          <ScrollReveal>
+            <HomeSectionHeading
+              headingId="home-testimonials-heading"
+              title="Patient stories"
+              description="Reviews-style stories from patients who used the directory — outcomes vary; demo content only."
+            />
+          </ScrollReveal>
+          <ScrollReveal delayMs={60}>
+            <TestimonialsMarquee testimonials={homeTestimonials} />
+          </ScrollReveal>
+          <p className="text-center text-xs text-muted-foreground">
+            Demo patient stories — fictional accounts for layout only, not medical advice.
+          </p>
         </HomeBleedBand>
 
         <HomeBleedBand
           aria-labelledby="home-faq-heading"
           surfaceClassName="border-t border-border/70 bg-white"
         >
-          <HomeSectionHeading
-            headingId="home-faq-heading"
-            title="Frequently Asked Questions (FAQ's)"
-            description="Short answers about how the platform presents providers, ratings and requests."
-          />
-          <FaqList faqs={faqItems} variant="cards" />
+          <ScrollReveal>
+            <HomeSectionHeading
+              headingId="home-faq-heading"
+              title="Frequently Asked Questions (FAQ's)"
+              description="Short answers about how the platform presents providers, ratings and requests."
+            />
+          </ScrollReveal>
+          <ScrollReveal delayMs={80}>
+            <FaqList faqs={faqItems} variant="cards" />
+          </ScrollReveal>
         </HomeBleedBand>
       </div>
     </div>

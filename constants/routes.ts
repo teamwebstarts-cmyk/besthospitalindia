@@ -27,6 +27,7 @@ export const PUBLIC_ROUTES = {
   treatmentDetail: '/treatments/[slug]',
   internationalPatientEnquiry: '/international-patient/enquiry',
   freeConsultation: '/free-consultation',
+  appointmentRequest: '/appointment-request',
   about: '/about',
   internationalUrbanForum: '/international-urban-forum',
   ratingMethodology: '/rating-methodology',
@@ -182,4 +183,13 @@ export function treatmentDetailHref(treatmentSlug: string): string {
 /** Materialize a facility detail path. */
 export function facilityDetailHref(facilitySlug: string): string {
   return buildDynamicRoute(ROUTES.public.facilityDetail, facilitySlug);
+}
+
+/** Build a provider-specific booking URL without creating a patient portal. */
+export function appointmentRequestHref(
+  providerType: "hospital" | "doctor",
+  providerId: string,
+): string {
+  const query = new URLSearchParams({ providerType, providerId });
+  return `${ROUTES.public.appointmentRequest}?${query.toString()}`;
 }

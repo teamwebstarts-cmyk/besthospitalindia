@@ -18,17 +18,15 @@ import type { PortalNavEntry, PortalNavItem, PortalNavGroup } from "@/constants/
 import { cn } from "@/lib/utils"
 
 export interface PortalSidebarProps {
-  /** Sidebar navigation items (flat) or grouped entries. */
   items: PortalNavEntry[]
-  /** Portal title, shown in the sidebar header and mobile drawer. */
   title: string
-  /** Optional description shown in the mobile drawer. */
   description?: string
   className?: string
 }
 
 function isItemActive(pathname: string, href: string): boolean {
-  return pathname === href || pathname.startsWith(`${href}/`)
+  const routePath = href.split("?")[0]
+  return pathname === routePath
 }
 
 function PortalNavList({
@@ -72,11 +70,7 @@ function isGroup(entry: PortalNavEntry): entry is PortalNavGroup {
   return "items" in entry
 }
 
-function renderItem(
-  item: PortalNavItem,
-  pathname: string,
-  onNavigate?: () => void
-) {
+function renderItem(item: PortalNavItem, pathname: string, onNavigate?: () => void) {
   const active = isItemActive(pathname, item.href)
   const Icon = item.icon
 
@@ -98,14 +92,6 @@ function renderItem(
   )
 }
 
-/**
- * Portal navigation sidebar.
- *
- * - Desktop (lg+): sticky left rail with the portal title and items,
- *   highlighting the active route via `usePathname`.
- * - Mobile: a sticky top row with a drawer trigger; the same nav renders
- *   inside a left-side Sheet that closes on navigation.
- */
 export function PortalSidebar({
   items,
   title,
@@ -118,25 +104,13 @@ export function PortalSidebar({
     <div className={cn("contents", className)}>
       <div className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-background px-4 lg:hidden">
         <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger
-            render={
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Open portal menu"
-              />
-            }
-          >
+          <SheetTrigger render={<Button variant="ghost" size="icon" aria-label="Open portal menu" />}>
             <PanelLeftIcon />
           </SheetTrigger>
           <SheetContent side="left" className="w-72 gap-0 bg-sidebar p-0">
             <SheetHeader className="border-b p-4">
               <SheetTitle className="text-left">{title}</SheetTitle>
-              {description ? (
-                <SheetDescription className="text-left">
-                  {description}
-                </SheetDescription>
-              ) : null}
+              {description ? <SheetDescription className="text-left">{description}</SheetDescription> : null}
             </SheetHeader>
             <div className="flex-1 overflow-y-auto p-2">
               <PortalNavList items={items} title={title} onNavigate={() => setOpen(false)} />
@@ -149,9 +123,7 @@ export function PortalSidebar({
         <div className="flex h-full flex-col">
           <div className="border-b px-4 py-4">
             <p className="font-heading font-semibold tracking-tight">{title}</p>
-            {description ? (
-              <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
-            ) : null}
+            {description ? <p className="mt-0.5 text-xs text-muted-foreground">{description}</p> : null}
           </div>
           <div className="flex-1 overflow-y-auto p-2">
             <PortalNavList items={items} title={title} />

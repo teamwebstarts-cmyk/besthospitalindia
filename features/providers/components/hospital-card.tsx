@@ -60,30 +60,78 @@ export interface HospitalCardProps {
 export function HospitalCardRatingModule({ rating, className }: { rating: RatingSummary; className?: string }) {
   const isPer = rating.kind === "PER"
   const label = isPer ? RATING_LABELS.PER : RATING_LABELS.CER
+  const accent = isPer ? "text-info" : "text-success"
 
   return (
     <div
       data-slot="hospital-card-rating"
       data-rating-kind={rating.kind}
       className={cn(
-        "min-w-0 flex-1 rounded-lg border p-2.5",
-        isPer ? "border-info/30 bg-info/5" : "border-success/30 bg-success/5",
+        "min-w-0 flex-1 rounded-lg border border-border/70 bg-card px-3 py-2.5 shadow-xs",
+        isPer ? "ring-1 ring-info/15" : "ring-1 ring-success/15",
         className,
       )}
     >
-      <p className="truncate text-[11px] leading-tight font-medium text-muted-foreground">
-        <abbr title={label}>{rating.kind}</abbr>
-      </p>
-      {rating.score === null ? (
-        <p className="mt-0.5 text-sm leading-snug font-medium text-muted-foreground">{NOT_RATED_MESSAGE}</p>
-      ) : (
-        <p className="mt-0.5 flex items-center gap-1 text-sm font-semibold text-foreground">
-          <StarIcon aria-hidden className={cn("size-3.5", isPer ? "text-info" : "text-success")} />
-          {rating.score}/{RATING_SCALE_MAX}
-          <span className="sr-only"> — {label}</span>
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
+          <abbr title={label} className="no-underline">
+            {rating.kind}
+          </abbr>
         </p>
+        <span
+          aria-hidden
+          className={cn("size-1.5 rounded-sm", isPer ? "bg-info/70" : "bg-success/70")}
+        />
+      </div>
+      {rating.score === null ? (
+        <p className="mt-1.5 text-sm leading-snug font-medium text-muted-foreground">{NOT_RATED_MESSAGE}</p>
+      ) : (
+        <div className="mt-1 flex items-center gap-1.5">
+          <StarIcon
+            aria-hidden
+            className={cn("size-4 shrink-0", accent)}
+            fill="currentColor"
+            strokeWidth={0}
+          />
+          <p className="text-lg leading-none font-bold tracking-tight text-foreground tabular-nums">
+            {rating.score}
+            <span className="text-sm font-semibold text-muted-foreground">/{RATING_SCALE_MAX}</span>
+          </p>
+          <span className="sr-only">
+            {label}
+          </span>
+        </div>
       )}
     </div>
+  )
+}
+
+function HospitalCardCoverImage({
+  src,
+  className,
+  sizes,
+}: {
+  src: string
+  className?: string
+  sizes: string
+}) {
+  const useNativeImg = src.endsWith(".svg")
+
+  if (useNativeImg) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- SVG fixtures are not optimised by next/image.
+      <img src={src} alt="" className={cn("size-full object-cover", className)} />
+    )
+  }
+
+  return (
+    <Image
+      src={src}
+      alt=""
+      fill
+      sizes={sizes}
+      className={cn("object-cover", className)}
+    />
   )
 }
 
@@ -103,17 +151,13 @@ function HospitalCardMedia({
   if (layout === "stacked") {
     return (
       <div
-        className="relative aspect-[125/54] w-full shrink-0 overflow-hidden border-b border-border/60 bg-muted"
+        className="relative aspect-[16/9] w-full shrink-0 overflow-hidden border-b border-border/60 bg-muted"
         aria-hidden
       >
         {hospital.image ? (
-          <Image
+          <HospitalCardCoverImage
             src={hospital.image}
-            alt=""
-            fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover"
-            unoptimized
           />
         ) : (
           placeholder
@@ -128,13 +172,9 @@ function HospitalCardMedia({
       aria-hidden
     >
       {hospital.image ? (
-        <Image
+        <HospitalCardCoverImage
           src={hospital.image}
-          alt=""
-          fill
           sizes="(max-width: 1024px) 176px, 176px"
-          className="object-cover"
-          unoptimized
         />
       ) : (
         placeholder
@@ -159,7 +199,7 @@ export function HospitalCard({
   return (
     <Card
       className={cn(
-        "h-full overflow-hidden p-0",
+        "h-full overflow-hidden border border-border/70 p-0 shadow-none ring-0",
         isStacked ? "flex flex-col gap-0" : "flex flex-row",
         className
       )}
@@ -191,7 +231,10 @@ export function HospitalCard({
                 <span>{hospital.facilityType}</span>
               </p>
             </div>
-            <VerificationBadge status={hospital.verificationStatus} className="shrink-0" />
+            <VerificationBadge
+              status={hospital.verificationStatus}
+              className="h-6 shrink-0 rounded-md px-2 text-[11px]"
+            />
           </div>
 
           {visibleSpecialties.length > 0 ? (
@@ -219,7 +262,7 @@ export function HospitalCard({
                 Independent ratings for {hospital.name} — experience and clinical expertise, shown
                 separately
               </p>
-              <div className="flex gap-2" data-slot="hospital-card-ratings">
+              <div className="grid grid-cols-2 gap-2.5" data-slot="hospital-card-ratings">
                 <HospitalCardRatingModule rating={hospital.ratings.per} />
                 <HospitalCardRatingModule rating={hospital.ratings.cer} />
               </div>
@@ -234,7 +277,7 @@ export function HospitalCard({
                 Independent ratings for {hospital.name} — experience and clinical expertise, shown
                 separately
               </p>
-              <div className="flex gap-2" data-slot="hospital-card-ratings">
+              <div className="grid grid-cols-2 gap-2.5" data-slot="hospital-card-ratings">
                 <HospitalCardRatingModule rating={hospital.ratings.per} />
                 <HospitalCardRatingModule rating={hospital.ratings.cer} />
               </div>
@@ -244,22 +287,29 @@ export function HospitalCard({
 
         <div
           className={cn(
-            "flex flex-row gap-2 border-t bg-muted/30 px-(--card-spacing) py-3",
-            isStacked ? "mt-0 py-4" : "mt-auto",
+            "flex flex-row gap-2.5 border-t bg-muted/30 px-(--card-spacing)",
+            isStacked ? "mt-0 py-4" : "mt-auto py-3",
           )}
         >
           <Button
             variant="cta"
-            size="sm"
-            className="h-9 min-w-0 flex-1 rounded-lg px-3 font-semibold shadow-sm"
+            size={isStacked ? "default" : "sm"}
+            className={cn(
+              "min-w-0 flex-1 rounded-lg font-semibold shadow-sm",
+              isStacked ? "h-11 px-4 text-sm sm:text-[0.9375rem]" : "h-9 px-3",
+            )}
             render={<Link href={ROUTES.public.freeConsultation} />}
           >
             Book Appointment
             <span className="sr-only"> with {hospital.name}</span>
           </Button>
           <Button
-            size="sm"
-            className="h-9 min-w-0 flex-1 rounded-lg border-0 bg-[#49C659] px-3 font-semibold text-white shadow-sm hover:bg-[#3eb84d]"
+            variant="success-cta"
+            size={isStacked ? "default" : "sm"}
+            className={cn(
+              "min-w-0 flex-1 rounded-lg font-semibold shadow-sm",
+              isStacked ? "h-11 gap-2 px-4 text-sm sm:text-[0.9375rem]" : "h-9 gap-1.5 px-3",
+            )}
             render={
               <a
                 href={WHATSAPP_URL}
@@ -268,7 +318,7 @@ export function HospitalCard({
               />
             }
           >
-            <WhatsAppIcon />
+            <WhatsAppIcon className={isStacked ? "size-[1.05rem]" : undefined} />
             WhatsApp Us
             <span className="sr-only"> about {hospital.name}</span>
           </Button>

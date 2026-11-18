@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react"
 
+import { homeInteractiveSurfaceClassName } from "@/lib/home-motion"
 import { cn } from "@/lib/utils"
 
 /** One numbered journey step with an optional deep link. */
@@ -39,7 +40,10 @@ export function JourneySteps({
         return (
           <li
             key={step.id}
-            className="flex h-full flex-col gap-2 rounded-xl bg-card p-5 shadow-xs ring-1 ring-foreground/10"
+            className={cn(
+              "flex h-full flex-col gap-2 rounded-xl bg-card p-5 shadow-xs ring-1 ring-foreground/10",
+              homeInteractiveSurfaceClassName
+            )}
           >
             <div className="flex items-center gap-2">
               {numbered ? (
