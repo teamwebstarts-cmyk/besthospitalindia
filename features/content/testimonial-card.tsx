@@ -19,7 +19,7 @@ export function TestimonialCard({
   return (
     <figure
       className={cn(
-        "flex h-full flex-col gap-3 rounded-xl bg-card p-5 text-sm shadow-xs ring-1 ring-foreground/10",
+        "interactive-surface flex h-full flex-col gap-3 rounded-xl bg-card p-5 text-sm shadow-xs ring-1 ring-foreground/10",
         className
       )}
     >

@@ -24,8 +24,23 @@ function rating(kind: RatingKind) {
 const per = rating('PER');
 const cer = rating('CER');
 
-/** Shared demo photograph for hospital card / profile media (build). */
-const HOSPITAL_DEMO_IMAGE = '/images/hospitals/hospital-exterior-demo.png';
+/** Per-hospital mock artwork for cards and profiles (fictional branding). */
+const HOSPITAL_IMAGES: Record<string, string> = {
+  'hosp-sunrise-delhi': '/images/hospitals/sunrise-multispeciality-delhi.svg',
+  'hosp-sunrise-mumbai': '/images/hospitals/sunrise-multispeciality-mumbai.svg',
+  'hosp-azurecoast-chennai': '/images/hospitals/azurecoast-speciality-chennai.svg',
+  'hosp-silverlake-bengaluru': '/images/hospitals/silverlake-medical-city-bengaluru.svg',
+  'hosp-tranquilvalley-kochi': '/images/hospitals/tranquilvalley-institute-kochi.svg',
+  'hosp-northganga-varanasi': '/images/hospitals/northganga-charitable-varanasi.svg',
+  'hosp-metropulse-ahmedabad': '/images/hospitals/metropulse-heart-ahmedabad.svg',
+  'hosp-goldenpeak-jaipur': '/images/hospitals/goldenpeak-women-children-jaipur.svg',
+};
+
+const HOSPITAL_IMAGE_FALLBACK = '/images/hospitals/placeholder.svg';
+
+function hospitalImageForId(id: string): string {
+  return HOSPITAL_IMAGES[id] ?? HOSPITAL_IMAGE_FALLBACK;
+}
 
 const hospitalList = [
   {
@@ -67,7 +82,7 @@ const hospitalList = [
       }),
     },
     doctorIds: ['doc-aarav-mehta', 'doc-isha-kapoor', 'doc-rohan-sharma'],
-    image: HOSPITAL_DEMO_IMAGE,
+    image: hospitalImageForId('hosp-sunrise-delhi'),
   },
   {
     id: 'hosp-sunrise-mumbai',
@@ -104,7 +119,7 @@ const hospitalList = [
       }),
     },
     doctorIds: ['doc-rohan-sharma', 'doc-priya-nair', 'doc-vikram-rao'],
-    image: HOSPITAL_DEMO_IMAGE,
+    image: hospitalImageForId('hosp-sunrise-mumbai'),
   },
   {
     id: 'hosp-azurecoast-chennai',
@@ -141,7 +156,7 @@ const hospitalList = [
       }),
     },
     doctorIds: ['doc-ananya-desai', 'doc-karan-malhotra'],
-    image: HOSPITAL_DEMO_IMAGE,
+    image: hospitalImageForId('hosp-azurecoast-chennai'),
   },
   {
     id: 'hosp-silverlake-bengaluru',
@@ -182,7 +197,7 @@ const hospitalList = [
       }),
     },
     doctorIds: ['doc-karan-malhotra', 'doc-meera-joshi'],
-    image: HOSPITAL_DEMO_IMAGE,
+    image: hospitalImageForId('hosp-silverlake-bengaluru'),
   },
   {
     id: 'hosp-tranquilvalley-kochi',
@@ -223,7 +238,7 @@ const hospitalList = [
       }),
     },
     doctorIds: ['doc-priya-nair', 'doc-sanjay-pillai', 'doc-leena-fernandes'],
-    image: HOSPITAL_DEMO_IMAGE,
+    image: hospitalImageForId('hosp-tranquilvalley-kochi'),
   },
   {
     id: 'hosp-northganga-varanasi',

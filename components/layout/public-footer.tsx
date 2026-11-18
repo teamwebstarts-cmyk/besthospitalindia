@@ -11,9 +11,8 @@ export interface PublicFooterProps {
 
 /**
  * Public site footer: brand blurb, grouped link columns from
- * `constants/navigation.ts`, demo-only notice and copyright. Solid brand-blue
- * surface matching the measured reference footer (pixel-probed `#005697`):
- * brand column + link columns + legal row on a primary band.
+ * `constants/navigation.ts`, demo-only notice and copyright. Sea-teal
+ * (`--primary`, #0F766E) band with link columns and legal row.
  */
 export function PublicFooter({ className }: PublicFooterProps) {
   return (

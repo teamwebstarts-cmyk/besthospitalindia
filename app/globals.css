@@ -163,9 +163,37 @@
     --surface: #FFFFFF;
 }
 
+@layer utilities {
+  .interactive-surface {
+    @apply transition-[transform,box-shadow,border-color,background-color] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)];
+  }
+  .interactive-surface:hover {
+    @apply -translate-y-0.5 shadow-md;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .interactive-surface {
+      transition: none;
+    }
+    .interactive-surface:hover {
+      transform: none;
+    }
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--primary) 22%, var(--secondary));
+    color: var(--foreground);
+  }
+  a:not([class]) {
+    color: var(--primary);
+    text-underline-offset: 0.2em;
+  }
+  a:not([class]):hover {
+    color: var(--cta);
   }
   body {
     @apply bg-background text-foreground;

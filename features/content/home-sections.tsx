@@ -4,11 +4,13 @@ import Link from "next/link"
 import type { LucideIcon } from "lucide-react"
 import {
   ActivityIcon,
+  ArrowUpRightIcon,
   BabyIcon,
   BanknoteIcon,
   BoneIcon,
   BrainIcon,
   Building2Icon,
+  ChevronRightIcon,
   ClipboardCheckIcon,
   ClipboardListIcon,
   DropletsIcon,
@@ -32,7 +34,6 @@ import {
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { SectionHeading } from "@/components/shared/section-heading"
 import {
   homeFeaturedTreatments,
   homePatientServices,
@@ -43,7 +44,9 @@ import { TestimonialCard } from "@/features/content/testimonial-card"
 import { FaqList } from "@/features/content/faq-list"
 import type { Faq, FacilityCategory, Specialty, Testimonial } from "@/types"
 import { ROUTES, treatmentDetailHref } from "@/constants/routes"
+import { ScrollReveal, StaggerReveal } from "@/components/motion/scroll-reveal"
 import { fullBleedClassName } from "@/lib/full-bleed"
+import { homeInteractiveSurfaceClassName, homeInteractiveTileClassName } from "@/lib/home-motion"
 import { cn } from "@/lib/utils"
 
 /* -------------------------------------------------------------------------
@@ -124,42 +127,50 @@ export interface HomeSectionHeadingProps {
   headingId?: string
   /** Optional trailing "View all" link. */
   viewAll?: { label: string; href: string }
-  /** Centered title/description (destinations-style bands). */
-  align?: "start" | "center"
   className?: string
 }
 
+/**
+ * Centered section heading used by every home band: title, optional lead and
+ * an optional "View all" link stacked on one centered axis. Keeping every home
+ * section on the same centered rhythm is what makes the long page read as
+ * aligned rather than stitched together.
+ */
 export function HomeSectionHeading({
   title,
   description,
   headingId,
   viewAll,
-  align = "start",
   className,
 }: HomeSectionHeadingProps) {
   return (
-    <SectionHeading
-      as="h2"
-      id={headingId}
-      title={title}
-      description={description}
+    <div
       className={cn(
-        align === "center" &&
-          "flex-col items-center text-center sm:flex-col sm:items-center [&_p]:mx-auto [&_p]:max-w-3xl",
+        "flex flex-col items-center gap-2 text-center sm:gap-2.5",
         className
       )}
-      action={
-        viewAll ? (
-          <Link
-            href={viewAll.href}
-            className="inline-flex items-center gap-1 text-sm font-medium text-primary underline-offset-4 outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
-          >
-            {viewAll.label}
-            <span aria-hidden>→</span>
-          </Link>
-        ) : undefined
-      }
-    />
+    >
+      <h2
+        id={headingId}
+        className="text-[1.75rem] leading-[1.2] font-bold tracking-tight text-balance text-foreground sm:text-[2.15rem]"
+      >
+        {title}
+      </h2>
+      {description ? (
+        <p className="max-w-2xl text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base">
+          {description}
+        </p>
+      ) : null}
+      {viewAll ? (
+        <Link
+          href={viewAll.href}
+          className="mt-0.5 inline-flex items-center gap-1 rounded text-sm font-semibold text-primary underline-offset-4 outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
+        >
+          {viewAll.label}
+          <span aria-hidden>→</span>
+        </Link>
+      ) : null}
+    </div>
   )
 }
 
@@ -168,8 +179,9 @@ export function HomeSectionHeading({
  * ----------------------------------------------------------------------- */
 
 export interface MedicalDestinationCityCard {
-  city: string
+  state: string
   imageSrc: string
+  tagline: string
 }
 
 export interface MedicalDestinationCitiesProps {
@@ -181,7 +193,7 @@ export interface MedicalDestinationCitiesProps {
   className?: string
 }
 
-/** City cards → hospital directory filtered by `?city=`. */
+/** State destination cards → hospital directory filtered by `?state=`. */
 export function MedicalDestinationCities({
   destinations,
   title,
@@ -191,8 +203,8 @@ export function MedicalDestinationCities({
 }: MedicalDestinationCitiesProps) {
   const surfaceClassName =
     layout === "band"
-      ? "border-y border-border/70 bg-white"
-      : "border-b border-border/70 bg-muted/50"
+      ? "border-y border-border/70 bg-background"
+      : "border-b border-border/70 bg-background"
 
   return (
     <HomeBleedBand
@@ -201,35 +213,73 @@ export function MedicalDestinationCities({
       surfaceClassName={surfaceClassName}
       className={className}
     >
-      <HomeSectionHeading
-        headingId="home-destinations-heading"
-        align="center"
-        title={title}
-        description={description}
-      />
-      <ul className="grid w-full grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        {destinations.map((destination) => (
-          <li key={destination.city}>
-            <Link
-              href={`${ROUTES.public.hospitals}?city=${encodeURIComponent(destination.city)}`}
-              className="group flex h-full flex-col overflow-hidden rounded-xl border border-border/70 bg-white p-4 text-left shadow-sm transition-[box-shadow,colors] outline-none hover:border-primary/25 hover:shadow-md focus-visible:ring-3 focus-visible:ring-ring/50"
-            >
-              <span className="font-semibold text-foreground group-hover:text-primary">
-                {destination.city}
-              </span>
-              <div className="relative mt-3 aspect-[5/3] w-full overflow-hidden rounded-lg bg-muted">
-                <Image
-                  src={destination.imageSrc}
-                  alt=""
-                  fill
-                  sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 220px"
-                  className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-                />
-              </div>
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <ScrollReveal className="w-full">
+        <HomeSectionHeading
+          headingId="home-destinations-heading"
+          title={title}
+          description={description}
+        />
+      </ScrollReveal>
+      <StaggerReveal
+        as="ul"
+        className="grid w-full grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4"
+        staggerMs={64}
+      >
+        {destinations.map((destination) => {
+          const href = `${ROUTES.public.hospitals}?state=${encodeURIComponent(destination.state)}`
+          const hoverHint = `View hospitals in ${destination.state}`
+
+          return (
+            <li key={destination.state}>
+              <Link
+                href={href}
+                title={`${hoverHint} — ${href}`}
+                aria-label={`Explore hospitals in ${destination.state}`}
+                className={cn(
+                  "group relative flex h-full overflow-hidden rounded-2xl border border-border/70 bg-card text-left shadow-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+                  homeInteractiveSurfaceClassName,
+                  "hover:border-primary/35 hover:shadow-md"
+                )}
+              >
+                <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+                  <Image
+                    src={destination.imageSrc}
+                    alt=""
+                    fill
+                    sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 240px"
+                    className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                  />
+                  <div
+                    aria-hidden
+                    className="absolute inset-0 bg-linear-to-t from-foreground/80 via-foreground/20 to-foreground/5 transition-opacity duration-300 group-hover:from-foreground/85"
+                  />
+                  <span
+                    aria-hidden
+                    className={cn(
+                      "absolute right-2.5 top-2.5 inline-flex size-8 items-center justify-center rounded-full border border-white/25 bg-white/15 text-white backdrop-blur-sm transition-all duration-300",
+                      "group-hover:border-white/40 group-hover:bg-white/25 group-hover:scale-105"
+                    )}
+                  >
+                    <ArrowUpRightIcon className="size-4" strokeWidth={2.25} />
+                  </span>
+                  <div className="absolute inset-x-0 bottom-0 p-3 sm:p-3.5">
+                    <p className="pr-10 text-base font-semibold tracking-tight text-white">
+                      {destination.state}
+                    </p>
+                    <p className="mt-0.5 text-xs text-white/85">{destination.tagline}</p>
+                    <p
+                      aria-hidden
+                      className="mt-2 max-h-0 overflow-hidden text-[10px] font-medium leading-snug text-white/70 opacity-0 transition-all duration-300 group-hover:max-h-8 group-hover:opacity-100 sm:text-[11px]"
+                    >
+                      {hoverHint}
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            </li>
+          )
+        })}
+      </StaggerReveal>
     </HomeBleedBand>
   )
 }
@@ -267,17 +317,23 @@ export function SpecialtyTileGrid({
   className,
 }: SpecialtyTileGridProps) {
   return (
-    <ul
+    <StaggerReveal
+      as="ul"
       className={cn(
         "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3",
         className
       )}
+      staggerMs={55}
     >
       {specialties.map((specialty) => (
         <li key={specialty.id}>
           <Link
             href={`${ROUTES.public.treatments}?specialty=${encodeURIComponent(specialty.slug)}`}
-            className="group flex h-full items-center gap-3 rounded-xl border border-border/70 bg-card p-3.5 text-left shadow-sm transition-[box-shadow,colors] outline-none hover:border-primary/25 hover:shadow-md focus-visible:ring-3 focus-visible:ring-ring/50 sm:gap-4 sm:p-4"
+            className={cn(
+              "group flex h-full items-center gap-3 rounded-xl border border-border/70 bg-card p-3.5 text-left shadow-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50 sm:gap-4 sm:p-4",
+              homeInteractiveTileClassName,
+              "hover:border-primary/25"
+            )}
           >
             <span className="flex w-[4.5rem] shrink-0 items-center justify-center sm:w-20">
               <SpecialtyTileIcon slug={specialty.slug} />
@@ -293,7 +349,7 @@ export function SpecialtyTileGrid({
           </Link>
         </li>
       ))}
-    </ul>
+    </StaggerReveal>
   )
 }
 
@@ -305,128 +361,62 @@ export interface FacilityCategoryEntry {
   count: number
 }
 
-type FacilityCategoryHighlight = {
-  icon: LucideIcon
-  text: string
+/**
+ * Compact icon per facility category. Small, single-colour line icons only —
+ * the category name carries the meaning, the icon just anchors the row.
+ */
+const facilityCategoryIcon: Record<FacilityCategory, LucideIcon> = {
+  hospital: Building2Icon,
+  specialty_centre: StethoscopeIcon,
+  diagnostic_lab: FlaskConicalIcon,
+  rehabilitation: DumbbellIcon,
+  wellness: LeafIcon,
+  medical_tourism: PlaneIcon,
 }
 
-const facilityCategoryCardMeta: Record<
-  FacilityCategory,
-  { heroIcon: LucideIcon; highlights: (count: number) => readonly FacilityCategoryHighlight[] }
-> = {
-  hospital: {
-    heroIcon: Building2Icon,
-    highlights: (count) => [
-      {
-        icon: ClipboardListIcon,
-        text: `${count} ${count === 1 ? "listing" : "listings"}`,
-      },
-      {
-        icon: HeartPulseIcon,
-        text: "Independent PER and CER on profiles",
-      },
-      { icon: MapPinnedIcon, text: "Filter by city in the directory" },
-    ],
-  },
-  specialty_centre: {
-    heroIcon: StethoscopeIcon,
-    highlights: (count) => [
-      {
-        icon: ClipboardListIcon,
-        text: `${count} ${count === 1 ? "listing" : "listings"}`,
-      },
-      { icon: ScanIcon, text: "Single-specialty focused centres" },
-      { icon: MapPinnedIcon, text: "Linked from facility search" },
-    ],
-  },
-  diagnostic_lab: {
-    heroIcon: FlaskConicalIcon,
-    highlights: (count) => [
-      {
-        icon: ClipboardListIcon,
-        text: `${count} ${count === 1 ? "listing" : "listings"}`,
-      },
-      { icon: ActivityIcon, text: "Labs and diagnostic services" },
-      { icon: ShieldCheckIcon, text: "Verification state shown on each profile" },
-    ],
-  },
-  rehabilitation: {
-    heroIcon: DumbbellIcon,
-    highlights: (count) => [
-      {
-        icon: ClipboardListIcon,
-        text: `${count} ${count === 1 ? "listing" : "listings"}`,
-      },
-      { icon: HeartIcon, text: "Recovery and rehab programmes" },
-      { icon: MapPinnedIcon, text: "Browse alongside hospital listings" },
-    ],
-  },
-  wellness: {
-    heroIcon: LeafIcon,
-    highlights: (count) => [
-      {
-        icon: ClipboardListIcon,
-        text: `${count} ${count === 1 ? "listing" : "listings"}`,
-      },
-      { icon: SparklesIcon, text: "Preventive and wellness services" },
-      { icon: StarIcon, text: "Dedicated wellness directory category" },
-    ],
-  },
-  medical_tourism: {
-    heroIcon: PlaneIcon,
-    highlights: (count) => [
-      {
-        icon: ClipboardListIcon,
-        text: `${count} ${count === 1 ? "listing" : "listings"}`,
-      },
-      { icon: GlobeIcon, text: "Facilitator and coordination listings" },
-      { icon: MessagesSquareIcon, text: "Pairs with medical-tourism flows" },
-    ],
-  },
-}
-
-function FacilityCategoryCard({ entry }: { entry: FacilityCategoryEntry }) {
-  const meta = facilityCategoryCardMeta[entry.category]
-  const HeroIcon = meta.heroIcon
-  const highlights = meta.highlights(entry.count)
+/** Facility category tile — compact row, whole card is the link. */
+function FacilityCategoryRow({ entry }: { entry: FacilityCategoryEntry }) {
+  const Icon = facilityCategoryIcon[entry.category]
+  const listingLabel = entry.count === 1 ? "listing" : "listings"
 
   return (
-    <article className="flex h-full flex-col rounded-xl border border-border/70 bg-card p-5 shadow-xs ring-1 ring-foreground/10 transition-[box-shadow,colors] hover:border-primary/25 hover:shadow-md sm:p-6">
-      <div className="flex min-h-0 flex-1 flex-col gap-5 text-left sm:gap-6">
-        <HeroIcon
+    <li className="min-w-0">
+      <Link
+        href={entry.href}
+        className={cn(
+          "group flex h-full items-center gap-3 rounded-xl border border-border/70 bg-card px-3.5 py-3 text-left shadow-xs outline-none sm:gap-3.5 sm:px-4 sm:py-3.5",
+          homeInteractiveTileClassName,
+          "hover:border-primary/25 hover:bg-secondary/35"
+        )}
+      >
+        <span
           aria-hidden
-          className="size-16 shrink-0 text-primary"
+          className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/[0.08] text-primary transition-colors group-hover:bg-primary/[0.12] sm:size-10"
+        >
+          <Icon className="size-4 sm:size-[1.125rem]" strokeWidth={1.65} />
+        </span>
+
+        <span className="min-w-0 flex-1">
+          <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+            <span className="text-sm font-semibold text-foreground transition-colors group-hover:text-primary sm:text-[0.9375rem]">
+              {entry.label}
+            </span>
+            <span className="text-[11px] font-medium text-muted-foreground tabular-nums sm:text-xs">
+              · {entry.count} {listingLabel}
+            </span>
+          </span>
+          <span className="mt-0.5 block truncate text-xs leading-snug text-muted-foreground">
+            {entry.description}
+          </span>
+        </span>
+
+        <ChevronRightIcon
+          aria-hidden
+          className="size-4 shrink-0 text-muted-foreground/40 transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
           strokeWidth={1.75}
         />
-        <header className="space-y-2">
-          <h3 className="font-semibold text-foreground">{entry.label}</h3>
-          <p className="text-sm leading-relaxed text-muted-foreground">{entry.description}</p>
-        </header>
-        <ul className="space-y-3.5 sm:space-y-4" aria-label={`${entry.label} highlights`}>
-          {highlights.map((item) => {
-            const ItemIcon = item.icon
-            return (
-              <li key={item.text} className="flex items-center gap-3">
-                <ItemIcon
-                  aria-hidden
-                  className="size-4 shrink-0 text-primary"
-                  strokeWidth={1.75}
-                />
-                <span className="text-sm leading-snug text-foreground">{item.text}</span>
-              </li>
-            )
-          })}
-        </ul>
-        <Button
-          className="mt-auto w-full rounded-lg font-semibold"
-          variant="default"
-          render={<Link href={entry.href} />}
-        >
-          View
-          <span className="sr-only"> {entry.label.toLowerCase()} listings</span>
-        </Button>
-      </div>
-    </article>
+      </Link>
+    </li>
   )
 }
 
@@ -436,17 +426,24 @@ export interface FacilityCategoryGridProps {
   className?: string
 }
 
-/** Facility category cards → /facilities?category=... (A03 route). */
+/** Facility directory → /facilities?category=... (A03 route). */
 export function FacilityCategoryGrid({
   categories,
   className,
 }: FacilityCategoryGridProps) {
   return (
-    <div className={cn("grid gap-4 sm:grid-cols-2 lg:grid-cols-3", className)}>
+    <StaggerReveal
+      as="ul"
+      className={cn(
+        "grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-3 lg:grid-cols-3",
+        className
+      )}
+      staggerMs={45}
+    >
       {categories.map((category) => (
-        <FacilityCategoryCard key={category.href} entry={category} />
+        <FacilityCategoryRow key={category.href} entry={category} />
       ))}
-    </div>
+    </StaggerReveal>
   )
 }
 
@@ -482,7 +479,6 @@ export function HomeLowestQuotesSection({ className }: HomeLowestQuotesSectionPr
     >
       <HomeSectionHeading
         headingId="home-featured-treatments-heading"
-        align="center"
         title={homeFeaturedTreatments.title}
         description={homeFeaturedTreatments.description}
       />
@@ -559,17 +555,24 @@ export function HomePatientServicesSection({
     >
       <HomeSectionHeading
         headingId="home-patient-services-heading"
-        align="center"
         title={homePatientServices.title}
         description={homePatientServices.description}
       />
-      <ul className="grid w-full gap-4 text-left sm:grid-cols-2 lg:grid-cols-3">
+      <StaggerReveal
+        as="ul"
+        className="grid w-full gap-4 text-left sm:grid-cols-2 lg:grid-cols-3"
+        staggerMs={60}
+      >
         {homePatientServices.items.map((service) => {
           const Icon = patientServiceIcons[service.id]
           return (
             <li
               key={service.id}
-              className="flex gap-3 rounded-xl bg-primary/[0.06] p-4 sm:gap-4 sm:p-5"
+              className={cn(
+                "flex gap-3 rounded-xl border border-transparent bg-primary/[0.06] p-4 sm:gap-4 sm:p-5",
+                homeInteractiveSurfaceClassName,
+                "hover:border-primary/15 hover:bg-primary/[0.08]"
+              )}
             >
               <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-white text-primary shadow-xs ring-1 ring-border/60 sm:size-12">
                 <Icon aria-hidden className="size-5 sm:size-[1.35rem]" strokeWidth={1.75} />
@@ -585,7 +588,7 @@ export function HomePatientServicesSection({
             </li>
           )
         })}
-      </ul>
+      </StaggerReveal>
     </HomeBleedBand>
   )
 }
@@ -603,12 +606,13 @@ const MEDICAL_TOURISM_DEMO_VIDEO_POSTER = "/images/hero-personal-care.png"
 /** Medical-tourism discovery block linking into A06 routes. */
 export function MedicalTourismBlock({ className }: MedicalTourismBlockProps) {
   return (
-    <div
-      className={cn(
-        "grid gap-6 rounded-2xl bg-card p-6 shadow-xs ring-1 ring-foreground/10 lg:grid-cols-[1.1fr_1fr] lg:p-8",
-        className
-      )}
-    >
+    <ScrollReveal>
+      <div
+        className={cn(
+          "interactive-surface grid gap-6 rounded-2xl bg-card p-6 shadow-xs ring-1 ring-foreground/10 lg:grid-cols-[1.1fr_1fr] lg:p-8",
+          className
+        )}
+      >
       <div className="space-y-4">
         <p className="flex items-center gap-2 text-sm font-semibold tracking-wide text-primary uppercase">
           <GlobeIcon aria-hidden className="size-4" />
@@ -655,7 +659,8 @@ export function MedicalTourismBlock({ className }: MedicalTourismBlockProps) {
           Medical tourism programme overview
         </figcaption>
       </figure>
-    </div>
+      </div>
+    </ScrollReveal>
   )
 }
 
@@ -674,12 +679,13 @@ export interface IufConsultationCtaProps {
  */
 export function IufConsultationCta({ className }: IufConsultationCtaProps) {
   return (
-    <div
-      className={cn(
-        "flex flex-col gap-4 rounded-2xl bg-cta p-6 text-cta-foreground shadow-md sm:flex-row sm:items-center sm:justify-between sm:p-8",
-        className
-      )}
-    >
+    <ScrollReveal delayMs={80}>
+      <div
+        className={cn(
+          "interactive-surface flex flex-col gap-4 rounded-2xl bg-cta p-6 text-cta-foreground shadow-md sm:flex-row sm:items-center sm:justify-between sm:p-8",
+          className
+        )}
+      >
       <div className="space-y-2">
         <p className="flex items-center gap-2 text-sm font-semibold tracking-wide uppercase opacity-90">
           <SparklesIcon aria-hidden className="size-4" />
@@ -703,7 +709,8 @@ export function IufConsultationCta({ className }: IufConsultationCtaProps) {
         Start free consultation
         <span aria-hidden>→</span>
       </Button>
-    </div>
+      </div>
+    </ScrollReveal>
   )
 }
 

@@ -258,8 +258,9 @@ export function HospitalCard({
             <span className="sr-only"> with {hospital.name}</span>
           </Button>
           <Button
+            variant="success-cta"
             size="sm"
-            className="h-9 min-w-0 flex-1 rounded-lg border-0 bg-[#49C659] px-3 font-semibold text-white shadow-sm hover:bg-[#3eb84d]"
+            className="h-9 min-w-0 flex-1 rounded-lg px-3 font-semibold shadow-sm"
             render={
               <a
                 href={WHATSAPP_URL}

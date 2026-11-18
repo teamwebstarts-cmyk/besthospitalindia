@@ -20,6 +20,7 @@ export const metadata: Metadata = {
   },
   description:
     "BestHospitalIndia is a healthcare discovery platform for finding and comparing hospitals, doctors and facilities across India, exploring treatments and medical tourism support, and requesting a free consultation.",
+  themeColor: "#F7FBF9",
 }
 
 export default function RootLayout({

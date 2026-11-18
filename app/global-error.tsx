@@ -18,7 +18,14 @@ export default function GlobalError({ error, retry }: GlobalErrorBoundaryProps) 
 
   return (
     <html lang="en">
-      <body style={{ fontFamily: "system-ui, sans-serif", margin: 0 }}>
+      <body
+        style={{
+          fontFamily: "system-ui, sans-serif",
+          margin: 0,
+          background: "#F7FBF9",
+          color: "#183A36",
+        }}
+      >
         <main
           style={{
             display: "flex",
@@ -31,10 +38,10 @@ export default function GlobalError({ error, retry }: GlobalErrorBoundaryProps) 
             textAlign: "center",
           }}
         >
-          <h1 style={{ fontSize: "20px", fontWeight: 600, margin: 0 }}>
+          <h1 style={{ fontSize: "20px", fontWeight: 600, margin: 0, color: "#183A36" }}>
             Something went wrong
           </h1>
-          <p style={{ color: "#555", fontSize: "14px", margin: 0 }}>
+          <p style={{ color: "#526A65", fontSize: "14px", margin: 0 }}>
             The application hit an unexpected error. Please try again.
           </p>
           <button
@@ -44,9 +51,11 @@ export default function GlobalError({ error, retry }: GlobalErrorBoundaryProps) 
               marginTop: "8px",
               padding: "8px 16px",
               borderRadius: "8px",
-              border: "1px solid #ccc",
-              background: "#fff",
+              border: "none",
+              background: "#0B6E66",
+              color: "#FFFFFF",
               fontSize: "14px",
+              fontWeight: 600,
               cursor: "pointer",
             }}
           >

@@ -31,7 +31,7 @@ export const homeHero = {
 export const homeMedicalDestinations = {
   title: "Top medical destinations",
   description:
-    "Our network spans leading care hubs across India — browse hospitals, doctors and treatments by city.",
+    "Explore hospitals and specialists across India’s leading care states — select a destination to open the directory.",
 } as const
 
 /** Platform capabilities surfaced on the home page (aligned with about scope — demo only). */

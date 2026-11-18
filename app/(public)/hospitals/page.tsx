@@ -120,13 +120,14 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
   // URL param names align with the SearchFilters contract; values compose AND.
   const q = filterValues.q?.[0]
   const city = filterValues.city?.[0]
+  const state = filterValues.state?.[0]
   const rawSpecialty = filterValues.specialty
   const specialtyIds = Array.isArray(rawSpecialty) ? rawSpecialty : rawSpecialty ? [rawSpecialty] : []
   const accreditation = filterValues.accreditation?.[0]
   const ratingStatus = filterValues["rating-status"]?.[0]
 
   const results = searchHospitals(
-    { query: q, city, specialties: specialtyIds },
+    { query: q, city, state, specialties: specialtyIds },
     undefined,
     sort,
     ratingKind ? { ratingKind } : undefined,
@@ -166,6 +167,7 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
   const facetValues: Record<string, string[]> = {
     ...(q ? { q: [q] } : {}),
     ...(city ? { city: [city] } : {}),
+    ...(state ? { state: [state] } : {}),
     ...(specialtyIds.length > 0 ? { specialty: specialtyIds } : {}),
     ...(accreditation ? { accreditation: [accreditation] } : {}),
     ...(ratingStatus ? { "rating-status": [ratingStatus] } : {}),
