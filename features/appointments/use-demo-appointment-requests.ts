@@ -8,7 +8,11 @@ import {
   type DemoAppointmentSnapshot,
 } from "./demo-appointment-store"
 
-const EMPTY_SNAPSHOT: DemoAppointmentSnapshot = { created: [], updates: {} }
+const EMPTY_SNAPSHOT: DemoAppointmentSnapshot = {
+  created: [],
+  updates: {},
+  activeProviders: {},
+}
 
 /**
  * Combines fixture requests with demo bookings saved in this browser profile.

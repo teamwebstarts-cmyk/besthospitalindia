@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
-import { getDemoHospital, demoAppointments } from "@/features/hospital-portal/demo-context"
+import { appointments } from "@/data"
+import { getDemoHospital } from "@/features/hospital-portal/demo-context"
 import { HospitalMvpDashboard } from "@/features/appointments/mvp-dashboards"
 
 export const metadata: Metadata = {
@@ -8,5 +9,5 @@ export const metadata: Metadata = {
 }
 
 export default function HospitalPortalDashboardPage() {
-  return <HospitalMvpDashboard hospital={getDemoHospital()} initialAppointments={demoAppointments()} />
+  return <HospitalMvpDashboard hospital={getDemoHospital()} initialAppointments={appointments} />
 }
