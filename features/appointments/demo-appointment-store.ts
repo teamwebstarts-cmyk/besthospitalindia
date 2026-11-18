@@ -12,17 +12,15 @@ export interface DemoAppointmentSnapshot {
 
 const STORAGE_KEY = "bhi.demo-appointments.v1"
 export const DEMO_APPOINTMENTS_CHANGED_EVENT = "bhi:demo-appointments-changed"
-const EMPTY_SNAPSHOT: DemoAppointmentSnapshot = {
-  created: [],
-  updates: {},
-  activeProviders: {},
+function emptySnapshot(): DemoAppointmentSnapshot {
+  return { created: [], updates: {}, activeProviders: {} }
 }
 
 export function readDemoAppointmentSnapshot(): DemoAppointmentSnapshot {
-  if (typeof window === "undefined") return EMPTY_SNAPSHOT
+  if (typeof window === "undefined") return emptySnapshot()
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY)
-    if (!raw) return EMPTY_SNAPSHOT
+    if (!raw) return emptySnapshot()
     const parsed = JSON.parse(raw) as Partial<DemoAppointmentSnapshot>
     return {
       created: Array.isArray(parsed.created) ? parsed.created : [],
@@ -33,7 +31,7 @@ export function readDemoAppointmentSnapshot(): DemoAppointmentSnapshot {
           : {},
     }
   } catch {
-    return EMPTY_SNAPSHOT
+    return emptySnapshot()
   }
 }
 
