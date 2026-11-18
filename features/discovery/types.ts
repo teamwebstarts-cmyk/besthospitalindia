@@ -92,6 +92,8 @@ export interface GlobalSearchProps {
   /** Accessible label for the query field. */
   queryLabel?: string
   className?: string
+  /** `header` — single pill row for the site chrome (same submit behaviour). */
+  layout?: "default" | "header"
 }
 
 export interface ListingFiltersProps {

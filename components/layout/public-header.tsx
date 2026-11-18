@@ -3,21 +3,11 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import {
-  EllipsisIcon,
-  HeartPulseIcon,
-  MailIcon,
-  MenuIcon,
-  PhoneIcon,
-} from "lucide-react"
+import { HeartPulseIcon, MenuIcon } from "lucide-react"
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
+import { GlobalSearch } from "@/features/discovery/global-search"
+import { ROUTES } from "@/constants/routes"
 import {
   Sheet,
   SheetContent,
@@ -29,8 +19,12 @@ import {
 import { publicNav, type NavLink } from "@/constants/navigation"
 import { cn } from "@/lib/utils"
 
-/** Number of primary links rendered inline on desktop; the rest collapse into a "More" menu. */
-const INLINE_NAV_LIMIT = 6
+const headerSearchRoutes = {
+  hospitals: ROUTES.public.hospitals,
+  doctors: ROUTES.public.doctors,
+  treatments: ROUTES.public.treatments,
+  facilities: ROUTES.public.facilities,
+} as const
 
 function isPathActive(pathname: string, href: string): boolean {
   if (href === "/") {
@@ -39,23 +33,86 @@ function isPathActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`)
 }
 
-function BrandLink() {
+function BrandMark({
+  inverted = false,
+  compact = false,
+  className,
+}: {
+  inverted?: boolean
+  compact?: boolean
+  className?: string
+}) {
   return (
     <Link
       href="/"
       aria-label="BestHospitalIndia home"
-      className="flex shrink-0 items-center gap-2"
+      className={cn("flex min-w-0 shrink-0 items-center gap-2 sm:gap-2.5", className)}
     >
       <span
         aria-hidden
-        className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground"
+        className={cn(
+          "flex shrink-0 items-center justify-center rounded-md",
+          compact ? "size-8" : "size-9",
+          inverted
+            ? "bg-primary-foreground/15 text-primary-foreground"
+            : "bg-primary text-primary-foreground"
+        )}
       >
-        <HeartPulseIcon className="size-5" />
+        <HeartPulseIcon className={compact ? "size-4" : "size-5"} />
       </span>
-      <span className="font-heading text-lg font-semibold tracking-tight whitespace-nowrap">
+      <span
+        className={cn(
+          "font-heading leading-tight font-bold tracking-tight",
+          compact
+            ? "max-w-[9.5rem] truncate text-base sm:max-w-none sm:overflow-visible sm:text-lg sm:whitespace-nowrap"
+            : "text-lg whitespace-nowrap",
+          inverted ? "text-primary-foreground" : "text-foreground"
+        )}
+      >
         BestHospitalIndia
       </span>
     </Link>
+  )
+}
+
+function HeaderSearchBar({ className }: { className?: string }) {
+  return (
+    <GlobalSearch
+      layout="header"
+      defaultEntityType="hospitals"
+      routes={headerSearchRoutes}
+      queryLabel="Search hospitals, doctors or treatments"
+      className={className}
+    />
+  )
+}
+
+function HeaderTopBar() {
+  return (
+    <div className="hidden bg-primary text-primary-foreground lg:block">
+      <div className="mx-auto flex min-h-14 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <BrandMark inverted />
+        <div className="flex shrink-0 items-center gap-2 sm:gap-2.5">
+          <Button
+            variant="cta"
+            size="sm"
+            className="rounded-md px-3 font-semibold shadow-sm xl:px-4"
+            render={<Link href="/free-consultation" />}
+          >
+            <span className="hidden xl:inline">Get a FREE Consultation</span>
+            <span className="xl:hidden">FREE Consultation</span>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="!border-transparent !bg-white text-foreground shadow-sm hover:!bg-white/95 hover:text-foreground dark:!border-transparent dark:!bg-white dark:hover:!bg-white/95"
+            render={<Link href="/auth" />}
+          >
+            Sign in
+          </Button>
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -63,15 +120,18 @@ function DesktopNavLinks({ links }: { links: NavLink[] }) {
   const pathname = usePathname()
 
   return (
-    <nav aria-label="Primary" className="hidden min-w-0 lg:block">
-      <ul className="flex items-center gap-0.5">
+    <nav
+      aria-label="Primary"
+      className="min-w-0 flex-1 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    >
+      <ul className="flex w-max items-center gap-0.5 xl:w-full xl:flex-wrap">
         {links.map((link) => (
-          <li key={link.href}>
+          <li key={link.href} className="shrink-0">
             <Link
               href={link.href}
               aria-current={isPathActive(pathname, link.href) ? "page" : undefined}
               className={cn(
-                "inline-flex h-9 items-center rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors outline-none hover:bg-primary/5 hover:text-primary focus-visible:ring-3 focus-visible:ring-ring/50 aria-[current=page]:bg-primary/5 aria-[current=page]:font-semibold aria-[current=page]:text-primary"
+                "inline-flex h-9 items-center px-2 text-xs font-medium text-foreground/80 whitespace-nowrap transition-colors outline-none hover:text-primary focus-visible:ring-3 focus-visible:ring-ring/50 xl:h-10 xl:px-2.5 xl:text-sm aria-[current=page]:font-semibold aria-[current=page]:text-primary"
               )}
             >
               {link.label}
@@ -80,38 +140,6 @@ function DesktopNavLinks({ links }: { links: NavLink[] }) {
         ))}
       </ul>
     </nav>
-  )
-}
-
-function HeaderMoreMenu({ links }: { links: NavLink[] }) {
-  const overflow = links.slice(INLINE_NAV_LIMIT)
-
-  if (overflow.length === 0) {
-    return null
-  }
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="More navigation"
-            className="hidden lg:inline-flex"
-          />
-        }
-      >
-        <EllipsisIcon />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        {overflow.map((link) => (
-          <DropdownMenuItem key={link.href} render={<Link href={link.href} />}>
-            {link.label}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
   )
 }
 
@@ -126,14 +154,14 @@ function MobileNav({ links }: { links: NavLink[] }) {
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden"
+            className="shrink-0 lg:hidden"
             aria-label="Open navigation menu"
           />
         }
       >
         <MenuIcon />
       </SheetTrigger>
-      <SheetContent side="right" className="w-80 gap-0">
+      <SheetContent side="right" className="w-[min(100vw-2rem,20rem)] gap-0">
         <SheetHeader>
           <SheetTitle className="text-left">BestHospitalIndia</SheetTitle>
           <SheetDescription className="text-left">
@@ -155,53 +183,37 @@ function MobileNav({ links }: { links: NavLink[] }) {
             ))}
           </ul>
         </nav>
-        <div className="flex flex-col gap-2 border-t p-4">
-          <Button variant="cta" className="rounded-full font-semibold" render={<Link href="/free-consultation" onClick={close} />}>
-            Get a FREE Consultation
-          </Button>
-          <Button variant="outline" render={<Link href="/auth" onClick={close} />}>
-            Sign in
-          </Button>
+        <div className="space-y-3 border-t p-4">
+          <ul className="space-y-2 text-sm text-muted-foreground" aria-label="Contact">
+            <li>
+              <a href="tel:+910000000000" className="font-medium text-foreground">
+                +91 (0) 00000 00000
+              </a>
+            </li>
+            <li>
+              <a
+                href="mailto:hello@besthospitalindia.example"
+                className="font-medium text-foreground"
+              >
+                hello@besthospitalindia.example
+              </a>
+            </li>
+          </ul>
+          <div className="flex flex-col gap-2">
+            <Button
+              variant="cta"
+              className="rounded-md font-semibold"
+              render={<Link href="/free-consultation" onClick={close} />}
+            >
+              Get a FREE Consultation
+            </Button>
+            <Button variant="outline" render={<Link href="/auth" onClick={close} />}>
+              Sign in
+            </Button>
+          </div>
         </div>
       </SheetContent>
     </Sheet>
-  )
-}
-
-/**
- * Utility strip above the main header on desktop — matches the reference
- * pattern of a slim brand-blue bar carrying contact channels and the primary
- * conversion CTA. Hidden on mobile (reference behaviour); purely additive.
- */
-function HeaderUtilityBar() {
-  return (
-    <div className="hidden bg-primary text-primary-foreground lg:block">
-      <div className="mx-auto flex h-10 w-full max-w-7xl items-center justify-between gap-4 px-4 text-xs sm:px-6 lg:px-8">
-        <ul className="flex items-center gap-5" aria-label="Contact channels">
-          <li className="flex items-center gap-1.5">
-            <PhoneIcon aria-hidden className="size-3.5" />
-            <a
-              href="tel:+910000000000"
-              className="font-medium transition-colors hover:text-primary-foreground/80"
-            >
-              +91 (0) 00000 00000
-            </a>
-          </li>
-          <li className="flex items-center gap-1.5">
-            <MailIcon aria-hidden className="size-3.5" />
-            <a
-              href="mailto:hello@besthospitalindia.example"
-              className="font-medium transition-colors hover:text-primary-foreground/80"
-            >
-              hello@besthospitalindia.example
-            </a>
-          </li>
-        </ul>
-        <p className="text-primary-foreground/80">
-          International Urban Forum Supported Initiative
-        </p>
-      </div>
-    </div>
   )
 }
 
@@ -212,43 +224,43 @@ export interface PublicHeaderProps {
 }
 
 /**
- * Public site header: brand, primary navigation (from
- * `constants/navigation.ts`), overflow menu, auth/consultation CTAs and a
- * Sheet-based mobile menu.
+ * Public site header — Vaidam-style two tiers: brand + CTAs on primary blue
+ * (lg+), then nav + search. Mobile uses a compact bar plus full-width search.
  */
 export function PublicHeader({ links = publicNav, className }: PublicHeaderProps) {
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80",
-        className
-      )}
-    >
-      <HeaderUtilityBar />
-      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-        <div className="flex min-w-0 items-center gap-4">
-          <BrandLink />
-          <DesktopNavLinks links={links.slice(0, INLINE_NAV_LIMIT)} />
+    <header className={cn("sticky top-0 z-40 w-full", className)}>
+      <HeaderTopBar />
+
+      {/* Mobile & tablet: brand row + search row */}
+      <div className="border-b bg-background lg:hidden">
+        <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-2 px-4 sm:h-[3.25rem] sm:px-6">
+          <BrandMark compact />
+          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+            <Button
+              variant="cta"
+              size="sm"
+              className="rounded-md px-2.5 text-xs font-semibold shadow-sm sm:px-3 sm:text-sm"
+              render={<Link href="/free-consultation" />}
+            >
+              <span className="hidden min-[400px]:inline">Free Consult</span>
+              <span className="min-[400px]:hidden">Consult</span>
+            </Button>
+            <MobileNav links={links} />
+          </div>
         </div>
-        <div className="flex shrink-0 items-center gap-1.5">
-          <HeaderMoreMenu links={links} />
-          <Button
-            variant="cta"
-            size="sm"
-            className="hidden rounded-full px-4 font-semibold shadow-sm sm:inline-flex"
-            render={<Link href="/free-consultation" />}
-          >
-            Get a FREE Consultation
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="hidden md:inline-flex"
-            render={<Link href="/auth" />}
-          >
-            Sign in
-          </Button>
-          <MobileNav links={links} />
+        <div className="border-t bg-background/80 px-4 pb-3 sm:px-6">
+          <HeaderSearchBar />
+        </div>
+      </div>
+
+      {/* Desktop lg–xl: nav row, search row; xl+: single row */}
+      <div className="hidden border-b bg-background lg:block">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-2 py-2 xl:h-11 xl:flex-row xl:items-center xl:gap-4 xl:py-0">
+            <DesktopNavLinks links={links} />
+            <HeaderSearchBar className="w-full shrink-0 xl:max-w-sm 2xl:max-w-md" />
+          </div>
         </div>
       </div>
     </header>

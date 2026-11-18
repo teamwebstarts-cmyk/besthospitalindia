@@ -35,10 +35,10 @@ export function HeroSearchPanel({
         <p className="text-sm font-semibold tracking-wide text-primary uppercase">
           International Urban Forum Supported Initiative
         </p>
-        <h1 className="text-4xl leading-[1.2] font-bold tracking-tight text-balance sm:text-[2.75rem] sm:leading-[1.2]">
+        <h1 className="text-3xl leading-[1.2] font-bold tracking-tight text-balance sm:text-4xl md:text-[2.5rem] lg:text-[2.75rem] sm:leading-[1.2]">
           {heading}
         </h1>
-        <p className="max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+        <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base md:text-lg">
           {subheading}
         </p>
       </div>

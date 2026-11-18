@@ -151,7 +151,7 @@ export default function HomePage() {
         className="border-b bg-gradient-to-br from-primary/[0.08] via-background to-cta/[0.05] py-10 sm:py-14 lg:py-16"
         aria-label="Search the platform"
       >
-        <div className="grid items-start gap-8 lg:grid-cols-[1.15fr_1fr]">
+        <div className="grid min-w-0 items-start gap-8 md:gap-10 lg:grid-cols-[1.15fr_1fr] lg:gap-8">
           <HeroSearchPanel
             heading={homeHero.heading}
             subheading={homeHero.subheading}
@@ -169,8 +169,8 @@ export default function HomePage() {
             }))}
             trustLine={`${hospitalCount} demo hospitals · ${doctorCount} demo doctors · ${cityCount} demo cities`}
           />
-          <aside className="hidden lg:block" aria-hidden>
-            <div className="flex h-full flex-col justify-center gap-4 rounded-xl border bg-card p-8 shadow-lg ring-1 ring-foreground/5">
+          <aside className="min-w-0 lg:sticky lg:top-28 lg:self-start">
+            <div className="flex h-full flex-col justify-center gap-4 rounded-xl border bg-card p-5 shadow-lg ring-1 ring-foreground/5 sm:p-6 lg:p-8">
               <p className="flex items-center gap-2 text-sm font-semibold tracking-wide text-primary uppercase">
                 <ShieldCheckIcon aria-hidden className="size-4" />
                 Independent ratings, honestly shown
