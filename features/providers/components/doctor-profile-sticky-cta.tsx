@@ -1,18 +1,7 @@
-"use client"
-
-import type { MouseEvent } from "react"
-
 import { Button } from "@/components/ui/button"
+import { ROUTES } from "@/constants/routes"
 
-function openAppointmentForm(event: MouseEvent<HTMLAnchorElement>) {
-  event.preventDefault()
-  if (window.location.hash !== "#appointment") {
-    history.replaceState(null, "", "#appointment")
-  }
-  window.dispatchEvent(new Event("doctor-appointment-open"))
-}
-
-/** Fixed action bar above the mobile tab bar — keeps booking one tap away without crowding the header. */
+/** Fixed action bar above the mobile tab bar. Queries go to the shared intake, not the doctor. */
 export function DoctorProfileStickyCta() {
   return (
     <div
@@ -23,9 +12,9 @@ export function DoctorProfileStickyCta() {
         <Button
           variant="cta"
           className="h-10 flex-1 rounded-full font-semibold shadow-sm"
-          render={<a href="#appointment" onClick={openAppointmentForm} />}
+          render={<a href={ROUTES.public.freeConsultation} />}
         >
-          Request appointment
+          Free consultation
         </Button>
         <Button
           variant="outline"

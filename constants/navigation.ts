@@ -3,13 +3,11 @@ import {
   Building2Icon,
   BuildingIcon,
   CalendarDaysIcon,
-  HeartPulseIcon,
   HomeIcon,
   HospitalIcon,
   LayoutDashboardIcon,
   StethoscopeIcon,
   UserRoundIcon,
-  ClockIcon,
 } from "lucide-react"
 
 export interface NavLink { label: string; href: string }
@@ -67,27 +65,20 @@ export const patientNav: PortalNavItem[] = []
 
 export const hospitalPortalNav: PortalNavItem[] = [
   { label: "Dashboard", href: "/hospital-portal", icon: LayoutDashboardIcon },
-  { label: "Hospital Profile", href: "/hospital-portal/profile", icon: BuildingIcon },
-  { label: "Specialties", href: "/hospital-portal/specialities", icon: HeartPulseIcon },
-  { label: "Doctors", href: "/hospital-portal/doctors", icon: StethoscopeIcon },
-  { label: "Appointments", href: "/hospital-portal/appointments", icon: CalendarDaysIcon },
 ]
 
 export const doctorPortalNav: PortalNavItem[] = [
   { label: "Dashboard", href: "/doctor-portal", icon: LayoutDashboardIcon },
-  { label: "My Profile", href: "/doctor-portal/profile", icon: UserRoundIcon },
-  { label: "Hospitals", href: "/doctor-portal/hospitals", icon: BuildingIcon },
-  { label: "Availability", href: "/doctor-portal/availability", icon: ClockIcon },
-  { label: "Appointments", href: "/doctor-portal/appointments", icon: CalendarDaysIcon },
 ]
 
 export const adminNavGroups: PortalNavGroup[] = [
   { heading: "MVP Management", items: [
     { label: "Dashboard", href: "/admin", icon: LayoutDashboardIcon },
+    { label: "Leads", href: "/admin/leads", icon: CalendarDaysIcon },
+    { label: "Vendors", href: "/admin/vendors", icon: UserRoundIcon },
     { label: "Hospitals", href: "/admin/hospitals", icon: BuildingIcon },
     { label: "Doctors", href: "/admin/doctors", icon: StethoscopeIcon },
     { label: "Facilities", href: "/admin/facilities", icon: HospitalIcon },
-    { label: "Appointments", href: "/admin/appointments", icon: CalendarDaysIcon },
   ]},
 ]
 export const adminNav: PortalNavItem[] = adminNavGroups.flatMap((group) => group.items)

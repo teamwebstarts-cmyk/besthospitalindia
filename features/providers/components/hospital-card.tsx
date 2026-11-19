@@ -26,6 +26,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { CardStretchLink } from "@/components/shared/card-stretch-link"
 import { VerificationBadge } from "@/features/providers/components/verification-badge"
 import { NOT_RATED_MESSAGE, RATING_LABELS, RATING_SCALE_MAX } from "@/constants/rating"
+import { whatsappHref } from "@/constants/site-contact"
 import { ROUTES, hospitalProfileHref } from "@/constants/routes"
 import { specialtyById } from "@/data"
 import { cn } from "@/lib/utils"
@@ -33,8 +34,6 @@ import type { Hospital, RatingSummary } from "@/types"
 
 /** Max specialty chips shown before the "+N more" overflow chip. */
 const MAX_VISIBLE_SPECIALTIES = 2
-
-const WHATSAPP_URL = "https://wa.me/911140501200"
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -309,7 +308,7 @@ export function HospitalCard({
             )}
             render={
               <a
-                href={WHATSAPP_URL}
+                href={whatsappHref(`Hello, I want to know more about ${hospital.name}`)}
                 target="_blank"
                 rel="noopener noreferrer"
               />

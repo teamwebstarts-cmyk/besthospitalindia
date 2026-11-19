@@ -16,6 +16,7 @@
  */
 
 import * as React from "react"
+import { useEffect, useState } from "react"
 import { Suspense } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -40,6 +41,28 @@ import { ROUTES } from "@/constants/routes"
 function CompareExperience() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const [hiddenIds, setHiddenIds] = useState<ReadonlySet<string>>(new Set())
+
+  useEffect(() => {
+    let cancelled = false
+    fetch("/api/catalogue")
+      .then((response) => response.json())
+      .then((payload: { hospital?: Record<string, string> }) => {
+        if (cancelled) return
+        const hidden = new Set(
+          Object.entries(payload.hospital ?? {})
+            .filter(([, status]) => status !== "approved")
+            .map(([id]) => id),
+        )
+        setHiddenIds(hidden)
+      })
+      .catch(() => undefined)
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const listedHospitals = hospitals.filter((hospital) => !hiddenIds.has(hospital.id))
 
   // Selection lives in ?ids=<id1,id2,…> — shareable URLs per the page contract.
   const ids = React.useMemo(() => {
@@ -47,13 +70,13 @@ function CompareExperience() {
     const seen = new Set<string>()
     const selected: string[] = []
     for (const id of raw.split(",")) {
-      if (id !== "" && hospitalById[id] !== undefined && !seen.has(id)) {
+      if (id !== "" && hospitalById[id] !== undefined && !hiddenIds.has(id) && !seen.has(id)) {
         seen.add(id)
         selected.push(id)
       }
     }
     return selected.slice(0, MAX_COMPARE_HOSPITALS)
-  }, [searchParams])
+  }, [hiddenIds, searchParams])
 
   const selectedHospitals = React.useMemo(
     () => ids.map((id) => hospitalById[id]).filter((hospital) => hospital !== undefined),
@@ -78,7 +101,7 @@ function CompareExperience() {
     replaceIds(ids.filter((selected) => selected !== id))
   }
 
-  const addableHospitals = hospitals.filter((hospital) => !ids.includes(hospital.id))
+  const addableHospitals = listedHospitals.filter((hospital) => !ids.includes(hospital.id))
   const atLimit = ids.length >= MAX_COMPARE_HOSPITALS
 
   return (

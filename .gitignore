@@ -18,6 +18,9 @@
 # production
 /build
 
+# mock lead store written by the server
+/data/runtime/*.json
+
 # misc
 .DS_Store
 *.pem

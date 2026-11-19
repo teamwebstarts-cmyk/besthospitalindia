@@ -4,7 +4,7 @@ import Link from "next/link"
 
 import { EnquiryForm } from "@/features/content/enquiry-form"
 import type { EnquiryFormField } from "@/features/content/enquiry-form"
-import { email, maxLength, minLength, phone, required } from "@/lib/validation"
+import { email, maxLength, minLength, phone, required, type FieldValues } from "@/lib/validation"
 import type { ValidationSchema } from "@/lib/validation"
 import { cn } from "@/lib/utils"
 
@@ -51,6 +51,17 @@ const fields: readonly EnquiryFormField[] = [
     required: true,
   },
   {
+    kind: "select",
+    name: "preferredCity",
+    label: "Preferred city",
+    placeholder: "Delhi or Indore",
+    options: [
+      { value: "delhi", label: "Delhi" },
+      { value: "indore", label: "Indore" },
+    ],
+    required: true,
+  },
+  {
     kind: "textarea",
     name: "message",
     label: "Message",
@@ -65,12 +76,12 @@ const schema: ValidationSchema = {
   email: [required("Email is required"), email()],
   phone: [phone()],
   purpose: [required("Choose a purpose")],
+  preferredCity: [required("Choose Delhi or Indore")],
   message: [required("Message is required"), minLength(10), maxLength(2000)],
 }
 
 /**
- * General contact enquiry form for /contact. Mock-only: validates locally and
- * resolves with a generated demo reference — nothing is sent or stored.
+ * Contact messages are stored as leads for admin and the chosen city desk.
  */
 export function ContactForm({
   className,
@@ -79,10 +90,26 @@ export function ContactForm({
   className?: string
   variant?: "card" | "hero" | "contact"
 }) {
-  const handleSubmit = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 450))
-    const suffix = Math.random().toString(36).slice(2, 6).toUpperCase()
-    return { ok: true as const, reference: `MSG-${suffix}` }
+  const handleSubmit = async (values: FieldValues) => {
+    const purpose = purposeOptions.find((option) => option.value === values.purpose)?.label ?? "Message"
+    const response = await fetch("/api/leads", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        name: values.name,
+        email: values.email,
+        phone: typeof values.phone === "string" ? values.phone : "",
+        audience: "indian",
+        state: "Not collected",
+        preferredCity: values.preferredCity,
+        comment: `${purpose}: ${values.message ?? ""}`,
+      }),
+    })
+    const payload = (await response.json().catch(() => null)) as { lead?: { id: string }; error?: string } | null
+    if (!response.ok || !payload?.lead) {
+      return { ok: false as const, errors: { message: payload?.error ?? "Could not save your message." } }
+    }
+    return { ok: true as const, reference: payload.lead.id }
   }
 
   const isHero = variant === "hero"
@@ -138,6 +165,7 @@ export function ContactForm({
           ? [
               ["name", "email"],
               ["phone", "purpose"],
+              ["preferredCity"],
               ["message"],
             ]
           : undefined

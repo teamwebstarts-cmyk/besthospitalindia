@@ -109,6 +109,8 @@ export const ADMIN_ROUTES = {
   facilities: '/admin/facilities',
   patients: '/admin/patients',
   appointments: '/admin/appointments',
+  leads: '/admin/leads',
+  vendors: '/admin/vendors',
   consultations: '/admin/consultations',
   medicalTourism: '/admin/medical-tourism',
   reviews: '/admin/reviews',

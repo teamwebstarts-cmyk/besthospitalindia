@@ -57,6 +57,10 @@ import { cn } from "@/lib/utils"
 export const homeSectionInnerClassName =
   "mx-auto w-full max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8"
 
+/** Mobile home card rail — matches featured hospital / doctor grids (22.5rem). */
+export const homeMobileCardRailClassName =
+  "mx-auto w-full max-w-[22.5rem] lg:max-w-none"
+
 export interface HomeBleedBandProps {
   children: ReactNode
   /** Border/background utilities for the band surface. */
@@ -398,7 +402,9 @@ function FacilityCategoryRow({ entry }: { entry: FacilityCategoryEntry }) {
       <Link
         href={entry.href}
         className={cn(
-          "group flex h-full items-center gap-3 rounded-xl border border-border/70 bg-card px-3.5 py-3 text-left shadow-xs outline-none sm:gap-3.5 sm:px-4 sm:py-3.5",
+          "group flex h-full w-full items-center gap-2.5 rounded-[20px] border border-border/70 bg-card px-3 py-2.5 text-left shadow-xs outline-none",
+          "max-lg:min-h-11",
+          "sm:gap-3 sm:rounded-xl sm:px-4 sm:py-3.5",
           homeInteractiveTileClassName,
           "hover:border-primary/25 hover:bg-secondary/35"
         )}
@@ -411,22 +417,22 @@ function FacilityCategoryRow({ entry }: { entry: FacilityCategoryEntry }) {
         </span>
 
         <span className="min-w-0 flex-1">
-          <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-            <span className="text-sm font-semibold text-foreground transition-colors group-hover:text-primary sm:text-[0.9375rem]">
+          <span className="flex items-baseline justify-between gap-2">
+            <span className="truncate text-sm font-semibold text-foreground transition-colors group-hover:text-primary sm:text-[0.9375rem]">
               {entry.label}
             </span>
-            <span className="text-[11px] font-medium text-muted-foreground tabular-nums sm:text-xs">
-              · {entry.count} {listingLabel}
+            <span className="shrink-0 text-[11px] font-medium text-muted-foreground tabular-nums sm:text-xs">
+              {entry.count} {listingLabel}
             </span>
           </span>
-          <span className="mt-0.5 line-clamp-2 text-xs leading-snug text-muted-foreground">
+          <span className="mt-0.5 hidden text-xs leading-snug text-muted-foreground lg:block lg:line-clamp-2">
             {entry.description}
           </span>
         </span>
 
         <ChevronRightIcon
           aria-hidden
-          className="size-4 shrink-0 text-muted-foreground/40 transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
+          className="size-4 shrink-0 text-muted-foreground/35 transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
           strokeWidth={1.75}
         />
       </Link>
@@ -449,7 +455,8 @@ export function FacilityCategoryGrid({
     <StaggerReveal
       as="ul"
       className={cn(
-        "grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-3 lg:grid-cols-3",
+        "grid w-full grid-cols-1 gap-2 max-lg:gap-2",
+        "lg:grid-cols-3 lg:gap-3",
         className
       )}
       staggerMs={45}

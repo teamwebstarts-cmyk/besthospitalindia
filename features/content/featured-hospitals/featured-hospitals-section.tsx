@@ -50,11 +50,11 @@ export function FeaturedHospitalsSection({ hospitals }: FeaturedHospitalsSection
 
           <p className="mx-auto mt-2 max-w-2xl text-pretty text-center text-sm leading-relaxed text-muted-foreground sm:mt-2.5 sm:text-base">
             <span className="sm:hidden">
-              PER and CER shown separately — never a combined score.
+              PER and CER shown separately - never one combined score.
             </span>
             <span className="hidden sm:inline">
               Each card shows independent Patient Experience (PER) and Clinical Expertise (CER)
-              ratings — never a combined score.
+              ratings - never one combined score.
             </span>
           </p>
         </ScrollReveal>

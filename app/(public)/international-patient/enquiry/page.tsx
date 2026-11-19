@@ -1,13 +1,10 @@
 import type { Metadata } from "next"
-import { Suspense } from "react"
 import { InfoIcon } from "lucide-react"
 
 import { Breadcrumbs } from "@/components/shared/breadcrumbs"
-import { LoadingSkeleton } from "@/components/shared/loading-skeleton"
 import { Card, CardContent } from "@/components/ui/card"
 import { ROUTES } from "@/constants/routes"
-import { specialties } from "@/data"
-import { InternationalPatientEnquiryForm } from "@/features/medical-tourism"
+import { LeadIntakeForm } from "@/features/leads/intake-form"
 
 /**
  * /international-patient/enquiry — FR-009 international case enquiry (Agent A06).
@@ -26,25 +23,7 @@ export const metadata: Metadata = {
   alternates: { canonical: ROUTES.public.internationalPatientEnquiry },
 }
 
-function parseSingle(value: string | string[] | undefined): string {
-  if (Array.isArray(value)) return value[0] ?? ""
-  return value ?? ""
-}
-
-export default async function InternationalPatientEnquiryPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}) {
-  const params = await searchParams
-  const specialtyParam = parseSingle(params.specialty)
-  const treatmentParam = parseSingle(params.treatment)
-
-  // Only pass preselects that exist in the frozen fixtures.
-  const defaultSpecialty = specialties.some((s) => s.id === specialtyParam)
-    ? specialtyParam
-    : undefined
-
+export default function InternationalPatientEnquiryPage() {
   return (
     <div className="space-y-8 py-8">
       <Breadcrumbs
@@ -62,10 +41,8 @@ export default async function InternationalPatientEnquiryPage({
           International patient enquiry
         </h1>
         <p className="max-w-3xl text-base text-muted-foreground">
-          Share patient details, case context, report labels and travel
-          preferences. After you submit, you receive a reference number and our
-          coordination team reviews the enquiry. An enquiry is not a confirmed
-          appointment until a provider confirms.
+          Leave your name and email, then choose free consultation, a medical camp, or free surgery.
+          The request goes to our admin team and the Delhi or Indore desk. It is not sent to a hospital or a doctor.
         </p>
       </section>
 
@@ -76,9 +53,7 @@ export default async function InternationalPatientEnquiryPage({
             <InfoIcon aria-hidden className="mt-0.5 size-4 shrink-0" />
             <span>
               <strong className="font-medium text-foreground">What happens after submit:</strong>{" "}
-              you receive a reference number (for example ENQ-XXXX). A coordinator
-              reviews the enquiry, may assign a case worker and shares provider
-              responses according to the workflow described on the medical tourism pages.
+              you see a unique id on this page. Admin and the city desk for Delhi or Indore receive the request.
             </span>
           </p>
         </CardContent>
@@ -86,12 +61,7 @@ export default async function InternationalPatientEnquiryPage({
 
       {/* Form */}
       <section aria-label="Enquiry form" className="mx-auto w-full max-w-3xl">
-        <Suspense fallback={<LoadingSkeleton variant="profile" />}>
-          <InternationalPatientEnquiryForm
-            defaultSpecialty={defaultSpecialty}
-            defaultTreatment={treatmentParam || undefined}
-          />
-        </Suspense>
+        <LeadIntakeForm />
       </section>
     </div>
   )

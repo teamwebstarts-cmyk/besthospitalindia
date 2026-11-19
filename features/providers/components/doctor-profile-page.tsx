@@ -10,11 +10,9 @@ import { Breadcrumbs } from "@/components/shared/breadcrumbs"
 import { EmptyState } from "@/components/shared/empty-state"
 import { SectionHeading } from "@/components/shared/section-heading"
 import { StatusBadge } from "@/components/shared/status-badge"
-import { doctorProfileHref, hospitalProfileHref, ROUTES } from "@/constants/routes"
-import { AppointmentRequestForm } from "@/features/appointments/appointment-request-form"
+import { hospitalProfileHref, ROUTES } from "@/constants/routes"
 import { RatingPair } from "@/features/ratings/rating-pair"
 import { VerificationBadge } from "@/features/providers/components/verification-badge"
-import { DoctorProfileAppointmentAside } from "@/features/providers/components/doctor-profile-appointment-aside"
 import { DoctorProfileStickyCta } from "@/features/providers/components/doctor-profile-sticky-cta"
 import { ProviderSectionNav } from "@/features/providers/components/provider-section-nav"
 import { cn } from "@/lib/utils"
@@ -136,18 +134,6 @@ export function DoctorProfilePageView({
   doctorReviews,
 }: DoctorProfilePageViewProps) {
   const treatmentNames = treatments.map((treatment) => treatment.name)
-  const profileHref = doctorProfileHref(doctor.slug)
-  const appointmentProvider = {
-    type: "doctor" as const,
-    id: doctor.id,
-    name: doctor.name,
-    specialty: specializationName ?? "Doctor",
-    location: `${doctor.city}, ${doctor.state}`,
-  }
-  const treatmentOptions = treatments.map((treatment) => ({
-    id: treatment.id,
-    name: treatment.name,
-  }))
 
   const sections = [
     { id: "overview", label: "Overview" },
@@ -327,20 +313,21 @@ export function DoctorProfilePageView({
           </ProfileBlock>
         </div>
 
-        <DoctorProfileAppointmentAside
-          providerName={doctor.name}
-          className="lg:sticky lg:top-[calc(var(--site-header-offset,7.75rem)+0.5rem)] lg:max-h-[calc(100svh-var(--site-header-offset,7.75rem)-1rem)] lg:self-start lg:overflow-y-auto lg:overscroll-contain"
-        >
-          <AppointmentRequestForm
-            variant="sidebar"
-            provider={appointmentProvider}
-            treatments={treatmentOptions}
-            backHref={profileHref}
-          />
-          <p className="hidden px-1 text-[0.6875rem] leading-relaxed text-muted-foreground lg:block">
-            Informational only - not medical advice.
-          </p>
-        </DoctorProfileAppointmentAside>
+        <Card className="border-border/70 shadow-sm lg:sticky lg:top-[calc(var(--site-header-offset,7.75rem)+0.5rem)]">
+          <CardContent className="flex flex-col gap-3 p-4">
+            <p className="text-sm font-medium text-foreground">Send a query</p>
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              Requests go to our admin team and the city desk. They are not sent to {doctor.name}.
+            </p>
+            <Button
+              variant="cta"
+              className="h-10 rounded-full font-semibold"
+              render={<Link href={ROUTES.public.freeConsultation} />}
+            >
+              Free consultation
+            </Button>
+          </CardContent>
+        </Card>
       </div>
 
       <DoctorProfileStickyCta />

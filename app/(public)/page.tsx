@@ -5,6 +5,7 @@ import { TestimonialsMarquee } from "@/features/content/testimonials-marquee"
 import { FaqList } from "@/features/content/faq-list"
 import {
   HomeBleedBand,
+  homeMobileCardRailClassName,
   HomeSectionHeading,
   MedicalDestinationCities,
   SpecialtyTileGrid,
@@ -25,6 +26,8 @@ import { FeaturedHospitalsSection } from "@/features/content/featured-hospitals/
 import { FindDoctorsSection } from "@/features/content/find-doctors/find-doctors-section"
 import { FACILITY_CATEGORY_LABELS } from "@/features/discovery/facility-meta"
 import { doctorById, facilities, hospitals, specialties } from "@/data"
+import { isCataloguePublic } from "@/lib/catalogue/store"
+import { LeadIntakeForm } from "@/features/leads/intake-form"
 import { searchDoctors, searchHospitals } from "@/lib/search"
 import { ROUTES } from "@/constants/routes"
 
@@ -65,10 +68,10 @@ export default function HomePage() {
   // record arrays are hardcoded here and ordering stays deterministic.
   const featuredHospitals = FEATURED_HOSPITAL_IDS.map((id) =>
     hospitals.find((h) => h.id === id)
-  ).filter((h): h is NonNullable<typeof h> => h !== undefined)
+  ).filter((h): h is NonNullable<typeof h> => h !== undefined && isCataloguePublic("hospital", h.id))
   const featuredDoctors = FEATURED_DOCTOR_IDS.map(
     (id) => doctorById[id]
-  ).filter((d): d is NonNullable<typeof d> => d !== undefined)
+  ).filter((d): d is NonNullable<typeof d> => d !== undefined && isCataloguePublic("doctor", d.id))
 
   // Category counts from the frozen facility fixtures (per-category filter).
   const facilityCategories = (
@@ -80,14 +83,14 @@ export default function HomePage() {
     label: FACILITY_CATEGORY_LABELS[category],
     description: facilityCategoryDescriptions[category] ?? "",
     href: `${ROUTES.public.facilities}?category=${encodeURIComponent(category)}`,
-    count: facilities.filter((facility) => facility.category === category)
+    count: facilities.filter((facility) => facility.category === category && isCataloguePublic("facility", facility.id))
       .length,
   }))
 
   // Trust bar figures derived from fixtures (counts only, no invented claims).
   const hospitalCount = searchHospitals(undefined, undefined).length
   const doctorCount = searchDoctors(undefined, undefined).length
-  const stateCount = [...new Set(hospitals.map((hospital) => hospital.state))].length
+  const stateCount = [...new Set(hospitals.filter((hospital) => isCataloguePublic("hospital", hospital.id)).map((hospital) => hospital.state))].length
 
   const faqItems = [
     {
@@ -110,7 +113,7 @@ export default function HomePage() {
       id: "faq-home-3",
       question: "What happens when I search or send an enquiry?",
       answer:
-        "Search takes you to the matching directory with your query applied. Enquiry and appointment forms create a tracked request; our coordination team reviews it and follows up using the contact details you provide.",
+        "Search opens the matching directory. A query is stored for our admin team and the Delhi or Indore desk. It is not sent to a hospital or a doctor.",
       category: "patients" as const,
       order: 3,
     },
@@ -133,15 +136,28 @@ export default function HomePage() {
   ]
 
   return (
-    <div>
+    <div className="flex flex-col">
+      <section
+        aria-labelledby="home-query-heading"
+        className="order-1 border-b border-border/70 bg-white px-4 py-6 lg:order-2"
+      >
+        <div className="mx-auto w-full max-w-3xl">
+          <h2 id="home-query-heading" className="mb-3 text-lg font-semibold tracking-tight lg:text-2xl">
+            Send a query
+          </h2>
+          <LeadIntakeForm />
+        </div>
+      </section>
+      <div className="order-2 lg:order-1">
       <HomeHeroSection
         hospitalCount={hospitalCount}
         doctorCount={doctorCount}
         stateCount={stateCount}
       />
+      </div>
 
       {/* Full-bleed bands — flush stack (no space-y between surfaces) */}
-      <div className="flex flex-col">
+      <div className="order-3 flex flex-col">
         <HomeBleedBand surfaceClassName="border-b border-border/70 bg-white">
           <ScrollReveal>
             <HomeSectionHeading
@@ -169,9 +185,12 @@ export default function HomePage() {
               headingId="home-facility-categories-heading"
               title="Facility categories"
               description="Beyond hospitals: the kinds of facilities listed in our directory."
+              descriptionMobile="Labs, rehab, wellness and more in the directory."
             />
           </ScrollReveal>
-          <FacilityCategoryGrid categories={facilityCategories} />
+          <div className={homeMobileCardRailClassName}>
+            <FacilityCategoryGrid categories={facilityCategories} />
+          </div>
         </HomeBleedBand>
 
         <FeaturedHospitalsSection hospitals={featuredHospitals} />
@@ -198,7 +217,9 @@ export default function HomePage() {
             <div className="space-y-10 sm:space-y-12">
               <JourneyStepsAnimated steps={patientJourneySteps} />
               <MedicalTourismBlock />
-              <IufConsultationCta />
+              <div className="max-lg:hidden">
+                <IufConsultationCta />
+              </div>
             </div>
           </div>
           </ScrollReveal>
@@ -212,7 +233,7 @@ export default function HomePage() {
             <HomeSectionHeading
               headingId="home-testimonials-heading"
               title="Patient stories"
-              description="Reviews-style stories from patients who used the directory — outcomes vary; demo content only."
+              description="Reviews-style stories from patients who used the directory - outcomes vary; demo content only."
             />
           </ScrollReveal>
           <ScrollReveal delayMs={60}>

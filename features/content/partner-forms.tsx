@@ -12,8 +12,7 @@ import {
   doctorExperienceOptions,
   hospitalSizeOptions,
 } from "@/features/content/home-content"
-import { email, maxLength, minLength, phone, required } from "@/lib/validation"
-import type { ValidationSchema } from "@/lib/validation"
+import { email, maxLength, minLength, phone, required, type FieldValues, type ValidationSchema } from "@/lib/validation"
 
 export interface PartnerInterestFormProps {
   /** Which partner flavour drives the field set and copy. */
@@ -62,6 +61,13 @@ function baseFields(kind: "hospital" | "doctor"): EnquiryFormTextField[] {
     },
     {
       kind: "text",
+      name: "city",
+      label: "City",
+      placeholder: "City of the hospital or practice",
+      required: true,
+    },
+    {
+      kind: "text",
       name: "phone",
       label: "Phone",
       type: "tel",
@@ -83,14 +89,25 @@ export function PartnerInterestForm({
 }: PartnerInterestFormProps) {
   const isHospital = kind === "hospital"
 
-  const handleSubmit = async () => {
-    // Simulated local submission — mirrors mock-actions latency and result shape.
-    await new Promise((resolve) => setTimeout(resolve, 450))
-    const suffix = Math.random().toString(36).slice(2, 6).toUpperCase()
-    return {
-      ok: true as const,
-      reference: `${isHospital ? "HOS" : "DOC"}-${suffix}`,
+  const handleSubmit = async (values: FieldValues) => {
+    const name = isHospital ? values.organisation : values.fullName
+    const response = await fetch("/api/catalogue/submissions", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        kind,
+        name,
+        email: values.email,
+        phone: values.phone,
+        city: values.city,
+        note: values.message,
+      }),
+    })
+    const payload = (await response.json().catch(() => null)) as { submission?: { id: string }; error?: string } | null
+    if (!response.ok || !payload?.submission) {
+      return { ok: false as const, errors: { email: payload?.error ?? "Could not save the submission." } }
     }
+    return { ok: true as const, reference: payload.submission.id }
   }
 
   const sizeField: EnquiryFormSelectField = {
@@ -145,6 +162,7 @@ export function PartnerInterestForm({
       maxLength(120),
     ],
     email: [required("Email is required"), email()],
+    city: [required("City is required"), minLength(2), maxLength(80)],
     phone: [required("Phone is required"), phone()],
     [isHospital ? "bedCapacity" : "experience"]: [required()],
     message: [required(), minLength(10), maxLength(2000)],
@@ -160,7 +178,7 @@ export function PartnerInterestForm({
       schema={schema}
       onSubmit={handleSubmit}
       submitLabel="Submit interest request"
-      successNote="Our partnerships team will review your request and contact you using the details provided."
+      successNote="Admin will review this listing. It is not a patient query and is not sent to a hospital or a city desk until you are approved."
       className={className}
     />
   )

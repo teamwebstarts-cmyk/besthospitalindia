@@ -11,6 +11,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { doctors, reviewsForProvider, specialtyById } from "@/data"
+import { isCataloguePublic } from "@/lib/catalogue/store"
 import { getDoctorBySlug, getHospitalById, getTreatmentById } from "@/lib/search"
 import { DoctorProfilePageView } from "@/features/providers/components/doctor-profile-page"
 
@@ -27,7 +28,7 @@ export const dynamicParams = false
 export async function generateMetadata({ params }: DoctorProfilePageProps): Promise<Metadata> {
   const { slug } = await params
   const doctor = getDoctorBySlug(slug)
-  if (!doctor) {
+  if (!doctor || !isCataloguePublic("doctor", doctor.id)) {
     return { title: "Doctor not found" }
   }
 
@@ -45,14 +46,14 @@ export async function generateMetadata({ params }: DoctorProfilePageProps): Prom
 export default async function DoctorProfilePage({ params }: DoctorProfilePageProps) {
   const { slug } = await params
   const doctor = getDoctorBySlug(slug)
-  if (!doctor) {
+  if (!doctor || !isCataloguePublic("doctor", doctor.id)) {
     notFound()
   }
 
   const specializationName = specialtyById[doctor.specialization]?.name
   const hospitals = doctor.hospitalIds
     .map((hospitalId) => getHospitalById(hospitalId))
-    .filter((hospital): hospital is NonNullable<typeof hospital> => hospital !== undefined)
+    .filter((hospital): hospital is NonNullable<typeof hospital> => hospital !== undefined && isCataloguePublic("hospital", hospital.id))
   const treatments = doctor.treatments
     .map((treatmentId) => getTreatmentById(treatmentId))
     .filter((treatment): treatment is NonNullable<typeof treatment> => treatment !== undefined)

@@ -34,6 +34,7 @@ import { NOT_RATED_MESSAGE } from "@/constants/rating"
 import { fullBleedClassName } from "@/lib/full-bleed"
 import { cn } from "@/lib/utils"
 import { doctors as doctorsList, specialties } from "@/data"
+import { isCataloguePublic } from "@/lib/catalogue/store"
 import { ROUTES } from "@/constants/routes"
 import { paginate, searchDoctors } from "@/lib/search"
 import type { RatingKindForSort, SearchSort } from "@/lib/search"
@@ -240,7 +241,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
     undefined,
     searchSort,
     ratingKind ? { ratingKind } : undefined,
-  )
+  ).filter((doctor) => isCataloguePublic("doctor", doctor.id))
 
   const statusFiltered =
     ratingStatus === undefined || ratingStatus === ""

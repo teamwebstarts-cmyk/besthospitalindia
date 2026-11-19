@@ -41,7 +41,7 @@ export function FindDoctorsSection({ doctors }: FindDoctorsSectionProps) {
           </h2>
 
           <p className="fd-sub">
-            <span className="fd-sub-short">PER and MER stay separate — each with its own evidence.</span>
+            <span className="fd-sub-short">PER and MER stay separate - each with its own evidence.</span>
             <span className="fd-sub-full">
               Doctor cards show Patient Experience (PER) and Medical Expertise (MER) as two separate
               ratings with their own evidence metadata.

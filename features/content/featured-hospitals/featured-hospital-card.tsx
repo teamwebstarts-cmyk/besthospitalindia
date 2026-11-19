@@ -4,6 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 
 import { NOT_RATED_MESSAGE, RATING_SCALE_MAX } from "@/constants/rating"
+import { whatsappHref } from "@/constants/site-contact"
 import { ROUTES, hospitalProfileHref } from "@/constants/routes"
 import { specialtyById } from "@/data"
 import type { Hospital } from "@/types"
@@ -24,7 +25,6 @@ import {
   FhWhatsAppIcon,
 } from "./featured-hospital-icons"
 
-const WHATSAPP_URL = "https://wa.me/911140501200"
 const MAX_TAGS_DESKTOP = 3
 const MAX_TAGS_PHONE = 2
 
@@ -48,9 +48,7 @@ export function FeaturedHospitalCard({ hospital }: FeaturedHospitalCardProps) {
   const cerScore = formatScore(hospital.ratings.cer.score)
   const isVerified = hospital.verificationStatus === "verified"
 
-  const waHref = `${WHATSAPP_URL}?text=${encodeURIComponent(
-    `Hello, I want to know more about ${hospital.name}`,
-  )}`
+  const waHref = whatsappHref(`Hello, I want to know more about ${hospital.name}`)
 
   return (
     <article className="fh-card h-full w-full min-w-0">
@@ -82,7 +80,7 @@ export function FeaturedHospitalCard({ hospital }: FeaturedHospitalCardProps) {
             <div className="fh-h-loc">
               <FhPinIcon />
               <span>
-                {hospital.city}, {hospital.state} · {hospital.facilityType}
+                {hospital.city}, {hospital.state} - {hospital.facilityType}
               </span>
             </div>
           </div>

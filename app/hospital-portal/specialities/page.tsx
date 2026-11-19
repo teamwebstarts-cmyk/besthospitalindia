@@ -1,34 +1,5 @@
-import type { Metadata } from "next"
+import { PortalClosedNotice } from "@/features/portals/closed-notice"
 
-import { SpecialtyOfferingsManager } from "@/features/hospital-portal/specialty-offerings-manager"
-import { PortalPageHeader } from "@/features/hospital-portal/portal-page-header"
-import { getDemoHospital } from "@/features/hospital-portal/demo-context"
-import { hospitalById } from "@/data"
-
-export const metadata: Metadata = {
-  title: "Specialties",
-  description: "Manage the selected demo hospital's specialty and treatment offerings.",
-}
-
-interface HospitalPortalSpecialitiesPageProps {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}
-
-export default async function HospitalPortalSpecialitiesPage({ searchParams }: HospitalPortalSpecialitiesPageProps) {
-  const params = await searchParams
-  const hospitalId = typeof params.hospitalId === "string" ? params.hospitalId : undefined
-  const hospital = (hospitalId ? hospitalById[hospitalId] : undefined) ?? getDemoHospital()
-
-  return (
-    <div className="space-y-8">
-      <PortalPageHeader
-        label="Specialties"
-        description={`Select the specialties and treatments ${hospital.name} offers. Choices come from the platform's fixed taxonomy.`}
-      />
-      <SpecialtyOfferingsManager
-        initialSpecialtyIds={hospital.specialties}
-        initialTreatmentIds={hospital.treatments}
-      />
-    </div>
-  )
+export default function Page() {
+  return <PortalClosedNotice audience="hospital" />
 }

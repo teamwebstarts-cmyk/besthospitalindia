@@ -1,37 +1,5 @@
-import type { Metadata } from "next"
+import { redirect } from "next/navigation"
 
-import { partnerUsers } from "@/data"
-import { AdminPageHeader } from "@/features/admin"
-import { PartnerAccountsManager } from "@/features/admin/components/partner-accounts-manager"
-
-/**
- * /admin/partners — Partner Management (pages/24 + 14-admin-module-contracts).
- *
- * Server Component: passes the frozen PartnerUser fixtures to the client
- * island. Organizations come from the linked Hospital fixtures; the demo
- * contract defines exactly three partner accounts across two organizations
- * plus the doctor-side coordinator desk — no extra organizations invented.
- */
-
-export const metadata: Metadata = {
-  title: "Partner Management",
-  description:
-    "Admin partner management (demo): review hospital and service-provider partner accounts with local mock approve / suspend actions and a staff view. Fictional fixture data only.",
-}
-
-export default function AdminPartnersPage() {
-  return (
-    <div className="space-y-6 py-6">
-      <AdminPageHeader
-        compact
-        items={[
-          { label: "Admin Portal", href: "/admin" },
-          { label: "Partners" },
-        ]}
-        title="Partners"
-      />
-
-      <PartnerAccountsManager partnerUsers={partnerUsers} />
-    </div>
-  )
+export default function Page() {
+  redirect("/admin/vendors")
 }

@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ROUTES } from "@/constants/routes";
-import { EnquiryForm } from "@/features/consultations/enquiry-form";
+import { LeadIntakeForm } from "@/features/leads/intake-form";
 import { CircleCheckIcon, XIcon } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -49,7 +49,7 @@ export default function FreeConsultationPage() {
           <h2 id="consultation-form-heading" className="sr-only">
             Consultation request form
           </h2>
-          <EnquiryForm />
+          <LeadIntakeForm />
         </section>
 
         <aside aria-labelledby="consultation-side-heading" className="flex min-w-0 flex-col gap-4">

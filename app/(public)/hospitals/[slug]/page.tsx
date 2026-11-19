@@ -48,7 +48,8 @@ import { RatingPair } from "@/features/ratings/rating-pair"
 import { VerificationBadge } from "@/features/providers/components/verification-badge"
 import { getHospitalBySlug, getRelatedDoctors, getTreatmentById } from "@/lib/search"
 import { hospitals, reviewsForProvider, specialtyById } from "@/data"
-import { appointmentRequestHref, doctorProfileHref, hospitalProfileHref, ROUTES } from "@/constants/routes"
+import { isCataloguePublic } from "@/lib/catalogue/store"
+import { doctorProfileHref, hospitalProfileHref, ROUTES } from "@/constants/routes"
 import { RATING_LABELS } from "@/constants/rating"
 
 export const dynamicParams = false
@@ -64,7 +65,7 @@ type HospitalProfilePageProps = {
 export async function generateMetadata({ params }: HospitalProfilePageProps): Promise<Metadata> {
   const { slug } = await params
   const hospital = getHospitalBySlug(slug)
-  if (!hospital) {
+  if (!hospital || !isCataloguePublic("hospital", hospital.id)) {
     return { title: "Hospital not found" }
   }
   return {
@@ -77,11 +78,11 @@ export async function generateMetadata({ params }: HospitalProfilePageProps): Pr
 export default async function HospitalProfilePage({ params }: HospitalProfilePageProps) {
   const { slug } = await params
   const hospital = getHospitalBySlug(slug)
-  if (!hospital) {
+  if (!hospital || !isCataloguePublic("hospital", hospital.id)) {
     notFound()
   }
 
-  const doctors = getRelatedDoctors(hospital.id)
+  const doctors = getRelatedDoctors(hospital.id).filter((doctor) => isCataloguePublic("doctor", doctor.id))
   const reviews = reviewsForProvider("hospital", hospital.id)
   const publishedReviews = reviews.filter((review) => review.status === "published")
   const specialtyNames = hospital.specialties
@@ -91,7 +92,7 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
     .map((id) => getTreatmentById(id)?.name)
     .filter((name): name is string => name !== undefined)
 
-  const consultationHref = appointmentRequestHref("hospital", hospital.id)
+  const consultationHref = ROUTES.public.freeConsultation
   const contactHref = ROUTES.public.contact
 
   const sections = [
@@ -136,8 +137,8 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
           <div className="hidden flex-wrap gap-2 lg:flex">
             <Button variant="cta" className="rounded-full px-5 font-semibold shadow-sm" render={<Link href={consultationHref} />}>
               <CalendarCheckIcon data-icon="inline-start" />
-              Request appointment
-              <span className="sr-only"> at {hospital.name}</span>
+              Free consultation
+              <span className="sr-only"> for {hospital.name}</span>
             </Button>
             <Button variant="outline" render={<Link href={contactHref} />}>
               Contact
@@ -364,7 +365,7 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
             </CardHeader>
             <CardContent className="space-y-3">
               <p className="text-sm text-muted-foreground">
-                Submit an enquiry and our coordination team will respond. An enquiry is not a confirmed appointment until the hospital confirms.
+                Your query goes to our admin team and the city desk for this place. It is not sent to the hospital.
               </p>
               <Button variant="cta" className="w-full rounded-full font-semibold shadow-sm" render={<Link href={consultationHref} />}>
                 <CalendarCheckIcon data-icon="inline-start" />
@@ -395,7 +396,7 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
 
       <ProfileMobileActionBar
         primaryHref={consultationHref}
-        primaryLabel="Request appointment"
+        primaryLabel="Free consultation"
         secondaryHref={contactHref}
         secondaryLabel="Contact"
       />

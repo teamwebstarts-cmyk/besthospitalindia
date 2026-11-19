@@ -18,6 +18,7 @@ import type { Metadata } from "next"
 import { Suspense } from "react"
 
 import { facilities, specialties } from "@/data"
+import { isCataloguePublic } from "@/lib/catalogue/store"
 import { getSpecialtyBySlug, paginate, searchFacilities } from "@/lib/search"
 import { DirectoryPageIntro } from "@/components/shared/directory-page-intro"
 import { EmptyState } from "@/components/shared/empty-state"
@@ -180,7 +181,7 @@ export default async function FacilitiesPage({
       services: service ? [service] : undefined,
     },
     sort,
-  )
+  ).filter((facility) => isCataloguePublic("facility", facility.id))
   const { items, total, totalPages } = paginate(results, page, PAGE_SIZE)
   const paginationPage = Math.min(Math.max(1, page), totalPages)
 

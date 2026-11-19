@@ -38,6 +38,7 @@ import {
   readFilterValues,
 } from "@/features/discovery/types"
 import { hospitals, specialties } from "@/data"
+import { isCataloguePublic } from "@/lib/catalogue/store"
 import { paginate, searchHospitals, type SearchSort } from "@/lib/search"
 import { ROUTES } from "@/constants/routes"
 import { NOT_RATED_MESSAGE } from "@/constants/rating"
@@ -142,7 +143,7 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
     undefined,
     sort,
     ratingKind ? { ratingKind } : undefined,
-  )
+  ).filter((hospital) => isCataloguePublic("hospital", hospital.id))
 
   // Facet-local refinements handled page-side (rating status is display-only
   // metadata, so it filters on the rendered RatingSummary rather than lib/search).
@@ -173,7 +174,7 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
   const paginationPage = Math.min(Math.max(1, page), totalPages)
 
   // Facet options derived from fixtures — no hardcoded arrays in JSX.
-  const cities = [...new Set(hospitals.map((hospital) => hospital.city))].sort((a, b) => a.localeCompare(b))
+  const cities = [...new Set(hospitals.filter((hospital) => isCataloguePublic("hospital", hospital.id)).map((hospital) => hospital.city))].sort((a, b) => a.localeCompare(b))
 
   const facetValues: Record<string, string[]> = {
     ...(q ? { q: [q] } : {}),

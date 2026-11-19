@@ -22,6 +22,7 @@ import type { Metadata } from "next"
 import { MapPinIcon } from "lucide-react"
 
 import { facilities, specialtyById } from "@/data"
+import { isCataloguePublic } from "@/lib/catalogue/store"
 import { getFacilityBySlug } from "@/lib/search"
 import { Breadcrumbs } from "@/components/shared/breadcrumbs"
 import { ProfileMobileActionBar } from "@/components/shared/profile-mobile-action-bar"
@@ -57,7 +58,7 @@ export async function generateMetadata({
 }: FacilityPageProps): Promise<Metadata> {
   const { slug } = await params
   const facility = getFacilityBySlug(slug)
-  if (!facility) return {}
+  if (!facility || !isCataloguePublic("facility", facility.id)) return {}
 
   const categoryLabel = FACILITY_CATEGORY_LABELS[facility.category].toLowerCase()
   return {
@@ -77,7 +78,7 @@ function getFacilitySpecialties(facility: Facility) {
 export default async function FacilityDetailPage({ params }: FacilityPageProps) {
   const { slug } = await params
   const facility = getFacilityBySlug(slug)
-  if (!facility) notFound()
+  if (!facility || !isCataloguePublic("facility", facility.id)) notFound()
 
   const facilitySpecialties = getFacilitySpecialties(facility)
   const sections = [

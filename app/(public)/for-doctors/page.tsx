@@ -9,6 +9,7 @@ import {
 import { JourneySteps } from "@/features/content/journey-steps"
 import { PartnerBenefits } from "@/features/content/partner-benefits"
 import { PartnerInterestForm } from "@/features/content/partner-forms"
+import { SubmissionStatus } from "@/features/catalogue/submission-status"
 import {
   forDoctorsSteps,
   forDoctorsBenefits,
@@ -27,7 +28,7 @@ export default function ForDoctorsPage() {
     <div className="space-y-10 py-8">
       <PageHeader
         title="Join as a doctor"
-        description="A readable profile, credential verification with explicit states, two-way hospital associations and structured patient enquiries. Listing neither grants nor promises any rating."
+        description="Submit your profile for admin approval. Patient queries are not sent to the doctor. The profile appears on the public site only after admin approves it."
         breadcrumbItems={breadcrumbItems}
       />
 
@@ -76,7 +77,7 @@ export default function ForDoctorsPage() {
 
       <PageSection
         title="Individual interest form"
-        description="Tell us about your practice. Our partnerships team reviews your interest and follows up."
+        description="Use an official email. After you submit, check the same email here to see whether admin has approved the profile."
         id="interest-form"
       >
         <DemoNotice
@@ -84,6 +85,7 @@ export default function ForDoctorsPage() {
           message="Submitting this form starts a review workflow. You receive a reference number on screen; our team contacts you about next steps for joining the platform."
         />
         <PartnerInterestForm kind="doctor" />
+        <SubmissionStatus />
       </PageSection>
 
       <ContentLinkGroup

@@ -9,6 +9,7 @@ import {
 import { JourneySteps } from "@/features/content/journey-steps"
 import { PartnerBenefits } from "@/features/content/partner-benefits"
 import { PartnerInterestForm } from "@/features/content/partner-forms"
+import { SubmissionStatus } from "@/features/catalogue/submission-status"
 import {
   forHospitalsSteps,
   forHospitalsBenefits,
@@ -30,7 +31,7 @@ export default function ForHospitalsPage() {
     <div className="space-y-10 py-8">
       <PageHeader
         title="Partner with BestHospitalIndia — for hospitals"
-        description="Bring your hospital into a structured discovery platform: a complete profile, clearly-tracked document verification and managed patient enquiries. Participation does not influence ratings."
+        description="Submit the hospital for admin approval. Patient queries are not sent to the hospital. A listing appears on the public site only after admin approves it."
         breadcrumbItems={breadcrumbItems}
       />
 
@@ -74,7 +75,7 @@ export default function ForHospitalsPage() {
 
       <PageSection
         title="Institutional interest form"
-        description="Tell us about the facility. Our partnerships team reviews your application and follows up."
+        description="Use an official email. After you submit, check the same email here to see whether admin has approved the listing."
         id="interest-form"
       >
         <DemoNotice
@@ -82,6 +83,7 @@ export default function ForHospitalsPage() {
           message="Submitting this form starts an institutional review workflow. You receive a reference number on screen; our team contacts you about onboarding next steps."
         />
         <PartnerInterestForm kind="hospital" />
+        <SubmissionStatus />
       </PageSection>
 
       <ContentLinkGroup
