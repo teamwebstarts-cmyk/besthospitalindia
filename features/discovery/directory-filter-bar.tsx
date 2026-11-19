@@ -6,7 +6,6 @@ import { RotateCcwIcon, SearchIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
@@ -54,6 +53,15 @@ function selectItems(field: DirectoryFilterSelectField): Record<string, React.Re
     [empty]: blankLabel,
     ...Object.fromEntries(field.options.filter((o) => o.value !== empty).map((o) => [o.value, o.label])),
   }
+}
+
+const selectTriggerClass =
+  "h-9 w-full min-w-0 text-xs shadow-none data-[size=sm]:h-9"
+
+const selectContentProps = {
+  side: "bottom" as const,
+  align: "start" as const,
+  alignItemWithTrigger: false,
 }
 
 export function DirectoryFilterBar({
@@ -110,69 +118,73 @@ export function DirectoryFilterBar({
     router.replace(basePath, { scroll: false })
   }
 
-  const selectCount = selects.length
+  const filterCellCount = selects.length + 1
 
   return (
     <div
       className={cn(
-        "grid gap-3 rounded-xl border border-border/80 bg-card p-3 shadow-xs ring-1 ring-foreground/5 sm:gap-3.5 sm:p-4",
-        selectCount <= 1 && "sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,10rem)_auto] lg:items-end",
-        selectCount === 2 &&
-          "sm:grid-cols-2 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,9rem)_minmax(0,9rem)_minmax(0,9rem)_auto] lg:items-end",
-        selectCount >= 3 &&
-          "sm:grid-cols-2 xl:grid-cols-[minmax(0,1.2fr)_repeat(3,minmax(0,8.5rem))_minmax(0,9rem)_auto] xl:items-end",
+        "lg:hidden",
+        "rounded-lg border border-border/70 bg-card/95 p-2.5 shadow-xs",
         className,
       )}
     >
+      <form
+        role="search"
+        onSubmit={(event) => {
+          event.preventDefault()
+          pushParams({ [queryParam]: draftQuery })
+        }}
+        className="flex gap-1.5"
+      >
+        <label htmlFor="directory-filter-search" className="sr-only">
+          {search.label}
+        </label>
+        <Input
+          id="directory-filter-search"
+          type="search"
+          name={queryParam}
+          key={search.value}
+          placeholder={search.placeholder}
+          value={draftQuery}
+          onChange={(event) => setDraftOverride(event.target.value)}
+          className="h-9 min-h-9 min-w-0 flex-1 text-sm"
+        />
+        <Button
+          type="submit"
+          variant="outline"
+          size="icon"
+          className="size-9 shrink-0"
+          aria-label="Search"
+        >
+          <SearchIcon aria-hidden className="size-4" />
+        </Button>
+      </form>
+
       <div
         className={cn(
-          "space-y-1.5",
-          selectCount <= 1 && "sm:col-span-2 lg:col-span-1",
-          selectCount === 2 && "sm:col-span-2 lg:col-span-1",
-          selectCount >= 3 && "sm:col-span-2 xl:col-span-1",
+          "mt-2 grid gap-1.5",
+          filterCellCount <= 3 ? "grid-cols-3" : "grid-cols-2",
         )}
       >
-        <Label htmlFor="directory-filter-search">{search.label}</Label>
-        <form
-          role="search"
-          onSubmit={(event) => {
-            event.preventDefault()
-            pushParams({ [queryParam]: draftQuery })
-          }}
-          className="flex gap-2"
-        >
-          <Input
-            id="directory-filter-search"
-            type="search"
-            name={queryParam}
-            key={search.value}
-            placeholder={search.placeholder}
-            value={draftQuery}
-            onChange={(event) => setDraftOverride(event.target.value)}
-            className="min-h-10 min-w-0 flex-1"
-          />
-          <Button type="submit" variant="outline" className="shrink-0">
-            <SearchIcon data-icon="inline-start" aria-hidden className="size-4" />
-            <span className="sr-only sm:not-sr-only">Search</span>
-          </Button>
-        </form>
-      </div>
-
-      {selects.map((field) => {
-        const empty = field.emptyValue ?? "all"
-        const controlled = field.value === "" ? empty : field.value
-        return (
-          <div key={field.id} className="space-y-1.5">
-            <Label htmlFor={field.id}>{field.label}</Label>
+        {selects.map((field) => {
+          const empty = field.emptyValue ?? "all"
+          const controlled = field.value === "" ? empty : field.value
+          return (
             <Select
+              key={field.id}
               value={controlled}
               items={selectItems(field)}
               onValueChange={(value) => pushParams({ [field.param]: value ?? null })}
             >
-              <SelectTrigger id={field.id} className="w-full min-h-10">
-                <SelectValue />
+              <SelectTrigger
+                id={field.id}
+                size="sm"
+                aria-label={field.label}
+                className={selectTriggerClass}
+              >
+                <SelectValue placeholder={field.label} />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent {...selectContentProps}>
                 {field.options.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
@@ -180,21 +192,26 @@ export function DirectoryFilterBar({
                 ))}
               </SelectContent>
             </Select>
-          </div>
-        )
-      })}
+          )
+        })}
 
-      <div className="space-y-1.5">
-        <Label htmlFor="directory-filter-sort">Sort</Label>
         <Select
           value={sort.value}
           items={sortItems}
           onValueChange={(value) => pushParams({ [sort.param]: value ?? null })}
         >
-          <SelectTrigger id="directory-filter-sort" className="w-full min-h-10">
-            <SelectValue />
+          <SelectTrigger
+            id="directory-filter-sort"
+            size="sm"
+            aria-label="Sort"
+            className={cn(
+              selectTriggerClass,
+              filterCellCount > 3 && "col-span-1",
+            )}
+          >
+            <SelectValue placeholder="Sort" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent {...selectContentProps}>
             {sort.options.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {option.label}
@@ -204,20 +221,20 @@ export function DirectoryFilterBar({
         </Select>
       </div>
 
-      <Button
-        type="button"
-        variant="ghost"
-        className={cn(
-          "min-h-10 w-full sm:col-span-2 sm:w-auto",
-          selectCount >= 2 && "sm:col-span-1",
-          "xl:col-span-1 xl:w-auto xl:justify-self-end",
-        )}
-        disabled={!hasFilters}
-        onClick={clearAll}
-      >
-        <RotateCcwIcon data-icon="inline-start" aria-hidden className="size-4" />
-        Clear all
-      </Button>
+      {hasFilters ? (
+        <div className="mt-1.5 flex justify-end">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-8 px-2 text-xs text-muted-foreground"
+            onClick={clearAll}
+          >
+            <RotateCcwIcon data-icon="inline-start" aria-hidden className="size-3.5" />
+            Clear all
+          </Button>
+        </div>
+      ) : null}
     </div>
   )
 }

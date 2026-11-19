@@ -925,8 +925,10 @@
   }
 
   .fh-grid:not(.fh-grid--directory) .fh-tags {
-    min-height: 0;
-    max-height: none;
+    flex-wrap: nowrap;
+    min-height: 1.65rem;
+    max-height: 1.65rem;
+    overflow: hidden;
     padding: 10px var(--fh-m-gutter) 0;
     gap: 6px;
   }
