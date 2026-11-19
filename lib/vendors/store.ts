@@ -58,8 +58,12 @@ async function readAll(): Promise<Vendor[]> {
 }
 
 async function writeAll(vendors: Vendor[]): Promise<void> {
-  await mkdir(path.dirname(FILE), { recursive: true })
-  await writeFile(FILE, JSON.stringify(vendors, null, 2), "utf8")
+  try {
+    await mkdir(path.dirname(FILE), { recursive: true })
+    await writeFile(FILE, JSON.stringify(vendors, null, 2), "utf8")
+  } catch {
+    // Read-only deploy fs — keep working with in-memory seed data.
+  }
 }
 
 export function toPublic(vendor: Vendor): VendorPublic {

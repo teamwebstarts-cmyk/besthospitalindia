@@ -12,6 +12,22 @@ interface AdminAccount {
   password: string
 }
 
+function defaultAccount(): AdminAccount {
+  return {
+    email: (process.env.ADMIN_EMAIL ?? "admin@besthospitalindian.com").trim().toLowerCase(),
+    password: process.env.ADMIN_PASSWORD ?? "admin-demo",
+  }
+}
+
+async function persistAccount(account: AdminAccount): Promise<void> {
+  try {
+    await mkdir(path.dirname(FILE), { recursive: true })
+    await writeFile(FILE, JSON.stringify(account, null, 2), "utf8")
+  } catch {
+    // Serverless bundles (e.g. Vercel) are read-only — defaults still work.
+  }
+}
+
 async function readAccount(): Promise<AdminAccount> {
   try {
     const parsed = JSON.parse(await readFile(FILE, "utf8")) as Partial<AdminAccount>
@@ -19,11 +35,10 @@ async function readAccount(): Promise<AdminAccount> {
       return { email: parsed.email, password: parsed.password }
     }
   } catch {
-    // seed below
+    // missing or unreadable local file
   }
-  const account = { email: "admin@besthospitalindian.com", password: "admin-demo" }
-  await mkdir(path.dirname(FILE), { recursive: true })
-  await writeFile(FILE, JSON.stringify(account, null, 2), "utf8")
+  const account = defaultAccount()
+  await persistAccount(account)
   return account
 }
 
