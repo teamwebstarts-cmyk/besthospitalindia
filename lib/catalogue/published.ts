@@ -1,6 +1,7 @@
 import "server-only"
 
-import type { Doctor, Hospital, RatingSummary } from "@/types"
+import { specialtyById, treatmentById } from "@/data"
+import type { Accreditation, Doctor, Facility, FacilityCategory, Hospital, RatingSummary } from "@/types"
 import type { RatingKind } from "@/types/rating"
 
 import { listSubmissions, type CatalogueSubmission } from "@/lib/catalogue/submissions"
@@ -32,23 +33,50 @@ function approved(kind: CatalogueSubmission["kind"]): CatalogueSubmission[] {
   return listSubmissions(kind).filter((row) => row.status === "approved")
 }
 
+/** Keep only ids that resolve against the frozen taxonomies — no broken lookups. */
+function validIds(ids: string[] | undefined, lookup: Record<string, unknown>): string[] {
+  return (ids ?? []).filter((id) => typeof id === "string" && lookup[id] !== undefined)
+}
+
+function accreditations(names: string[] | undefined): Accreditation[] {
+  return (names ?? [])
+    .filter((name) => typeof name === "string" && name.trim().length > 0)
+    .map((name) => ({ name: name.trim(), status: "pending" }))
+}
+
+function asTextList(value: string[] | string | undefined): string[] {
+  if (Array.isArray(value)) return value.filter((v) => typeof v === "string" && v.trim().length > 0)
+  if (typeof value === "string") {
+    return value.split(/[,\n]/).map((part) => part.trim()).filter(Boolean)
+  }
+  return []
+}
+
+function imageFor(row: CatalogueSubmission): string {
+  return row.imageUrl?.trim() || "/images/hospitals/placeholder.svg"
+}
+
+const FACILITY_CATEGORIES: FacilityCategory[] = [
+  "hospital", "specialty_centre", "diagnostic_lab", "rehabilitation", "wellness", "medical_tourism",
+]
+
 export function publishedHospitals(): Hospital[] {
   return approved("hospital").map((row) => ({
     id: row.id,
     slug: submissionSlug(row),
     name: row.name,
     city: row.city,
-    state: row.city,
-    country: "India",
-    facilityType: "Hospital",
-    overview: row.note || "Listed after admin approval.",
-    specialties: [],
-    treatments: [],
-    accreditations: [],
+    state: row.state?.trim() || row.city,
+    country: row.country?.trim() || "India",
+    facilityType: row.facilityType?.trim() || "Hospital",
+    overview: row.overview?.trim() || row.note || "Listed after admin approval.",
+    specialties: validIds(row.specialties, specialtyById),
+    treatments: validIds(row.treatments, treatmentById),
+    accreditations: accreditations(row.accreditations),
     verificationStatus: "pending",
     ratings: { per: unrated("PER"), cer: unrated("CER") },
     doctorIds: [],
-    image: "/images/hospitals/placeholder.svg",
+    image: imageFor(row),
   }))
 }
 
@@ -57,18 +85,38 @@ export function publishedDoctors(): Doctor[] {
     id: row.id,
     slug: submissionSlug(row),
     name: row.name,
-    photo: "/images/hospitals/placeholder.svg",
+    photo: imageFor(row),
     city: row.city,
-    state: row.city,
-    country: "India",
-    specialization: "",
-    qualifications: [],
-    yearsExperience: null,
+    state: row.state?.trim() || row.city,
+    country: row.country?.trim() || "India",
+    specialization: validIds([row.specialization ?? ""], specialtyById)[0] ?? "",
+    qualifications: asTextList(row.qualifications),
+    yearsExperience:
+      typeof row.yearsExperience === "number" && Number.isFinite(row.yearsExperience)
+        ? row.yearsExperience
+        : null,
     registration: { authority: "Not listed", numberMasked: "—", status: "pending" },
     hospitalIds: [],
-    treatments: [],
-    languages: [],
+    treatments: validIds(row.treatments, treatmentById),
+    languages: asTextList(row.languages),
     ratings: { per: unrated("PER"), mer: unrated("MER") },
+    verificationStatus: "pending",
+  }))
+}
+
+export function publishedFacilities(): Facility[] {
+  return approved("facility").map((row) => ({
+    id: row.id,
+    slug: submissionSlug(row),
+    name: row.name,
+    category: FACILITY_CATEGORIES.includes(row.category as FacilityCategory)
+      ? (row.category as FacilityCategory)
+      : "hospital",
+    city: row.city,
+    state: row.state?.trim() || row.city,
+    country: row.country?.trim() || "India",
+    specialties: validIds(row.specialties, specialtyById),
+    services: asTextList(row.services),
     verificationStatus: "pending",
   }))
 }
@@ -79,6 +127,10 @@ export function publishedHospitalBySlug(slug: string): Hospital | undefined {
 
 export function publishedDoctorBySlug(slug: string): Doctor | undefined {
   return publishedDoctors().find((doctor) => doctor.slug === slug)
+}
+
+export function publishedFacilityBySlug(slug: string): Facility | undefined {
+  return publishedFacilities().find((facility) => facility.slug === slug)
 }
 
 function includesQuery(query: string | undefined, parts: string[]): boolean {
@@ -96,8 +148,10 @@ export function matchingPublishedHospitals(filters: {
   return publishedHospitals().filter((hospital) => {
     if (filters.city && hospital.city.toLowerCase() !== filters.city.toLowerCase()) return false
     if (filters.state && hospital.state.toLowerCase() !== filters.state.toLowerCase()) return false
-    if (filters.specialties && filters.specialties.length > 0) return false
-    return includesQuery(filters.query, [hospital.name, hospital.city])
+    if (filters.specialties && filters.specialties.length > 0) {
+      if (!filters.specialties.some((id) => hospital.specialties.includes(id))) return false
+    }
+    return includesQuery(filters.query, [hospital.name, hospital.city, hospital.overview])
   })
 }
 
@@ -108,7 +162,25 @@ export function matchingPublishedDoctors(filters: {
 }): Doctor[] {
   return publishedDoctors().filter((doctor) => {
     if (filters.city && doctor.city.toLowerCase() !== filters.city.toLowerCase()) return false
-    if (filters.specialization) return false
-    return includesQuery(filters.query, [doctor.name, doctor.city])
+    if (filters.specialization && doctor.specialization !== filters.specialization) return false
+    return includesQuery(filters.query, [doctor.name, doctor.city, doctor.qualifications.join(" ")])
+  })
+}
+
+export function matchingPublishedFacilities(filters: {
+  query?: string
+  city?: string
+  category?: string
+  specialties?: string[]
+  services?: string
+}): Facility[] {
+  return publishedFacilities().filter((facility) => {
+    if (filters.city && facility.city.toLowerCase() !== filters.city.toLowerCase()) return false
+    if (filters.category && facility.category !== filters.category) return false
+    if (filters.specialties && filters.specialties.length > 0) {
+      if (!filters.specialties.some((id) => facility.specialties.includes(id))) return false
+    }
+    if (filters.services && !facility.services.join(" ").toLowerCase().includes(filters.services.toLowerCase())) return false
+    return includesQuery(filters.query, [facility.name, facility.city, facility.services.join(" ")])
   })
 }

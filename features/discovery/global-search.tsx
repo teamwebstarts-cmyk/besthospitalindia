@@ -55,11 +55,6 @@ export function GlobalSearch({
     entityTypes.map((type) => [type, ENTITY_TYPE_LABELS[type]]),
   )
 
-  React.useEffect(() => {
-    if (!entityTypes.includes(entityType)) {
-      setEntityType(entityTypes[0] ?? "hospitals")
-    }
-  }, [entityType, entityTypes])
   const [query, setQuery] = React.useState(initialQuery)
   const queryFieldId = React.useId()
 

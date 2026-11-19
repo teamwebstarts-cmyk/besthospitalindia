@@ -23,6 +23,7 @@ import { MapPinIcon } from "lucide-react"
 
 import { facilities, specialtyById } from "@/data"
 import { isCataloguePublic } from "@/lib/catalogue/store"
+import { publishedFacilityBySlug } from "@/lib/catalogue/published"
 import { getFacilityBySlug } from "@/lib/search"
 import { Breadcrumbs } from "@/components/shared/breadcrumbs"
 import { ProfileMobileActionBar } from "@/components/shared/profile-mobile-action-bar"
@@ -50,15 +51,22 @@ export function generateStaticParams(): { slug: string }[] {
   return facilities.map((facility) => ({ slug: facility.slug }))
 }
 
-export const dynamicParams = false
+export const dynamicParams = true
+
+/** Fixtures first (publication-gated), then approved admin-submitted facilities. */
+function resolveFacility(slug: string): Facility | undefined {
+  const fixture = getFacilityBySlug(slug)
+  if (fixture) return isCataloguePublic("facility", fixture.id) ? fixture : undefined
+  return publishedFacilityBySlug(slug)
+}
 
 /** Safe factual fields only — name, category, city, demo-data notice. */
 export async function generateMetadata({
   params,
 }: FacilityPageProps): Promise<Metadata> {
   const { slug } = await params
-  const facility = getFacilityBySlug(slug)
-  if (!facility || !isCataloguePublic("facility", facility.id)) return {}
+  const facility = resolveFacility(slug)
+  if (!facility) return {}
 
   const categoryLabel = FACILITY_CATEGORY_LABELS[facility.category].toLowerCase()
   return {
@@ -77,8 +85,8 @@ function getFacilitySpecialties(facility: Facility) {
 
 export default async function FacilityDetailPage({ params }: FacilityPageProps) {
   const { slug } = await params
-  const facility = getFacilityBySlug(slug)
-  if (!facility || !isCataloguePublic("facility", facility.id)) notFound()
+  const facility = resolveFacility(slug)
+  if (!facility) notFound()
 
   const facilitySpecialties = getFacilitySpecialties(facility)
   const sections = [
@@ -112,7 +120,7 @@ export default async function FacilityDetailPage({ params }: FacilityPageProps) 
           {facility.city}, {facility.state}, {facility.country}
         </p>
         <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
-          Listed specialties, services, and verification status. A query goes to admin and the Delhi or Indore desk, not to this facility.
+          Listed specialties, services, and verification status. An enquiry is handled by our team, never sent to this facility.
         </p>
         <div className="hidden flex-wrap gap-2 pt-1 lg:flex">
           <Button variant="cta" className="rounded-full font-semibold shadow-sm" render={<Link href="/free-consultation" />}>
@@ -218,7 +226,7 @@ export default async function FacilityDetailPage({ params }: FacilityPageProps) 
             <CardHeader>
               <CardTitle>Interested in this facility?</CardTitle>
               <CardDescription>
-                A query goes to admin and the Delhi or Indore desk. It is not sent to this facility.
+                Your enquiry is handled by our team. It is never sent to this facility.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-2">

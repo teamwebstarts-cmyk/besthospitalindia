@@ -176,18 +176,23 @@ function DesktopNavLinks({ links }: { links: NavLink[] }) {
   )
 }
 
-/** Same mint pill as desktop top bar — shared on mobile/tablet header row. */
-function FreeConsultationHeaderButton({ className }: { className?: string }) {
+/**
+ * Single source of truth for the header CTA. Phone/tablet row and desktop top
+ * bar render the same button, so they can never drift to different colours.
+ * Mint pill (`bg-secondary`) with the teal label is the desktop look.
+ */
+const FREE_CONSULT_HEADER_CTA_CLASS =
+  "h-9 shrink-0 gap-1.5 rounded-full border-0 bg-secondary px-4 text-sm font-semibold text-primary shadow-sm transition-[background-color,box-shadow] duration-200 hover:bg-secondary/85 hover:shadow-md"
+
+function FreeConsultationHeaderButton() {
   const pathname = usePathname()
   const href = ROUTES.public.freeConsultation
 
   return (
     <Button
+      variant="secondary"
       size="sm"
-      className={cn(
-        "h-9 shrink-0 gap-1.5 rounded-full border-0 bg-secondary px-4 text-sm font-semibold text-primary shadow-sm transition-[background-color,box-shadow] duration-200 hover:bg-secondary/85 hover:shadow-md",
-        className,
-      )}
+      className={FREE_CONSULT_HEADER_CTA_CLASS}
       render={
         <Link
           href={href}

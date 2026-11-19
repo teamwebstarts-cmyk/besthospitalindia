@@ -19,6 +19,7 @@ import { Suspense } from "react"
 
 import { facilities, specialties } from "@/data"
 import { isCataloguePublic } from "@/lib/catalogue/store"
+import { matchingPublishedFacilities, publishedFacilities } from "@/lib/catalogue/published"
 import { getSpecialtyBySlug, paginate, searchFacilities } from "@/lib/search"
 import { DirectoryPageIntro } from "@/components/shared/directory-page-intro"
 import { EmptyState } from "@/components/shared/empty-state"
@@ -111,12 +112,13 @@ function getCategoryOptions() {
   }))
 }
 
-/** Distinct, alphabetically sorted city facet from the fixture set. */
+/** Distinct, alphabetically sorted city facet from fixtures + approved listings. */
 function getCityOptions() {
   const cities = new Set<string>()
   for (const facility of facilities) {
     cities.add(facility.city)
   }
+  for (const facility of publishedFacilities()) cities.add(facility.city)
   return [...cities]
     .sort((cityA, cityB) => cityA.localeCompare(cityB))
     .map((city) => ({
@@ -125,10 +127,10 @@ function getCityOptions() {
     }))
 }
 
-/** Distinct service facet from the fixture set (exact demo labels). */
+/** Distinct service facet from fixtures + approved listings. */
 function getServiceOptions() {
   const byLabel = new Map<string, string>()
-  for (const facility of facilities) {
+  for (const facility of [...facilities, ...publishedFacilities()]) {
     for (const service of facility.services) {
       if (!byLabel.has(service)) byLabel.set(service, service)
     }
@@ -182,6 +184,13 @@ export default async function FacilitiesPage({
     },
     sort,
   ).filter((facility) => isCataloguePublic("facility", facility.id))
+    .concat(matchingPublishedFacilities({
+      query: q === "" ? undefined : q,
+      city,
+      category,
+      specialties: selectedSpecialty ? [selectedSpecialty.id] : undefined,
+      services: service,
+    }))
   const { items, total, totalPages } = paginate(results, page, PAGE_SIZE)
   const paginationPage = Math.min(Math.max(1, page), totalPages)
 

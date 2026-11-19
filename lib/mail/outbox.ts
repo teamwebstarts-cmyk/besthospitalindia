@@ -66,6 +66,14 @@ export function recordLeadCode(leadId: string, email: string, purpose: "query" |
   })
 }
 
+/** Latest OTP for a lead — used only by the local demo helper in outbox mode. */
+export function getLatestLeadCode(leadId: string): Promise<string | null> {
+  return withLock(async () => {
+    const message = (await readAll()).find((item) => item.leadId === leadId)
+    return message?.code ?? null
+  })
+}
+
 export function verifyLeadCode(leadId: string, code: string): Promise<boolean> {
   return withLock(async () => {
     const message = (await readAll()).find((item) => item.leadId === leadId)
@@ -82,7 +90,7 @@ export function recordLeadConfirmation(leadId: string, email: string, track: str
       to: email,
       from: FROM,
       subject: `We have your request ${leadId}`,
-      body: `We have your ${label} request. Your unique id is ${leadId}. Admin and your city desk have it. It was not sent to a hospital or a doctor.`,
+      body: `We have your ${label} request. Your unique id is ${leadId}. Our team has received it and will be in touch. It was not sent to a hospital or a doctor.`,
       code: "",
       createdAt: new Date().toISOString(),
     }

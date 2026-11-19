@@ -1,9 +1,46 @@
 import { NextResponse } from "next/server"
 
 import { adminDenied } from "@/lib/admin/session"
-import { isCatalogueStatus } from "@/lib/catalogue/store"
-import { createSubmission, deleteSubmission, listSubmissions, markSubmissionEmailVerified, updateSubmission } from "@/lib/catalogue/submissions"
+import { isCatalogueKind, isCatalogueStatus } from "@/lib/catalogue/store"
+import {
+  createSubmission, deleteSubmission, listSubmissions, markSubmissionEmailVerified, updateSubmission,
+  type CatalogueProfileFields,
+} from "@/lib/catalogue/submissions"
 import { forgetLeadCode, recordLeadCode, verifyLeadCode } from "@/lib/mail/outbox"
+
+function str(body: Record<string, unknown> | null, key: string): string {
+  const value = body?.[key]
+  return typeof value === "string" ? value.trim() : ""
+}
+
+function strList(body: Record<string, unknown> | null, key: string): string[] | undefined {
+  const value = body?.[key]
+  if (value === undefined) return undefined
+  if (Array.isArray(value)) return value.filter((v): v is string => typeof v === "string")
+  if (typeof value === "string") {
+    return value.split(/[,\n]/).map((v) => v.trim()).filter(Boolean)
+  }
+  return undefined
+}
+
+function profileFrom(body: Record<string, unknown> | null): Partial<CatalogueProfileFields> {
+  const profile: Partial<CatalogueProfileFields> = {}
+  const textKeys = ["overview", "state", "country", "imageUrl", "facilityType", "specialization", "category"] as const
+  for (const key of textKeys) {
+    const value = str(body, key)
+    if (value) (profile as Record<string, unknown>)[key] = value
+  }
+  for (const key of ["specialties", "treatments", "accreditations", "qualifications", "languages", "services"] as const) {
+    const value = strList(body, key)
+    if (value) (profile as Record<string, unknown>)[key] = value
+  }
+  const years = body?.yearsExperience
+  if (typeof years === "number" && Number.isFinite(years)) profile.yearsExperience = years
+  else if (typeof years === "string" && years.trim() !== "" && Number.isFinite(Number(years))) {
+    profile.yearsExperience = Number(years)
+  }
+  return profile
+}
 
 export async function GET(request: Request) {
   const email = new URL(request.url).searchParams.get("email")?.trim().toLowerCase() ?? ""
@@ -26,17 +63,18 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null
-  const kind = body?.kind === "hospital" || body?.kind === "doctor" ? body.kind : null
-  const name = typeof body?.name === "string" ? body.name.trim() : ""
-  const email = typeof body?.email === "string" ? body.email.trim() : ""
-  const phone = typeof body?.phone === "string" ? body.phone.trim() : ""
-  const city = typeof body?.city === "string" ? body.city.trim() : ""
-  const note = typeof body?.note === "string" ? body.note.trim() : ""
+  const rawKind = str(body, "kind")
+  const kind = isCatalogueKind(rawKind) ? rawKind : null
+  const name = str(body, "name")
+  const email = str(body, "email")
+  const phone = str(body, "phone")
+  const city = str(body, "city")
+  const note = str(body, "note")
   if (!kind || name.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || city.length < 2) {
     return NextResponse.json({ error: "Enter the name, official email, and city." }, { status: 400 })
   }
   try {
-    const submission = createSubmission({ kind, name, email, phone, city, note })
+    const submission = createSubmission({ kind, name, email, phone, city, note, ...profileFrom(body) })
     await recordLeadCode(submission.id, submission.email, "application")
     return NextResponse.json({ submission }, { status: 201 })
   } catch (error) {
@@ -50,27 +88,20 @@ export async function POST(request: Request) {
 
 export async function PATCH(request: Request) {
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null
-  const id = typeof body?.id === "string" ? body.id : ""
-  const patch: {
-    name?: string
-    email?: string
-    phone?: string
-    city?: string
-    note?: string
-    status?: "approved" | "pending" | "rejected"
-  } = {}
-  if (typeof body?.name === "string") patch.name = body.name.trim()
-  if (typeof body?.email === "string") patch.email = body.email.trim()
-  if (typeof body?.phone === "string") patch.phone = body.phone.trim()
-  if (typeof body?.city === "string") patch.city = body.city.trim()
-  if (typeof body?.note === "string") patch.note = body.note.trim()
-  if (typeof body?.status === "string") {
-    if (!isCatalogueStatus(body.status)) {
+  const id = str(body, "id")
+  const patch: Parameters<typeof updateSubmission>[1] = { ...profileFrom(body) }
+  if (body?.name !== undefined) patch.name = str(body, "name")
+  if (body?.email !== undefined) patch.email = str(body, "email")
+  if (body?.phone !== undefined) patch.phone = str(body, "phone")
+  if (body?.city !== undefined) patch.city = str(body, "city")
+  if (body?.note !== undefined) patch.note = str(body, "note")
+  if (body?.status !== undefined) {
+    if (!isCatalogueStatus(String(body.status))) {
       return NextResponse.json({ error: "Choose a valid status." }, { status: 400 })
     }
-    patch.status = body.status
+    patch.status = body.status as "approved" | "pending" | "rejected"
   }
-  const accountEmail = typeof body?.accountEmail === "string" ? body.accountEmail.trim().toLowerCase() : ""
+  const accountEmail = str(body, "accountEmail").toLowerCase()
   if (typeof body?.otp === "string") {
     if (!accountEmail) return NextResponse.json({ error: "Use the official email from the application." }, { status: 400 })
     const existing = listSubmissions().find((row) => row.id === id && row.email === accountEmail)

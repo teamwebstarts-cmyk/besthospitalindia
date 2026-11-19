@@ -32,44 +32,53 @@ function useRevealInViewOnce<T extends HTMLElement>(margin = "0px 0px -8% 0px") 
   const [motionActive, setMotionActive] = useState(false)
 
   useEffect(() => {
-    if (prefersReducedMotion()) {
-      setVisible(true)
-      setMotionActive(false)
-      return
-    }
+    let observer: IntersectionObserver | undefined
+    let fallback = 0
+    let frame = 0
 
-    setMotionActive(true)
-    setVisible(false)
+    // Defer all state updates to a frame so React never sees a synchronous
+    // setState inside the effect body (which would cause cascading renders).
+    frame = requestAnimationFrame(() => {
+      if (prefersReducedMotion()) {
+        setVisible(true)
+        setMotionActive(false)
+        return
+      }
 
-    const node = ref.current
-    if (!node) {
-      setVisible(true)
-      return
-    }
+      setMotionActive(true)
+      setVisible(false)
 
-    const markVisible = () => setVisible(true)
+      const node = ref.current
+      if (!node) {
+        setVisible(true)
+        return
+      }
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry?.isIntersecting) {
-          markVisible()
-          observer.disconnect()
-        }
-      },
-      { threshold: 0.06, rootMargin: margin },
-    )
+      const markVisible = () => setVisible(true)
 
-    observer.observe(node)
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry?.isIntersecting) {
+            markVisible()
+            observer?.disconnect()
+          }
+        },
+        { threshold: 0.06, rootMargin: margin },
+      )
 
-    const rect = node.getBoundingClientRect()
-    if (rect.top < window.innerHeight * 0.94 && rect.bottom > 0) {
-      requestAnimationFrame(() => markVisible())
-    }
+      observer.observe(node)
 
-    const fallback = window.setTimeout(markVisible, 1400)
+      const rect = node.getBoundingClientRect()
+      if (rect.top < window.innerHeight * 0.94 && rect.bottom > 0) {
+        requestAnimationFrame(() => markVisible())
+      }
+
+      fallback = window.setTimeout(markVisible, 1400)
+    })
 
     return () => {
-      observer.disconnect()
+      cancelAnimationFrame(frame)
+      observer?.disconnect()
       window.clearTimeout(fallback)
     }
   }, [margin])

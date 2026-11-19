@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { whatsappHref } from "@/constants/site-contact"
 import type { Lead, LeadAudience, LeadCity, LeadEmbassy, LeadTrack } from "@/lib/leads/types"
 import { cn } from "@/lib/utils"
 
@@ -52,6 +51,7 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
   const [detail, setDetail] = useState("")
   const [otp, setOtp] = useState("")
   const [otpNote, setOtpNote] = useState<string | null>(null)
+  const [submitted, setSubmitted] = useState(false)
 
   async function chooseTrack(track: LeadTrack) {
     if (!lead) return
@@ -98,19 +98,6 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
   }
 
   if (lead) {
-    const trackLabel = TRACKS.find((item) => item.id === lead.track)?.label
-    const message = [
-      `Query ${lead.id}`,
-      trackLabel,
-      lead.name,
-      lead.email,
-      lead.phone ? `Phone: ${lead.phone}` : null,
-      `City: ${lead.preferredCity}`,
-      lead.comment ? lead.comment : null,
-      lead.detail ? lead.detail : null,
-    ]
-      .filter(Boolean)
-      .join("\n")
     return (
       <Card
         className={cn(
@@ -119,90 +106,93 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
         )}
       >
         <CardHeader>
-          <CardTitle className={cn(isHero && "text-primary-foreground")}>Your unique id is {lead.id}</CardTitle>
+          <CardTitle className={cn(isHero && "text-primary-foreground")}>
+            {submitted ? "Request received" : `Your unique id is ${lead.id}`}
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
-          <p className={cn(isHero ? "text-primary-foreground/85" : "text-muted-foreground")}>
-            {lead.emailVerified
-              ? `Choose one request. It goes to our admin team and the ${lead.preferredCity === "delhi" ? "Delhi" : "Indore"} desk, not to a hospital or a doctor.`
-              : `We sent a 6-digit code to ${lead.email}. Enter it below to continue. The mail comes from info@wispr.hospital.`}
-          </p>
-          {!lead.emailVerified ? (
-            <form
-              className="space-y-2"
-              onSubmit={async (event) => {
-                event.preventDefault()
-                setOtpNote(null)
-                const response = await fetch(`/api/leads/${lead.id}`, {
-                  method: "PATCH",
-                  headers: { "content-type": "application/json" },
-                  body: JSON.stringify({ otp }),
-                })
-                const payload = (await response.json().catch(() => null)) as { lead?: Lead; error?: string } | null
-                if (!response.ok || !payload?.lead) {
-                  setOtpNote(payload?.error ?? "That code does not match.")
-                  return
-                }
-                setLead(payload.lead)
-                setOtpNote("Email checked.")
-              }}
-            >
-              <Label htmlFor="lead-otp" className={cn(isHero && "text-primary-foreground")}>Email code</Label>
-              <Input id="lead-otp" inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={(event) => setOtp(event.target.value)} placeholder="6-digit code" />
-              <p className={cn("text-xs", isHero ? "text-primary-foreground/80" : "text-muted-foreground")}>Email verification is required. You cannot choose a request or send details until the code matches.</p>
-              <Button type="submit" variant={isHero ? "secondary" : "outline"} className={cn("rounded-full", isHero && "border-0 bg-white text-cta hover:bg-secondary")}>Check code</Button>
-            </form>
-          ) : null}
-          {otpNote ? <p className={cn("text-sm", otpNote === "Email checked." ? (isHero ? "text-primary-foreground/90" : "text-muted-foreground") : "text-destructive")}>{otpNote}</p> : null}
-          {lead.emailVerified ? (
-            <div className="flex flex-col gap-2">
-              {TRACKS.map((item) => (
-                <Button
-                  key={item.id}
-                  type="button"
-                  variant={isHero ? (lead.track === item.id ? "secondary" : "outline") : (lead.track === item.id ? "cta" : "outline")}
-                  className={cn("justify-start rounded-full", isHero && lead.track !== item.id && "border-white/40 bg-transparent text-primary-foreground hover:bg-white/10 hover:text-primary-foreground", isHero && lead.track === item.id && "border-0 bg-white text-cta hover:bg-white")}
-                  onClick={() => chooseTrack(item.id)}
+          {submitted ? (
+            <p className={cn(isHero ? "text-primary-foreground/90" : "text-muted-foreground")}>
+              Thank you. Your request has been recorded and we will be in touch at {lead.email}.
+            </p>
+          ) : (
+            <>
+              <p className={cn(isHero ? "text-primary-foreground/85" : "text-muted-foreground")}>
+                {lead.emailVerified
+                  ? "Choose what you would like to do next:"
+                  : `We sent a 6-digit code to ${lead.email}. Enter it below to continue.`}
+              </p>
+              {!lead.emailVerified ? (
+                <form
+                  className="space-y-2"
+                  onSubmit={async (event) => {
+                    event.preventDefault()
+                    setOtpNote(null)
+                    const response = await fetch(`/api/leads/${lead.id}`, {
+                      method: "PATCH",
+                      headers: { "content-type": "application/json" },
+                      body: JSON.stringify({ otp }),
+                    })
+                    const payload = (await response.json().catch(() => null)) as { lead?: Lead; error?: string } | null
+                    if (!response.ok || !payload?.lead) {
+                      setOtpNote(payload?.error ?? "That code does not match.")
+                      return
+                    }
+                    setLead(payload.lead)
+                    setOtpNote("Email checked.")
+                  }}
                 >
-                  {item.label}
-                </Button>
-              ))}
-            </div>
-          ) : null}
-          {trackError ? <p className="text-destructive">{trackError}</p> : null}
-          {lead.emailVerified && lead.track ? (
-            <form
-              className="space-y-2"
-              onSubmit={async (event) => {
-                event.preventDefault()
-                setTrackError(null)
-                const response = await fetch(`/api/leads/${lead.id}`, {
-                  method: "PATCH",
-                  headers: { "content-type": "application/json" },
-                  body: JSON.stringify({ detail }),
-                })
-                const payload = (await response.json().catch(() => null)) as { lead?: Lead; error?: string } | null
-                if (!response.ok || !payload?.lead) {
-                  setTrackError(payload?.error ?? "Could not save that detail.")
-                  return
-                }
-                setLead(payload.lead)
-              }}
-            >
-              <Label htmlFor="lead-detail" className={cn(isHero && "text-primary-foreground")}>{TRACKS.find((item) => item.id === lead.track)?.prompt}</Label>
-              <Textarea id="lead-detail" value={detail} onChange={(event) => setDetail(event.target.value)} rows={3} />
-              <Button type="submit" variant={isHero ? "secondary" : "outline"} className={cn("rounded-full", isHero && "border-0 bg-white text-cta hover:bg-secondary")}>Save this detail</Button>
-            </form>
-          ) : null}
-          {lead.emailVerified && lead.track ? (
-            <Button
-              variant={isHero ? "secondary" : "cta"}
-              className={cn("rounded-full", isHero && "border-0 bg-white text-cta shadow-md hover:bg-secondary")}
-              render={<a href={whatsappHref(message)} target="_blank" rel="noopener noreferrer" />}
-            >
-              Send this on WhatsApp
-            </Button>
-          ) : null}
+                  <Label htmlFor="lead-otp" className={cn(isHero && "text-primary-foreground")}>Email code</Label>
+                  <Input id="lead-otp" inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={(event) => setOtp(event.target.value)} placeholder="6-digit code" />
+                  <Button type="submit" variant={isHero ? "secondary" : "outline"} className={cn("rounded-full", isHero && "border-0 bg-white text-cta hover:bg-secondary")}>Verify code</Button>
+                </form>
+              ) : null}
+              {otpNote && otpNote !== "Email checked." ? (
+                <p className="text-destructive">{otpNote}</p>
+              ) : null}
+              {lead.emailVerified ? (
+                <div className="flex flex-col gap-2">
+                  {TRACKS.map((item) => (
+                    <Button
+                      key={item.id}
+                      type="button"
+                      variant={isHero ? (lead.track === item.id ? "secondary" : "outline") : (lead.track === item.id ? "cta" : "outline")}
+                      className={cn("justify-start rounded-full", isHero && lead.track !== item.id && "border-white/40 bg-transparent text-primary-foreground hover:bg-white/10 hover:text-primary-foreground", isHero && lead.track === item.id && "border-0 bg-white text-cta hover:bg-white")}
+                      onClick={() => chooseTrack(item.id)}
+                    >
+                      {item.label}
+                    </Button>
+                  ))}
+                </div>
+              ) : null}
+              {trackError ? <p className="text-destructive">{trackError}</p> : null}
+              {lead.emailVerified && lead.track ? (
+                <form
+                  className="space-y-2"
+                  onSubmit={async (event) => {
+                    event.preventDefault()
+                    setTrackError(null)
+                    const response = await fetch(`/api/leads/${lead.id}`, {
+                      method: "PATCH",
+                      headers: { "content-type": "application/json" },
+                      body: JSON.stringify({ detail }),
+                    })
+                    const payload = (await response.json().catch(() => null)) as { lead?: Lead; error?: string } | null
+                    if (!response.ok || !payload?.lead) {
+                      setTrackError(payload?.error ?? "Could not save that detail.")
+                      return
+                    }
+                    setLead(payload.lead)
+                    setSubmitted(true)
+                  }}
+                >
+                  <Label htmlFor="lead-detail" className={cn(isHero && "text-primary-foreground")}>{TRACKS.find((item) => item.id === lead.track)?.prompt}</Label>
+                  <Textarea id="lead-detail" value={detail} onChange={(event) => setDetail(event.target.value)} rows={3} />
+                  <Button type="submit" variant={isHero ? "secondary" : "outline"} className={cn("rounded-full", isHero && "border-0 bg-white text-cta hover:bg-secondary")}>Submit request</Button>
+                </form>
+              ) : null}
+            </>
+          )}
         </CardContent>
       </Card>
     )
@@ -235,8 +225,8 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
           )}
         </CardTitle>
         {isHero ? (
-          <p className="text-sm leading-relaxed text-primary-foreground/85">
-            Share your details — we will verify your email, then you can choose a consultation, a camp, or surgery.
+          <p className="text-xs leading-snug text-primary-foreground/85">
+            Enter your details to get started.
           </p>
         ) : null}
       </CardHeader>
@@ -254,74 +244,93 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
           </div>
 
           <fieldset className="space-y-2">
-            <legend className={cn("text-sm font-medium", isHero && "text-primary-foreground")}>You are</legend>
-            <div className="flex gap-2">
+            <legend className={cn("text-sm font-medium", isHero && "text-primary-foreground")}>
+              Where are you from?
+            </legend>
+            <div className="grid grid-cols-2 gap-2">
               {(["indian", "others"] as const).map((option) => (
                 <Button
                   key={option}
                   type="button"
                   variant={isHero ? "secondary" : "cta"}
                   className={cn(
-                    "rounded-full",
+                    "w-full rounded-full",
                     isHero && (audience === option
                       ? "border-0 bg-white text-cta hover:bg-white"
                       : "border-white/40 bg-transparent text-primary-foreground hover:bg-white/10 hover:text-primary-foreground"),
                   )}
                   onClick={() => setAudience(option)}
                 >
-                  {option === "indian" ? "Indian" : "Others"}
+                  {option === "indian" ? "India" : "International"}
                 </Button>
               ))}
             </div>
           </fieldset>
 
           {audience === "indian" ? (
-            <div className="space-y-1.5">
-              <Label htmlFor="lead-state" className={heroLabels}>State</Label>
-              <select
-                id="lead-state"
-                className={heroSelect}
-                value={stateName}
-                onChange={(event) => setStateName(event.target.value)}
-                required
-              >
-                <option value="">Select state</option>
-                {STATES.map((state) => (
-                  <option key={state} value={state}>{state}</option>
-                ))}
-              </select>
+            <div className="grid gap-3 sm:grid-cols-2 sm:items-start">
+              <div className="space-y-1.5">
+                <Label htmlFor="lead-state" className={heroLabels}>Your state</Label>
+                <select
+                  id="lead-state"
+                  className={heroSelect}
+                  value={stateName}
+                  onChange={(event) => setStateName(event.target.value)}
+                  required
+                >
+                  <option value="">Select state</option>
+                  {STATES.map((state) => (
+                    <option key={state} value={state}>{state}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="lead-city" className={heroLabels}>Preferred city</Label>
+                <select
+                  id="lead-city"
+                  className={heroSelect}
+                  value={preferredCity}
+                  onChange={(event) => setPreferredCity(event.target.value as LeadCity)}
+                  required
+                >
+                  <option value="">Delhi or Indore</option>
+                  <option value="delhi">Delhi</option>
+                  <option value="indore">Indore</option>
+                </select>
+              </div>
             </div>
           ) : (
-            <div className="space-y-1.5">
-              <Label htmlFor="lead-embassy" className={heroLabels}>Embassy</Label>
-              <select
-                id="lead-embassy"
-                className={heroSelect}
-                value={embassy}
-                onChange={(event) => setEmbassy(event.target.value as LeadEmbassy)}
-                required
-              >
-                <option value="">Select embassy</option>
-                <option value="kenya">Embassy of Kenya</option>
-                <option value="nepal">Embassy of Nepal</option>
-              </select>
+            <div className="grid gap-3 sm:grid-cols-2 sm:items-start">
+              <div className="space-y-1.5">
+                <Label htmlFor="lead-embassy" className={heroLabels}>Your embassy</Label>
+                <select
+                  id="lead-embassy"
+                  className={heroSelect}
+                  value={embassy}
+                  onChange={(event) => setEmbassy(event.target.value as LeadEmbassy)}
+                  required
+                >
+                  <option value="">Select embassy</option>
+                  <option value="kenya">Embassy of Kenya</option>
+                  <option value="nepal">Embassy of Nepal</option>
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="lead-city" className={heroLabels}>Preferred city</Label>
+                <select
+                  id="lead-city"
+                  className={heroSelect}
+                  value={preferredCity}
+                  onChange={(event) => setPreferredCity(event.target.value as LeadCity)}
+                  required
+                >
+                  <option value="">Delhi or Indore</option>
+                  <option value="delhi">Delhi</option>
+                  <option value="indore">Indore</option>
+                </select>
+              </div>
             </div>
           )}
-
-          <div className="space-y-1.5">
-            <Label htmlFor="lead-city" className={heroLabels}>Preferred city</Label>
-            <select
-              id="lead-city"
-              className={heroSelect}
-              value={preferredCity}
-              onChange={(event) => setPreferredCity(event.target.value as LeadCity)}
-              required
-            >
-              <option value="">Delhi or Indore</option>
-              <option value="delhi">Delhi</option>
-              <option value="indore">Indore</option>
-            </select>
-          </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="lead-phone" className={heroLabels}>Mobile number (optional)</Label>
@@ -353,11 +362,6 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
           >
             {pending ? "Submitting…" : isHero ? "Continue →" : "Submit"}
           </Button>
-          {isHero ? (
-            <p className="text-center text-xs leading-relaxed text-primary-foreground/80">
-              By submitting you agree to our Terms and Privacy Policy. Your query goes to our admin and the Delhi or Indore desk — never to a hospital or a doctor.
-            </p>
-          ) : null}
         </form>
       </CardContent>
     </Card>

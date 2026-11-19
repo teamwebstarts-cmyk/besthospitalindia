@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 
 import { adminDenied } from "@/lib/admin/session"
+import { getLatestLeadCode } from "@/lib/mail/outbox"
+import { mailProvider } from "@/lib/mail/sender"
 
 import { createLead, listLeads } from "@/lib/leads/store"
 import type { LeadAudience, LeadCity, LeadEmbassy, LeadInput } from "@/lib/leads/types"
@@ -58,5 +60,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: parsed.error }, { status: 400 })
   }
   const lead = await createLead(parsed.value)
-  return NextResponse.json({ lead }, { status: 201 })
+  // Local demo aid: with no real mail configured, expose the mock OTP so the
+  // full workflow can be tested in one click. Never returned when mail is live.
+  const demoCode = mailProvider() === "outbox" ? await getLatestLeadCode(lead.id) : null
+  return NextResponse.json({ lead, demoCode }, { status: 201 })
 }

@@ -173,7 +173,7 @@ export function ContactForm({
       schema={schema}
       onSubmit={handleSubmit}
       submitLabel={isHero ? "Continue" : "Send message"}
-      successNote="Your message is stored for admin and the Delhi or Indore desk. It is not sent to a hospital or a doctor."
+      successNote="Your message has been received and will be handled by our team. It is never sent to a hospital or a doctor."
       footer={isHero || isContact ? termsFooter : undefined}
       className={cn(
         isContact &&

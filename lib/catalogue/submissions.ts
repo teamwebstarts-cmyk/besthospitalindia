@@ -2,11 +2,43 @@ import "server-only"
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import path from "node:path"
 
-import type { CatalogueStatus } from "@/lib/catalogue/store"
+import type { CatalogueKind, CatalogueStatus } from "@/lib/catalogue/store"
 
-export interface CatalogueSubmission {
+/**
+ * Rich, optional profile fields collected from the admin panel and partner
+ * forms. Everything except the identity/contact basics is optional so older
+ * submissions (and minimal quick-add rows) stay valid. These fields are the
+ * single source of truth for what an approved listing shows on its public card
+ * and detail page — ratings are deliberately NOT part of this: they only come
+ * from approved assessment workflows and always render as "Not yet rated".
+ */
+export interface CatalogueProfileFields {
+  /** Free-text summary shown as the profile overview / "About". */
+  overview?: string
+  state?: string
+  country?: string
+  imageUrl?: string
+  /** Hospital only. */
+  facilityType?: string
+  /** Hospital / facility: comma-separated specialty ids, selected in the form. */
+  specialties?: string[]
+  /** Hospital only: comma-separated treatment ids. */
+  treatments?: string[]
+  /** Hospital only: accreditation names. */
+  accreditations?: string[]
+  /** Doctor only. */
+  specialization?: string
+  qualifications?: string[]
+  yearsExperience?: number | null
+  languages?: string[]
+  /** Facility only. */
+  category?: string
+  services?: string[]
+}
+
+export interface CatalogueSubmission extends CatalogueProfileFields {
   id: string
-  kind: "hospital" | "doctor"
+  kind: CatalogueKind
   name: string
   email: string
   phone: string
@@ -64,7 +96,7 @@ export function isOfficialEmail(email: string): boolean {
   return domain.length > 0 && !FREE_EMAIL_DOMAINS.has(domain)
 }
 
-export function listSubmissions(kind?: "hospital" | "doctor"): CatalogueSubmission[] {
+export function listSubmissions(kind?: CatalogueKind): CatalogueSubmission[] {
   const rows = readFile().submissions
   return kind ? rows.filter((row) => row.kind === kind) : rows
 }
@@ -107,9 +139,16 @@ export function setSubmissionStatus(id: string, status: CatalogueStatus): Catalo
   return updateSubmission(id, { status })
 }
 
+/** Fields an admin (or a verified applicant) is allowed to patch. */
+const PATCHABLE_PROFILE_FIELDS: (keyof CatalogueProfileFields)[] = [
+  "overview", "state", "country", "imageUrl", "facilityType",
+  "specialties", "treatments", "accreditations", "specialization",
+  "qualifications", "yearsExperience", "languages", "category", "services",
+]
+
 export function updateSubmission(
   id: string,
-  patch: Partial<Pick<CatalogueSubmission, "name" | "email" | "phone" | "city" | "note" | "status">>,
+  patch: Partial<Pick<CatalogueSubmission, "name" | "email" | "phone" | "city" | "note" | "status"> & CatalogueProfileFields>,
 ): CatalogueSubmission | null {
   const file = readFile()
   const submission = file.submissions.find((row) => row.id === id)
@@ -121,6 +160,11 @@ export function updateSubmission(
   if (patch.city !== undefined) submission.city = patch.city.trim()
   if (patch.note !== undefined) submission.note = patch.note.trim()
   if (patch.status !== undefined) submission.status = patch.status
+  for (const field of PATCHABLE_PROFILE_FIELDS) {
+    if (patch[field] !== undefined) {
+      (submission as unknown as Record<string, unknown>)[field] = patch[field]
+    }
+  }
   submission.updatedAt = new Date().toISOString()
   writeFile(file)
   return submission

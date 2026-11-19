@@ -26,8 +26,8 @@ import { FeaturedHospitalsSection } from "@/features/content/featured-hospitals/
 import { FindDoctorsSection } from "@/features/content/find-doctors/find-doctors-section"
 import { FACILITY_CATEGORY_LABELS } from "@/features/discovery/facility-meta"
 import { doctorById, facilities, hospitals, specialties } from "@/data"
-import { publishedHospitals } from "@/lib/catalogue/published"
 import { isCataloguePublic } from "@/lib/catalogue/store"
+import { publishedHospitals } from "@/lib/catalogue/published"
 import { searchDoctors, searchHospitals } from "@/lib/search"
 import { ROUTES } from "@/constants/routes"
 
@@ -66,9 +66,16 @@ const facilityCategoryDescriptions: Record<string, string> = {
 export default function HomePage() {
   // Featured selections resolve typed fixture records from @/data by id; no
   // record arrays are hardcoded here and ordering stays deterministic.
-  const featuredHospitals = FEATURED_HOSPITAL_IDS.map((id) =>
+  const featuredFixtures = FEATURED_HOSPITAL_IDS.map((id) =>
     hospitals.find((h) => h.id === id)
   ).filter((h): h is NonNullable<typeof h> => h !== undefined && isCataloguePublic("hospital", h.id))
+  // Approved admin-added hospitals take priority in the featured rail so a
+  // newly published listing is immediately visible on the home page. Curated
+  // fixtures fill the remaining slots. Cap the band at six for a balanced grid.
+  const featuredHospitals = [
+    ...publishedHospitals(),
+    ...featuredFixtures,
+  ].slice(0, 6)
   const featuredDoctors = FEATURED_DOCTOR_IDS.map(
     (id) => doctorById[id]
   ).filter((d): d is NonNullable<typeof d> => d !== undefined && isCataloguePublic("doctor", d.id))
@@ -91,10 +98,6 @@ export default function HomePage() {
   const hospitalCount = searchHospitals(undefined, undefined).length
   const doctorCount = searchDoctors(undefined, undefined).length
   const stateCount = [...new Set(hospitals.filter((hospital) => isCataloguePublic("hospital", hospital.id)).map((hospital) => hospital.state))].length
-  const hospitalCities = [...new Set([
-    ...hospitals.filter((hospital) => isCataloguePublic("hospital", hospital.id)).map((hospital) => hospital.city),
-    ...publishedHospitals().map((hospital) => hospital.city),
-  ])].sort((a, b) => a.localeCompare(b))
 
   const faqItems = [
     {
@@ -117,7 +120,7 @@ export default function HomePage() {
       id: "faq-home-3",
       question: "What happens when I search or send an enquiry?",
       answer:
-        "Search opens the matching directory. A query is stored for our admin team and the Delhi or Indore desk. It is not sent to a hospital or a doctor.",
+        "Search opens the matching directory. Your enquiry is handled by our team and shared with the Delhi or Indore desk. It is never sent to a hospital or a doctor.",
       category: "patients" as const,
       order: 3,
     },
@@ -141,46 +144,11 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col">
-      <section
-        aria-labelledby="home-find-heading"
-        className="order-1 border-b border-border/70 bg-white px-4 py-6 lg:order-2"
-      >
-        <div className="mx-auto w-full max-w-3xl">
-          <h2 id="home-find-heading" className="mb-3 text-lg font-semibold tracking-tight lg:text-2xl">
-            Find hospitals
-          </h2>
-          <form action={ROUTES.public.hospitals} className="grid gap-2 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
-            <label className="space-y-1 text-sm">
-              <span className="font-medium">City</span>
-              <select name="city" className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" defaultValue="">
-                <option value="">All cities</option>
-                {hospitalCities.map((cityName) => (
-                  <option key={cityName} value={cityName}>{cityName}</option>
-                ))}
-              </select>
-            </label>
-            <label className="space-y-1 text-sm">
-              <span className="font-medium">Specialty</span>
-              <select name="specialty" className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" defaultValue="">
-                <option value="">All specialties</option>
-                {specialties.map((specialty) => (
-                  <option key={specialty.id} value={specialty.id}>{specialty.name}</option>
-                ))}
-              </select>
-            </label>
-            <button type="submit" className="h-10 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground">
-              Find hospitals
-            </button>
-          </form>
-        </div>
-      </section>
-      <div className="order-2 lg:order-1">
       <HomeHeroSection
         hospitalCount={hospitalCount}
         doctorCount={doctorCount}
         stateCount={stateCount}
       />
-      </div>
 
       {/* Full-bleed bands — flush stack (no space-y between surfaces) */}
       <div className="order-3 flex flex-col">

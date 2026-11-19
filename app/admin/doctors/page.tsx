@@ -38,13 +38,7 @@ export default async function AdminDoctorsPage() {
       <AdminSubmissions
         kind="doctor"
         emailCodes={emailCodes}
-        initialRows={listSubmissions("doctor").map((row) => ({
-          id: row.id,
-          name: row.name,
-          email: row.email,
-          city: row.city,
-          status: row.status,
-        }))}
+        initialRows={listSubmissions("doctor").map((row) => ({ ...row }))}
       />
       <AdminCatalogue kind="doctor" initialRows={rows} />
     </div>

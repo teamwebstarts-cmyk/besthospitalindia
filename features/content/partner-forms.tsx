@@ -68,6 +68,20 @@ function baseFields(kind: "hospital" | "doctor"): EnquiryFormTextField[] {
     },
     {
       kind: "text",
+      name: "state",
+      label: "State",
+      placeholder: "e.g. Kerala",
+      required: false,
+    },
+    {
+      kind: "text",
+      name: "imageUrl",
+      label: "Photo URL (optional)",
+      placeholder: "https://…",
+      required: false,
+    },
+    {
+      kind: "text",
       name: "phone",
       label: "Phone",
       type: "tel",
@@ -100,6 +114,9 @@ export function PartnerInterestForm({
         email: values.email,
         phone: values.phone,
         city: values.city,
+        state: values.state,
+        imageUrl: values.imageUrl,
+        overview: values.message,
         note: values.message,
       }),
     })

@@ -212,3 +212,42 @@ Build me `themeColor` → `viewport` export wale warnings aate hain (purane code
 ## 7. Final verdict
 
 **Feature-complete MVP — CONDITIONAL PASS for go-live.** Code ka kaam 100% ho chuka hai (iss audit me 2 chote hygiene fixes bhi kiye). Sirf aapki **credentials + DNS + 1 real inbox test** se "real email delivery" confirm hogi. G1 (OTP expiry) aur G3/G4 production-hardening ke liye recommended follow-ups hain — aapke approve par main G1 turant kar sakta hoon.
+
+---
+
+## UPDATE — Form consolidation (19 Nov 2026, later session)
+
+User request: alag "Send a query" form (hero ke neeche) **new form nahi** hona chahiye — ise existing hero form ("Let us help you") me combine karna hai, usi theme ke saath; aur mock data test ke liye ready rehna chahiye.
+
+**Kya kiya:**
+1. `features/leads/intake-form.tsx` — `LeadIntakeForm` ko `variant="card" | "hero"` mila. Hero variant: gradient primary→cta panel, white "Let us help you" intro (shield icon), white inputs/selects, white submit button with `Continue →`, OTP/track/detail/WhatsApp steps bhi usi theme me. **Poora OTP flow ab hero form ke andar hai** (koi naya form nahi).
+2. `features/content/home-hero-section.tsx` — hero column me ab `LeadIntakeForm variant="hero"` render hota hai (`ContactForm` hataaya). Ab mobile + desktop dono par yahi ek intake form hai.
+3. `app/(public)/page.tsx` — alag "Send a query" `<section>` aur uska `<LeadIntakeForm />` **hata diya**. Neeche wala sirf city/specialty **discovery** form reh gaya, heading ab "Find hospitals" (lead form nahi).
+4. Mock data: pehle se `data/runtime/leads.json` + `data/runtime/outbox.json` (API-backed mock store) hai — dev me OTP yahin likha jata hai, testing ke liye ready. Smoke test ke baad test entries clean kiye.
+
+**Verification:** DOM check — `heroIntro: true`, lead inputs `#lead-name/#lead-email/#lead-state/#lead-city` present, `sendQueryH2: false` (alag heading nahi). API E2E: create → OTP verify → track = pass. `npm run typecheck` ✅, `npm run build` ✅.
+
+**Note:** Contact page (`/contact`) ka apna general `ContactForm variant="contact"` reh gaya — wo alag page ka mode hai, home hero consolidation se unrelated.
+
+**Browser automation note:** is session me browser tab har CDP call par reload ho raha tha (dev-server instability), isliye visual click-through unreliable tha; API-level E2E aur DOM assertions se verify kiya gaya.
+
+---
+
+## UPDATE — Better copy + one-click demo (19 Nov 2026)
+
+User request: inquiry form ka text aur better karo, aur ek chota demo icon add karo taaki poora flow turant test ho sake.
+
+**Kya kiya:**
+1. **Copy improved** (hero form): "Enter your details to get started. Your email is verified before you choose a request." · "Where are you from?" · "India / International" · "Your state" / "Your embassy" · state + city ab side-by-side (mobile par bhi compact).
+2. **Demo mode helper (code-only, safe):** `POST /api/leads` ab jab `mailProvider() === "outbox"` ho (yani koi real email key nahi) to response me `demoCode` bhi deta hai. Real mail configured hone par **kabhi** nahi deta — production safe. `lib/mail/outbox.ts` me `getLatestLeadCode()` add kiya.
+3. **One-click demo button** hero form me: ▶ icon + "See a full demo (auto-fill & test)". Click karte hi:
+   1. form auto-fill (Demo Patient, demo email, Delhi),
+   2. POST /api/leads → OTP code auto-fill,
+   3. OTP verify,
+   4. "Free consultation" track auto-select,
+   5. detail auto-save,
+   6. WhatsApp button ready — poora 6-step workflow 1 click me. Har step par progress note dikhata hai. Real mail configured ho to button sirf details bharta hai aur user ko inbox se code dalne ke liye kehta hai.
+
+**Verification:** API E2E — create → demoCode → verify → track → detail sab pass. Browser me demo button click ke baad final state confirmed: track buttons + "What would you like to ask?" (demo detail prefilled) + "Save this detail" + "Send this on WhatsApp" visible. Demo leads/outbox test ke baad clean kiye.
+
+**⚠️ Concurrent-work note:** is waqt doosre agent ke uncommitted changes (`admin-submissions.tsx`, `submissions.ts`, `published.ts`, admin pages, `public-header.tsx`) `npm run typecheck` ko tod rahe hain (5 errors, un files me). Mere files (`intake-form.tsx`, `api/leads/route.ts`, `lib/mail/outbox.ts`) me koi error nahi. Ye fix unke scope ka hai — maine touch nahi kiya.
