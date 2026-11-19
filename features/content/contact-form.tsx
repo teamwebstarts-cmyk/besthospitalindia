@@ -173,7 +173,7 @@ export function ContactForm({
       schema={schema}
       onSubmit={handleSubmit}
       submitLabel={isHero ? "Continue" : "Send message"}
-      successNote="We will reply to the email you provided — usually within one business day."
+      successNote="Your message is stored for admin and the Delhi or Indore desk. It is not sent to a hospital or a doctor."
       footer={isHero || isContact ? termsFooter : undefined}
       className={cn(
         isContact &&

@@ -1,6 +1,8 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises"
 import path from "node:path"
 
+import { sendTransactionalMail } from "./sender"
+
 const FILE = path.join(process.cwd(), "data", "runtime", "outbox.json")
 const FROM = "info@wispr.hospital"
 
@@ -43,19 +45,23 @@ export function recordLeadCode(leadId: string, email: string, purpose: "query" |
   return withLock(async () => {
     const messages = await readAll()
     const code = String(Math.floor(100000 + Math.random() * 900000))
+    const subject = purpose === "application" ? `Your listing application ${leadId}` : `Your query id is ${leadId}`
+    const body = purpose === "application"
+      ? `Your application id is ${leadId}. Your email code is ${code}. This is not a patient query and is not sent to a city desk.`
+      : `Your unique id is ${leadId}. Your email code is ${code}. Return to the site and enter this code to continue.`
     const message: OutboxMessage = {
       leadId,
       to: email,
       from: FROM,
-      subject: purpose === "application" ? `Your listing application ${leadId}` : `Your query id is ${leadId}`,
-      body: purpose === "application"
-        ? `Your application id is ${leadId}. Your email code is ${code}. This is not a patient query and is not sent to a city desk.`
-        : `Your unique id is ${leadId}. Your email code is ${code}. Return to the site and enter the code. You can still choose a request if the email has not arrived.`,
+      subject,
+      body,
       code,
       createdAt: new Date().toISOString(),
     }
     const next = [message, ...messages.filter((item) => item.leadId !== leadId)]
     await writeAll(next)
+    // Real delivery when configured; outbox remains the source of truth for verification.
+    await sendTransactionalMail({ to: email, subject, text: body })
     return code
   })
 }
@@ -82,6 +88,7 @@ export function recordLeadConfirmation(leadId: string, email: string, track: str
     }
     const next = [message, ...messages.filter((item) => item.leadId !== message.leadId)]
     await writeAll(next)
+    await sendTransactionalMail({ to: email, subject: message.subject, text: message.body })
   })
 }
 

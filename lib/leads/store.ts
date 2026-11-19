@@ -129,6 +129,13 @@ export function updateLeadDetail(id: string, detail: string): Promise<Lead | nul
   })
 }
 
+export function isLeadEmailVerified(id: string): Promise<boolean> {
+  return withLock(async () => {
+    const lead = (await readAll()).find((item) => item.id === id)
+    return Boolean(lead?.emailVerified)
+  })
+}
+
 export function markLeadEmailVerified(id: string): Promise<Lead | null> {
   return withLock(async () => {
     const leads = await readAll()

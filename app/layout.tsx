@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     template: "%s | BestHospitalIndia",
   },
   description:
-    "BestHospitalIndia is a healthcare discovery platform for finding and comparing hospitals, doctors and facilities across India, exploring treatments and medical tourism support, and requesting a free consultation.",
+    "BestHospitalIndia is a healthcare discovery platform for finding and comparing hospitals, doctors and facilities across India, and requesting a free consultation.",
   themeColor: "#F7FBF9",
 }
 

@@ -86,54 +86,57 @@ export function SubmissionStatus() {
             {rows.map((row) => (
               <li key={row.id} className="space-y-2 rounded-md border border-border p-3">
                 <p className="text-muted-foreground">{row.kind} · {row.status} · {STATUS_COPY[row.status]}</p>
-                <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
-                  <label className="space-y-1">
-                    <span className="font-medium">Name</span>
-                    <Input
-                      value={row.name}
-                      aria-label={`Name for ${row.id}`}
-                      onChange={(event) => setRows((current) => current?.map((item) => item.id === row.id ? { ...item, name: event.target.value } : item) ?? null)}
-                    />
-                  </label>
-                  <label className="space-y-1">
-                    <span className="font-medium">City</span>
-                    <Input
-                      value={row.city}
-                      aria-label={`City for ${row.id}`}
-                      onChange={(event) => setRows((current) => current?.map((item) => item.id === row.id ? { ...item, city: event.target.value } : item) ?? null)}
-                    />
-                  </label>
-                  <Button type="button" variant="outline" onClick={() => saveRow(row)}>Save</Button>
-                </div>
-                <form
-                  className="flex flex-col gap-2 sm:flex-row sm:items-end"
-                  onSubmit={async (event) => {
-                    event.preventDefault()
-                    const input = event.currentTarget.elements.namedItem("otp")
-                    const code = input instanceof HTMLInputElement ? input.value : ""
-                    setError(null)
-                    const response = await fetch("/api/catalogue/submissions", {
-                      method: "PATCH",
-                      headers: { "content-type": "application/json" },
-                      body: JSON.stringify({ id: row.id, accountEmail: email, otp: code }),
-                    })
-                    const payload = (await response.json().catch(() => null)) as { error?: string; submission?: StatusRow } | null
-                    if (!response.ok || !payload?.submission) {
-                      setError(payload?.error ?? "That code does not match.")
-                      return
-                    }
-                    setRows((current) => current?.map((item) => item.id === row.id ? { ...item, emailVerified: true } : item) ?? null)
-                  }}
-                >
-                  <label className="flex-1 space-y-1">
-                    <span className="font-medium">Email code</span>
-                    <Input name="otp" inputMode="numeric" placeholder="6-digit code" />
-                  </label>
-                  <Button type="submit" variant="outline">Check code</Button>
-                </form>
+                {!row.emailVerified ? (
+                  <form
+                    className="flex flex-col gap-2 sm:flex-row sm:items-end"
+                    onSubmit={async (event) => {
+                      event.preventDefault()
+                      const input = event.currentTarget.elements.namedItem("otp")
+                      const code = input instanceof HTMLInputElement ? input.value : ""
+                      setError(null)
+                      const response = await fetch("/api/catalogue/submissions", {
+                        method: "PATCH",
+                        headers: { "content-type": "application/json" },
+                        body: JSON.stringify({ id: row.id, accountEmail: email, otp: code }),
+                      })
+                      const payload = (await response.json().catch(() => null)) as { error?: string; submission?: StatusRow } | null
+                      if (!response.ok || !payload?.submission) {
+                        setError(payload?.error ?? "That code does not match.")
+                        return
+                      }
+                      setRows((current) => current?.map((item) => item.id === row.id ? { ...item, emailVerified: true } : item) ?? null)
+                    }}
+                  >
+                    <label className="flex-1 space-y-1">
+                      <span className="font-medium">Email code</span>
+                      <Input name="otp" inputMode="numeric" placeholder="6-digit code" />
+                    </label>
+                    <Button type="submit" variant="outline">Check code</Button>
+                  </form>
+                ) : (
+                  <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+                    <label className="space-y-1">
+                      <span className="font-medium">Name</span>
+                      <Input
+                        value={row.name}
+                        aria-label={`Name for ${row.id}`}
+                        onChange={(event) => setRows((current) => current?.map((item) => item.id === row.id ? { ...item, name: event.target.value } : item) ?? null)}
+                      />
+                    </label>
+                    <label className="space-y-1">
+                      <span className="font-medium">City</span>
+                      <Input
+                        value={row.city}
+                        aria-label={`City for ${row.id}`}
+                        onChange={(event) => setRows((current) => current?.map((item) => item.id === row.id ? { ...item, city: event.target.value } : item) ?? null)}
+                      />
+                    </label>
+                    <Button type="button" variant="outline" onClick={() => saveRow(row)}>Save</Button>
+                  </div>
+                )}
                 <p className="text-xs text-muted-foreground">
-                  {row.emailVerified ? "Email checked." : "Mail is not connected yet. The application is still saved, and it is not a patient query."}
-                  {" "}Saving a name or city change takes the listing off the public site until admin approves it again.
+                  {row.emailVerified ? "Email checked. " : "Enter the code from info@wispr.hospital to manage this application. It is not a patient query. "}
+                  Saving a name or city change takes the listing off the public site until admin approves it again.
                 </p>
               </li>
             ))}

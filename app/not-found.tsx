@@ -23,7 +23,7 @@ export default function NotFound() {
         <EmptyState
           icon={CompassIcon}
           title="Page not found"
-          description="The page you are looking for doesn't exist or may have moved. Check the URL or continue exploring hospitals, doctors and treatments."
+          description="The page you are looking for doesn't exist or may have moved. Check the URL or continue exploring hospitals, doctors and facilities."
           className="border-none py-8"
           action={{ label: "Go to homepage", href: "/" }}
         >

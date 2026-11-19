@@ -28,7 +28,6 @@ import { FACILITY_CATEGORY_LABELS } from "@/features/discovery/facility-meta"
 import { doctorById, facilities, hospitals, specialties } from "@/data"
 import { publishedHospitals } from "@/lib/catalogue/published"
 import { isCataloguePublic } from "@/lib/catalogue/store"
-import { LeadIntakeForm } from "@/features/leads/intake-form"
 import { searchDoctors, searchHospitals } from "@/lib/search"
 import { ROUTES } from "@/constants/routes"
 
@@ -143,15 +142,14 @@ export default function HomePage() {
   return (
     <div className="flex flex-col">
       <section
-        aria-labelledby="home-query-heading"
+        aria-labelledby="home-find-heading"
         className="order-1 border-b border-border/70 bg-white px-4 py-6 lg:order-2"
       >
         <div className="mx-auto w-full max-w-3xl">
-          <h2 id="home-query-heading" className="mb-3 text-lg font-semibold tracking-tight lg:text-2xl">
-            Send a query
+          <h2 id="home-find-heading" className="mb-3 text-lg font-semibold tracking-tight lg:text-2xl">
+            Find hospitals
           </h2>
-          <LeadIntakeForm />
-          <form action={ROUTES.public.hospitals} className="mt-4 grid gap-2 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+          <form action={ROUTES.public.hospitals} className="grid gap-2 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
             <label className="space-y-1 text-sm">
               <span className="font-medium">City</span>
               <select name="city" className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" defaultValue="">

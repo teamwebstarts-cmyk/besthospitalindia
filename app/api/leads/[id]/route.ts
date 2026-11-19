@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 
 import { adminDenied } from "@/lib/admin/session"
 import { verifyLeadCode } from "@/lib/mail/outbox"
-import { deleteLead, markLeadEmailVerified, updateLeadDetail, updateLeadStatus, updateLeadTrack } from "@/lib/leads/store"
+import { deleteLead, isLeadEmailVerified, markLeadEmailVerified, updateLeadDetail, updateLeadStatus, updateLeadTrack } from "@/lib/leads/store"
 import type { LeadStatus, LeadTrack } from "@/lib/leads/types"
 
 const STATUSES = new Set<LeadStatus>(["new", "contacted", "closed"])
@@ -19,11 +19,17 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     return NextResponse.json({ lead })
   }
   if (typeof body?.detail === "string") {
+    if (!(await isLeadEmailVerified(id))) {
+      return NextResponse.json({ error: "Verify your email code before continuing." }, { status: 403 })
+    }
     const lead = await updateLeadDetail(id, body.detail.slice(0, 1000))
     if (!lead) return NextResponse.json({ error: "Lead not found." }, { status: 404 })
     return NextResponse.json({ lead })
   }
   if (body?.track) {
+    if (!(await isLeadEmailVerified(id))) {
+      return NextResponse.json({ error: "Verify your email code before continuing." }, { status: 403 })
+    }
     if (!TRACKS.has(body.track as LeadTrack)) {
       return NextResponse.json({ error: "Choose a request type." }, { status: 400 })
     }

@@ -91,6 +91,9 @@ export async function PATCH(request: Request) {
     if (!existing || existing.email !== accountEmail) {
       return NextResponse.json({ error: "Submission not found." }, { status: 404 })
     }
+    if (!existing.emailVerified) {
+      return NextResponse.json({ error: "Verify your email code before editing." }, { status: 403 })
+    }
     delete patch.status
     delete patch.email
     const nameChanged = patch.name !== undefined && patch.name !== existing.name
