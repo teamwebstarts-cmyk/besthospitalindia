@@ -19,12 +19,7 @@ export default async function AdminLeadsPage() {
   const emailCodes = Object.fromEntries(outbox.map((message) => [message.leadId, message.code]))
   return (
     <div className="space-y-6 py-6">
-      <AdminPageHeader
-        compact
-        items={[{ label: "Admin Portal", href: "/admin" }, { label: "Leads" }]}
-        title="Queries"
-        description="Every query is stored here. Delhi goes to the Delhi vendor and Indore to the Indore vendor. Nothing is sent to a hospital or a doctor."
-      />
+      <AdminPageHeader compact title="Queries" showDemoNote={false} />
       <AdminLeads initialLeads={leads} emailCodes={emailCodes} />
     </div>
   )

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, type FormEvent } from "react"
+import { CheckCircle2Icon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,10 +11,25 @@ import { Textarea } from "@/components/ui/textarea"
 import type { Lead, LeadAudience, LeadCity, LeadEmbassy, LeadTrack } from "@/lib/leads/types"
 import { cn } from "@/lib/utils"
 
-const TRACKS: { id: LeadTrack; label: string; prompt: string }[] = [
-  { id: "consultation", label: "Free consultation", prompt: "What would you like to ask?" },
-  { id: "camp", label: "Attend free medical camp", prompt: "Which camp or date should the desk know about?" },
-  { id: "surgery", label: "Apply for free surgery", prompt: "Which surgery are you asking about?" },
+const TRACKS: { id: LeadTrack; label: string; prompt: string; placeholder: string }[] = [
+  {
+    id: "consultation",
+    label: "Free consultation",
+    prompt: "What would you like to ask?",
+    placeholder: "e.g. symptoms, specialist, or second opinion",
+  },
+  {
+    id: "camp",
+    label: "Attend free medical camp",
+    prompt: "Which camp or date should the desk know about?",
+    placeholder: "Camp name, city, or preferred date",
+  },
+  {
+    id: "surgery",
+    label: "Apply for free surgery",
+    prompt: "Which surgery are you asking about?",
+    placeholder: "Procedure name and brief medical background",
+  },
 ]
 
 const STATES = [
@@ -69,6 +85,24 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
     setLead(payload.lead)
   }
 
+  function resetIntake() {
+    setLead(null)
+    setSubmitted(false)
+    setName("")
+    setEmail("")
+    setPhone("")
+    setComment("")
+    setAudience("indian")
+    setStateName("")
+    setEmbassy("")
+    setPreferredCity("")
+    setError(null)
+    setTrackError(null)
+    setDetail("")
+    setOtp("")
+    setOtpNote(null)
+  }
+
   async function onSubmit(event: FormEvent) {
     event.preventDefault()
     if (pending) return
@@ -105,23 +139,78 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
             "rounded-2xl border border-cta/25 bg-linear-to-br from-primary via-primary to-cta text-primary-foreground shadow-xl ring-1 ring-white/10 sm:p-5 [&_input]:border-white/25 [&_input]:bg-white [&_input]:text-foreground [&_input]:placeholder:text-foreground/45 [&_textarea]:border-white/25 [&_textarea]:bg-white [&_textarea]:text-foreground [&_textarea]:placeholder:text-foreground/45",
         )}
       >
-        <CardHeader>
-          <CardTitle className={cn(isHero && "text-primary-foreground")}>
-            {submitted ? "Request received" : `Your unique id is ${lead.id}`}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm">
+        <CardContent
+          className={cn(
+            "space-y-3.5 text-sm",
+            (submitted || isHero) && "pt-(--card-spacing)",
+            !submitted && !isHero && "pt-0",
+          )}
+        >
           {submitted ? (
-            <p className={cn(isHero ? "text-primary-foreground/90" : "text-muted-foreground")}>
-              Thank you. Your request has been recorded and we will be in touch at {lead.email}.
-            </p>
+            <div
+              className={cn(
+                "space-y-4",
+                isHero
+                  ? "rounded-xl bg-white p-4 text-foreground shadow-sm ring-1 ring-white/30"
+                  : "rounded-xl border border-border/70 bg-card p-4 shadow-sm",
+              )}
+            >
+              <div className="flex items-start gap-3">
+                <span
+                  className={cn(
+                    "flex size-11 shrink-0 items-center justify-center rounded-full",
+                    isHero ? "bg-primary/10 text-primary" : "bg-success/10 text-success",
+                  )}
+                  aria-hidden
+                >
+                  <CheckCircle2Icon className="size-6" strokeWidth={2.25} />
+                </span>
+                <div className="min-w-0 space-y-1">
+                  <p className="text-base font-semibold tracking-tight text-foreground">Request received</p>
+                  <p className="text-sm leading-snug text-muted-foreground">
+                    We have your details. A confirmation will be sent to{" "}
+                    <span className="font-medium text-foreground">{lead.email}</span>.
+                  </p>
+                </div>
+              </div>
+              <dl className="grid gap-2.5 border-t border-border/60 pt-3 text-sm">
+                <div className="flex items-baseline justify-between gap-3">
+                  <dt className="text-muted-foreground">Reference</dt>
+                  <dd className="font-semibold tabular-nums text-foreground">{lead.id}</dd>
+                </div>
+                <div className="flex items-baseline justify-between gap-3">
+                  <dt className="text-muted-foreground">Request</dt>
+                  <dd className="text-right font-medium text-foreground">
+                    {TRACKS.find((item) => item.id === lead.track)?.label ?? "—"}
+                  </dd>
+                </div>
+                <div className="flex items-baseline justify-between gap-3">
+                  <dt className="text-muted-foreground">Preferred city</dt>
+                  <dd className="font-medium capitalize text-foreground">{lead.preferredCity}</dd>
+                </div>
+              </dl>
+              <Button
+                type="button"
+                variant={isHero ? "outline" : "secondary"}
+                className={cn("h-10 w-full rounded-lg font-semibold", isHero && "border-border text-cta hover:bg-muted/50")}
+                onClick={resetIntake}
+              >
+                Submit another request
+              </Button>
+            </div>
           ) : (
             <>
-              <p className={cn(isHero ? "text-primary-foreground/85" : "text-muted-foreground")}>
-                {lead.emailVerified
-                  ? "Choose what you would like to do next:"
-                  : `We sent a 6-digit code to ${lead.email}. Enter it below to continue.`}
-              </p>
+              <div className="space-y-1">
+                <p className={cn("text-base font-semibold tracking-tight", isHero && "text-primary-foreground")}>
+                  Your reference is{" "}
+                  <span className="tabular-nums">{lead.id}</span>
+                </p>
+                <p className={cn(isHero ? "text-primary-foreground/85" : "text-muted-foreground")}>
+                  {lead.emailVerified
+                    ? "Choose what you would like to do next:"
+                    : `We sent a 6-digit code to ${lead.email}. Enter it below to continue.`}
+                </p>
+              </div>
               {!lead.emailVerified ? (
                 <form
                   className="space-y-2"
@@ -144,7 +233,16 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
                 >
                   <Label htmlFor="lead-otp" className={cn(isHero && "text-primary-foreground")}>Email code</Label>
                   <Input id="lead-otp" inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={(event) => setOtp(event.target.value)} placeholder="6-digit code" />
-                  <Button type="submit" variant={isHero ? "secondary" : "outline"} className={cn("rounded-full", isHero && "border-0 bg-white text-cta hover:bg-secondary")}>Verify code</Button>
+                  <Button
+                    type="submit"
+                    variant={isHero ? "secondary" : "outline"}
+                    className={cn(
+                      "w-full rounded-lg font-semibold",
+                      isHero && "border-0 bg-white text-cta hover:bg-secondary",
+                    )}
+                  >
+                    Verify code
+                  </Button>
                 </form>
               ) : null}
               {otpNote && otpNote !== "Email checked." ? (
@@ -157,7 +255,13 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
                       key={item.id}
                       type="button"
                       variant={isHero ? (lead.track === item.id ? "secondary" : "outline") : (lead.track === item.id ? "cta" : "outline")}
-                      className={cn("justify-start rounded-full", isHero && lead.track !== item.id && "border-white/40 bg-transparent text-primary-foreground hover:bg-white/10 hover:text-primary-foreground", isHero && lead.track === item.id && "border-0 bg-white text-cta hover:bg-white")}
+                      className={cn(
+                        "h-10 w-full justify-center rounded-lg font-medium",
+                        isHero &&
+                          lead.track !== item.id &&
+                          "border-white/40 bg-transparent text-primary-foreground hover:bg-white/10 hover:text-primary-foreground",
+                        isHero && lead.track === item.id && "border-0 bg-white text-cta hover:bg-white",
+                      )}
                       onClick={() => chooseTrack(item.id)}
                     >
                       {item.label}
@@ -168,7 +272,10 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
               {trackError ? <p className="text-destructive">{trackError}</p> : null}
               {lead.emailVerified && lead.track ? (
                 <form
-                  className="space-y-2"
+                  className={cn(
+                    "space-y-2 border-t pt-3",
+                    isHero ? "border-white/20" : "border-border/60",
+                  )}
                   onSubmit={async (event) => {
                     event.preventDefault()
                     setTrackError(null)
@@ -186,9 +293,27 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
                     setSubmitted(true)
                   }}
                 >
-                  <Label htmlFor="lead-detail" className={cn(isHero && "text-primary-foreground")}>{TRACKS.find((item) => item.id === lead.track)?.prompt}</Label>
-                  <Textarea id="lead-detail" value={detail} onChange={(event) => setDetail(event.target.value)} rows={3} />
-                  <Button type="submit" variant={isHero ? "secondary" : "outline"} className={cn("rounded-full", isHero && "border-0 bg-white text-cta hover:bg-secondary")}>Submit request</Button>
+                  <Label htmlFor="lead-detail" className={cn(isHero && "text-primary-foreground")}>
+                    {TRACKS.find((item) => item.id === lead.track)?.prompt}
+                  </Label>
+                  <Textarea
+                    id="lead-detail"
+                    value={detail}
+                    onChange={(event) => setDetail(event.target.value)}
+                    rows={4}
+                    placeholder={TRACKS.find((item) => item.id === lead.track)?.placeholder}
+                    required
+                  />
+                  <Button
+                    type="submit"
+                    variant={isHero ? "secondary" : "outline"}
+                    className={cn(
+                      "h-10 w-full rounded-lg font-semibold",
+                      isHero && "border-0 bg-white text-cta hover:bg-secondary",
+                    )}
+                  >
+                    Submit request
+                  </Button>
                 </form>
               ) : null}
             </>
@@ -235,11 +360,26 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
           <div className="grid gap-3 sm:grid-cols-2 sm:items-start">
             <div className="space-y-1.5">
               <Label htmlFor="lead-name" className={heroLabels}>Name</Label>
-              <Input id="lead-name" value={name} onChange={(event) => setName(event.target.value)} required autoComplete="name" />
+              <Input
+                id="lead-name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                required
+                autoComplete="name"
+                placeholder="Your full name"
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="lead-email" className={heroLabels}>Email</Label>
-              <Input id="lead-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required autoComplete="email" />
+              <Input
+                id="lead-email"
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+                autoComplete="email"
+                placeholder="you@email.com"
+              />
             </div>
           </div>
 
@@ -334,7 +474,14 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
 
           <div className="space-y-1.5">
             <Label htmlFor="lead-phone" className={heroLabels}>Mobile number (optional)</Label>
-            <Input id="lead-phone" value={phone} onChange={(event) => setPhone(event.target.value)} autoComplete="tel" />
+            <Input
+              id="lead-phone"
+              value={phone}
+              onChange={(event) => setPhone(event.target.value)}
+              autoComplete="tel"
+              inputMode="tel"
+              placeholder="+91 98765 43210"
+            />
           </div>
 
           <div className="space-y-1.5">
@@ -343,7 +490,7 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
               id="lead-comment"
               value={comment}
               onChange={(event) => setComment(event.target.value)}
-              placeholder="Write your mobile number and your query, if any."
+              placeholder="Share your question or any details we should know (optional)."
               rows={4}
             />
           </div>

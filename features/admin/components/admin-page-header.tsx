@@ -10,13 +10,11 @@
 
 import type { ReactNode } from "react"
 
-import { Breadcrumbs, type BreadcrumbItem } from "@/components/shared/breadcrumbs"
 import { SectionHeading } from "@/components/shared/section-heading"
 import { DemoNotice } from "@/features/content/demo-notice"
+import { cn } from "@/lib/utils"
 
 export interface AdminPageHeaderProps {
-  /** Breadcrumb trail; the last item mirrors the H1. */
-  items: BreadcrumbItem[]
   title: string
   description?: string
   /** Right-aligned action slot (primary action must stay visible). */
@@ -26,36 +24,33 @@ export interface AdminPageHeaderProps {
    * DemoNotice alert (reduces vertical noise on overview screens).
    */
   compact?: boolean
+  /** Hide the extra demo line when the page description is already enough. */
+  showDemoNote?: boolean
   className?: string
 }
 
 export function AdminPageHeader({
-  items,
   title,
   description,
   action,
   compact = false,
+  showDemoNote = false,
   className,
 }: AdminPageHeaderProps) {
   return (
-    <header className={className}>
-      <Breadcrumbs items={items} />
-      <SectionHeading
-        as="h1"
-        title={title}
-        description={description}
-        action={action}
-        className="mt-2"
-      />
-      {compact ? (
-        <p className="mt-2 text-xs text-muted-foreground">Demo workspace — mock data only.</p>
-      ) : (
-        <DemoNotice
-          className="mt-4"
-          title="Demo admin workspace — mock data only"
-          message="Every record on this page is fictional fixture data. Status changes are local demo state: nothing is sent, published, verified or notified, and no real provider, patient or partner exists behind any row."
-        />
-      )}
+    <header className={cn("pb-1", className)}>
+      <SectionHeading as="h1" title={title} description={description} action={action} />
+      {showDemoNote ? (
+        compact ? (
+          <p className="mt-2 text-xs text-muted-foreground">Demo workspace — mock data only.</p>
+        ) : (
+          <DemoNotice
+            className="mt-4"
+            title="Demo admin workspace — mock data only"
+            message="Every record on this page is fictional fixture data. Status changes are local demo state: nothing is sent, published, verified or notified, and no real provider, patient or partner exists behind any row."
+          />
+        )
+      ) : null}
     </header>
   )
 }

@@ -138,9 +138,9 @@
     row-gap: 1.25rem;
   }
 }
-@media (min-width: 1180px) {
+@media (min-width: 1024px) {
   .fh-grid--directory {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     column-gap: 1.125rem;
     row-gap: 1.5rem;
   }
@@ -154,6 +154,157 @@
   .fh-grid--directory .fh-h-title {
     font-size: clamp(1rem, 0.25rem + 1.1vw, 1.25rem);
     -webkit-line-clamp: 1;
+  }
+}
+
+/* Directory grid — same side-by-side CTAs as home featured cards. */
+@media (min-width: 640px) {
+  .fh-grid--directory .fh-actions {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 10px;
+    margin: 14px 14px 0;
+  }
+  .fh-grid--directory .fh-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    height: 40px;
+    min-height: 40px;
+    border-radius: 10px;
+    gap: 6px;
+    font-size: 12.5px;
+    padding-inline: 8px;
+  }
+  .fh-grid--directory .fh-btn-primary {
+    flex: 1.06 1 0;
+  }
+  .fh-grid--directory .fh-btn span {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: nowrap;
+    font-size: clamp(10.5px, 0.28rem + 0.85vw, 12.5px);
+  }
+  .fh-grid--directory .fh-btn svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+  .fh-grid--directory .fh-btn-ghost {
+    border-width: 1.5px;
+  }
+
+  /* Match home featured card proportions inside directory grids. */
+  .fh-grid--directory .fh-h-row {
+    gap: 12px;
+    padding: 12px 14px 0;
+  }
+  .fh-grid--directory .fh-h-icon {
+    flex: 0 0 48px;
+    width: 48px;
+    height: 46px;
+    border-radius: 12px;
+  }
+  .fh-grid--directory .fh-hospital-glyph {
+    width: 26px;
+    height: 26px;
+  }
+  .fh-grid--directory .fh-h-info {
+    padding-top: 2px;
+  }
+  .fh-grid--directory .fh-h-loc {
+    margin-top: 4px;
+    gap: 5px;
+    font-size: 12.5px;
+    line-height: 1.35;
+  }
+  .fh-grid--directory .fh-h-loc svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+  }
+  .fh-grid--directory .fh-tags {
+    gap: 7px;
+    padding: 10px 14px 0;
+    min-height: 27px;
+    max-height: 27px;
+  }
+  .fh-grid--directory .fh-tag {
+    height: 27px;
+    padding: 0 10px;
+    font-size: 11.5px;
+  }
+  .fh-grid--directory .fh-verified {
+    left: 12px;
+    top: 10px;
+    height: 28px;
+    padding: 0 10px;
+    gap: 5px;
+    font-size: 12px;
+  }
+  .fh-grid--directory .fh-verified svg {
+    width: 14px;
+    height: 14px;
+  }
+  .fh-grid--directory .fh-rating {
+    margin: 12px 14px 0;
+    min-height: 56px;
+    border-radius: 14px;
+  }
+  .fh-grid--directory .fh-r-item {
+    gap: 8px;
+  }
+  .fh-grid--directory .fh-r-item-per {
+    padding-left: 12px;
+  }
+  .fh-grid--directory .fh-r-item-cer {
+    padding-left: 14px;
+  }
+  .fh-grid--directory .fh-r-item > svg {
+    width: 22px;
+    height: 26px;
+    flex-shrink: 0;
+  }
+  .fh-grid--directory .fh-r-div {
+    height: 30px;
+  }
+  .fh-grid--directory .fh-r-label {
+    font-size: 11.5px;
+    line-height: 1.2;
+  }
+  .fh-grid--directory .fh-r-score {
+    gap: 4px;
+    margin-top: 1px;
+  }
+  .fh-grid--directory .fh-r-score b {
+    font-size: 18px;
+    line-height: 1.2;
+  }
+  .fh-grid--directory .fh-r-score small {
+    font-size: 12.5px;
+    margin-left: -2px;
+  }
+  .fh-grid--directory .fh-r-score svg {
+    width: 15px;
+    height: 15px;
+  }
+  .fh-grid--directory .fh-r-muted {
+    font-size: 11.5px;
+    line-height: 1.3;
+  }
+}
+
+@media (min-width: 1024px) {
+  .fh-grid--directory .fh-h-icon {
+    flex: 0 0 52px;
+    width: 52px;
+    height: 50px;
+    border-radius: 13px;
+  }
+  .fh-grid--directory .fh-hospital-glyph {
+    width: 28px;
+    height: 28px;
   }
 }
 
@@ -304,6 +455,11 @@
   display: grid;
   place-items: center;
   color: #0d8a6c;
+}
+.fh-hospital-glyph {
+  width: clamp(26px, 6.5vw, 36px);
+  height: clamp(26px, 6.5vw, 36px);
+  flex-shrink: 0;
 }
 .fh-h-info {
   padding-top: 5px;
@@ -573,7 +729,8 @@
     height: 56px;
     border-radius: 14px;
   }
-  .fh-grid:not(.fh-grid--directory) .fh-h-icon svg {
+  .fh-grid:not(.fh-grid--directory) .fh-h-icon svg,
+  .fh-grid:not(.fh-grid--directory) .fh-hospital-glyph {
     width: 30px;
     height: 30px;
   }

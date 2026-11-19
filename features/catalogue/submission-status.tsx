@@ -22,7 +22,7 @@ const STATUS_COPY: Record<StatusRow["status"], string> = {
   rejected: "Not approved.",
 }
 
-export function SubmissionStatus() {
+export function SubmissionStatus({ compact = false }: { compact?: boolean }) {
   const [email, setEmail] = useState("")
   const [rows, setRows] = useState<StatusRow[] | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -58,9 +58,8 @@ export function SubmissionStatus() {
     setRows(payload.submissions)
   }
 
-  return (
-    <Card>
-      <CardContent className="space-y-3 p-4">
+  const body = (
+      <div className="space-y-3">
         <form className="flex flex-col gap-3 sm:flex-row sm:items-end" onSubmit={onSubmit}>
           <div className="flex-1 space-y-1.5">
             <Label htmlFor="submission-email">Check approval status</Label>
@@ -142,7 +141,14 @@ export function SubmissionStatus() {
             ))}
           </ul>
         ) : null}
-      </CardContent>
+      </div>
+  )
+
+  if (compact) return body
+
+  return (
+    <Card>
+      <CardContent className="p-4">{body}</CardContent>
     </Card>
   )
 }

@@ -20,6 +20,21 @@ function unrated(kind: RatingKind): RatingSummary {
   }
 }
 
+function ratingFrom(kind: RatingKind, score: number | null | undefined): RatingSummary {
+  if (typeof score !== "number" || !Number.isFinite(score) || score < 1 || score > 5) return unrated(kind)
+  return {
+    kind,
+    score: Math.round(score * 10) / 10,
+    scaleMax: 5,
+    status: "published",
+    basis: kind === "PER" ? "patient_feedback" : "verified_evidence",
+    sampleSize: null,
+    lastAssessedAt: null,
+    methodologyVersion: "admin-entry",
+    evidenceSummary: "Score entered for the public card. PER, CER and MER stay separate.",
+  }
+}
+
 function slugPart(value: string): string {
   const slug = value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
   return slug || "listing"
@@ -74,9 +89,12 @@ export function publishedHospitals(): Hospital[] {
     treatments: validIds(row.treatments, treatmentById),
     accreditations: accreditations(row.accreditations),
     verificationStatus: "pending",
-    ratings: { per: unrated("PER"), cer: unrated("CER") },
-    doctorIds: [],
+    ratings: { per: ratingFrom("PER", row.perScore), cer: ratingFrom("CER", row.cerScore) },
+    doctorIds: asTextList(row.doctorIds),
+    doctorNames: asTextList(row.doctorNames),
+    treatmentNames: asTextList(row.treatmentNames),
     image: imageFor(row),
+    accessibility: asTextList(row.accessibility),
   }))
 }
 
@@ -99,7 +117,7 @@ export function publishedDoctors(): Doctor[] {
     hospitalIds: [],
     treatments: validIds(row.treatments, treatmentById),
     languages: asTextList(row.languages),
-    ratings: { per: unrated("PER"), mer: unrated("MER") },
+    ratings: { per: ratingFrom("PER", row.perScore), mer: ratingFrom("MER", row.merScore) },
     verificationStatus: "pending",
   }))
 }

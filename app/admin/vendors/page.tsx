@@ -17,12 +17,7 @@ export default async function AdminVendorsPage() {
   const vendors = await listVendors()
   return (
     <div className="space-y-6 py-6">
-      <AdminPageHeader
-        compact
-        items={[{ label: "Admin Portal", href: "/admin" }, { label: "Vendors" }]}
-        title="City vendors"
-        description="A vendor sees only the queries for their city. They cannot add hospitals or doctors, and they never see the other city’s list."
-      />
+      <AdminPageHeader compact title="City vendors" showDemoNote={false} />
       <AdminVendors initialVendors={vendors} />
     </div>
   )

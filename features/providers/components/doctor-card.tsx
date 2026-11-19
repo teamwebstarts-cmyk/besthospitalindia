@@ -98,6 +98,9 @@ export function DoctorCardRatingModule({ rating, className }: DoctorCardRatingMo
 
 export interface DoctorCardProps {
   doctor: Doctor
+  /** Hide the footer CTA (e.g. admin catalogue preview). */
+  showCta?: boolean
+  disableProfileLink?: boolean
   className?: string
 }
 
@@ -107,7 +110,7 @@ const MAX_VISIBLE_HOSPITALS = 2
 const avatarClassName =
   "size-[4.25rem] shrink-0 rounded-md after:rounded-md ring-1 ring-border/60"
 
-export function DoctorCard({ doctor, className }: DoctorCardProps) {
+export function DoctorCard({ doctor, showCta = true, disableProfileLink = false, className }: DoctorCardProps) {
   const specializationName = specialtyById[doctor.specialization]?.name ?? "Specialist"
   const hospitals = doctor.hospitalIds
     .map((id) => getHospitalById(id))
@@ -124,7 +127,7 @@ export function DoctorCard({ doctor, className }: DoctorCardProps) {
         className,
       )}
     >
-      <CardStretchLink href={profileHref} label={`View profile for ${doctor.name}`} />
+      {disableProfileLink ? null : <CardStretchLink href={profileHref} label={`View profile for ${doctor.name}`} />}
       <CardContent className="pointer-events-none min-h-0 flex-1 gap-4 py-4">
         <div className="relative">
           <VerificationBadge
@@ -210,17 +213,19 @@ export function DoctorCard({ doctor, className }: DoctorCardProps) {
         </div>
       </div>
 
-      <div className="relative z-[1] border-t border-border/60 bg-muted/15 px-(--card-spacing) py-4 pointer-events-auto">
-        <Button
-          variant="cta"
-          size="default"
-          className="h-11 w-full rounded-lg px-4 text-sm font-semibold sm:text-[0.9375rem]"
-          render={<Link href={profileHref} />}
-        >
-          View profile
-          <span className="sr-only"> for {doctor.name}</span>
-        </Button>
-      </div>
+      {showCta ? (
+        <div className="relative z-[1] border-t border-border/60 bg-muted/15 px-(--card-spacing) py-4 pointer-events-auto">
+          <Button
+            variant="cta"
+            size="default"
+            className="h-11 w-full rounded-lg px-4 text-sm font-semibold sm:text-[0.9375rem]"
+            render={<Link href={profileHref} />}
+          >
+            View profile
+            <span className="sr-only"> for {doctor.name}</span>
+          </Button>
+        </div>
+      ) : null}
     </Card>
   )
 }

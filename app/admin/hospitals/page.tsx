@@ -1,9 +1,8 @@
 import type { Metadata } from "next"
 
 import { hospitals } from "@/data"
-import { AdminPageHeader } from "@/features/admin"
-import { AdminCatalogue } from "@/features/catalogue/admin-catalogue"
-import { AdminSubmissions } from "@/features/catalogue/admin-submissions"
+import { AdminKindPage } from "@/features/catalogue/admin-kind-page"
+import type { AdminCatalogueItem } from "@/features/catalogue/admin-catalogue"
 import { hasAdminSession } from "@/lib/admin/session"
 import { catalogueSnapshot } from "@/lib/catalogue/store"
 import { listSubmissions } from "@/lib/catalogue/submissions"
@@ -20,27 +19,24 @@ export default async function AdminHospitalsPage() {
   if (!(await hasAdminSession())) return null
   const snapshot = catalogueSnapshot()
   const emailCodes = Object.fromEntries((await listOutbox()).map((message) => [message.leadId, message.code]))
-  const rows = hospitals.map((hospital) => ({
+  const catalogueItems: AdminCatalogueItem[] = hospitals.map((hospital) => ({
+    kind: "hospital",
     id: hospital.id,
-    name: hospital.name,
-    place: `${hospital.city}, ${hospital.state}`,
-    status: snapshot.hospital[hospital.id] ?? "approved" as const,
+    hospital,
+    status: snapshot.hospital[hospital.id] ?? "approved",
   }))
+  const linkableDoctorNames = listSubmissions("doctor")
+    .filter((row) => row.status === "approved")
+    .map((row) => row.name)
 
   return (
-    <div className="space-y-6 py-6">
-      <AdminPageHeader
-        compact
-        items={[{ label: "Admin Portal", href: "/admin" }, { label: "Hospitals" }]}
-        title="Hospitals"
-        description="Approved hospitals appear in the public catalogue. Pending and rejected hospitals do not."
-      />
-      <AdminSubmissions
-        kind="hospital"
-        emailCodes={emailCodes}
-        initialRows={listSubmissions("hospital").map((row) => ({ ...row }))}
-      />
-      <AdminCatalogue kind="hospital" initialRows={rows} />
-    </div>
+    <AdminKindPage
+      title="Hospitals"
+      kind="hospital"
+      emailCodes={emailCodes}
+      linkableDoctorNames={linkableDoctorNames}
+      initialRows={listSubmissions("hospital").map((row) => ({ ...row }))}
+      catalogueItems={catalogueItems}
+    />
   )
 }

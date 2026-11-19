@@ -48,6 +48,7 @@ import {
   type DiscoveryFilterValues,
   type ListingFiltersProps,
 } from "@/features/discovery/types"
+import { cn } from "@/lib/utils"
 
 interface FacetControlProps {
   facet: DiscoveryFacet
@@ -140,7 +141,8 @@ export function ListingFilters({
   triggerLabel = "Filters",
   showActiveCount = true,
   className,
-}: ListingFiltersProps) {
+  layout = "sidebar",
+}: ListingFiltersProps & { layout?: "sidebar" | "sheet-only" }) {
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = React.useState(false)
 
@@ -200,14 +202,25 @@ export function ListingFilters({
       )}
     </section>
   ))
+  const showSheet = layout === "sheet-only" || layout === "sidebar"
+  const showDesktopColumn = layout === "sidebar"
+
   return (
     <div className={className}>
-      {/* Mobile / tablet trigger — collapses the panel into a Sheet below lg. */}
-      <div className="lg:hidden">
+      {showSheet ? (
+      <div className={cn(showDesktopColumn && "lg:hidden")}>
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetTrigger
             render={
-              <Button variant="outline" className="h-10 w-full rounded-xl text-sm font-semibold">
+              <Button
+                variant="outline"
+                className={cn(
+                  "text-xs font-semibold sm:text-sm",
+                  layout === "sheet-only"
+                    ? "h-9 w-full rounded-lg sm:w-auto"
+                    : "h-10 w-full rounded-xl",
+                )}
+              >
                 {triggerLabel}
                 {activeCountBadge}
               </Button>
@@ -237,8 +250,9 @@ export function ListingFilters({
           </SheetContent>
         </Sheet>
       </div>
+      ) : null}
 
-      {/* Desktop column */}
+      {showDesktopColumn ? (
       <div className="hidden lg:block">
         <div className="mb-4 flex items-center justify-between gap-2">
           <h2 className="text-sm font-semibold">Filters</h2>
@@ -248,6 +262,7 @@ export function ListingFilters({
         </div>
         <div className="space-y-6">{facetGroups}</div>
       </div>
+      ) : null}
     </div>
   )
 }

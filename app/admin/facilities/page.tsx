@@ -1,9 +1,8 @@
 import type { Metadata } from "next"
 
 import { facilities } from "@/data"
-import { AdminPageHeader } from "@/features/admin"
-import { AdminCatalogue } from "@/features/catalogue/admin-catalogue"
-import { AdminSubmissions } from "@/features/catalogue/admin-submissions"
+import { AdminKindPage } from "@/features/catalogue/admin-kind-page"
+import type { AdminCatalogueItem } from "@/features/catalogue/admin-catalogue"
 import { hasAdminSession } from "@/lib/admin/session"
 import { catalogueSnapshot } from "@/lib/catalogue/store"
 import { listSubmissions } from "@/lib/catalogue/submissions"
@@ -18,26 +17,19 @@ export const dynamic = "force-dynamic"
 export default async function AdminFacilitiesPage() {
   if (!(await hasAdminSession())) return null
   const snapshot = catalogueSnapshot()
-  const rows = facilities.map((facility) => ({
+  const catalogueItems: AdminCatalogueItem[] = facilities.map((facility) => ({
+    kind: "facility",
     id: facility.id,
-    name: facility.name,
-    place: `${facility.city}, ${facility.state}`,
-    status: snapshot.facility[facility.id] ?? "approved" as const,
+    facility,
+    status: snapshot.facility[facility.id] ?? "approved",
   }))
 
   return (
-    <div className="space-y-6 py-6">
-      <AdminPageHeader
-        compact
-        items={[{ label: "Admin Portal", href: "/admin" }, { label: "Facilities" }]}
-        title="Facilities"
-        description="Approved facilities stay on the public site. Pending and rejected facilities stay off it."
-      />
-      <AdminSubmissions
-        kind="facility"
-        initialRows={listSubmissions("facility").map((row) => ({ ...row }))}
-      />
-      <AdminCatalogue kind="facility" initialRows={rows} />
-    </div>
+    <AdminKindPage
+      title="Facilities"
+      kind="facility"
+      initialRows={listSubmissions("facility").map((row) => ({ ...row }))}
+      catalogueItems={catalogueItems}
+    />
   )
 }

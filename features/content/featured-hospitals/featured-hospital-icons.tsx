@@ -1,4 +1,4 @@
-export function FhHospitalIcon({ className = "size-[50px]" }: { className?: string }) {
+export function FhHospitalIcon({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 48 48"
@@ -7,7 +7,7 @@ export function FhHospitalIcon({ className = "size-[50px]" }: { className?: stri
       strokeWidth="3"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={className}
+      className={className ? `fh-hospital-glyph ${className}` : "fh-hospital-glyph"}
       aria-hidden
     >
       <path d="M14 41V9a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v32" />

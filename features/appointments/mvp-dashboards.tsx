@@ -46,11 +46,7 @@ export function AdminMvpDashboard({
 
   return (
     <div className="space-y-6 py-6">
-      <AdminPageHeader
-        compact
-        items={[{ label: "Admin Portal" }, { label: "Dashboard" }]}
-        title="Platform overview"
-      />
+      <AdminPageHeader compact title="Platform overview" showDemoNote={false} />
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <OverviewCard icon={Building2Icon} label="Hospitals" value={String(hospitals.length)} href={ROUTES.admin.hospitals} />
         <OverviewCard icon={StethoscopeIcon} label="Doctors" value={String(doctors.length)} href={ROUTES.admin.doctors} />
@@ -280,7 +276,6 @@ export function DoctorMvpDashboard({
   return (
     <div className="space-y-6 py-6">
       <DoctorPageHeader
-        items={[{ label: "Doctor Portal" }, { label: "Dashboard" }]}
         title={"Welcome, " + activeDoctor.name}
         description="Manage your public doctor profile, hospital associations, availability and appointment requests."
         action={

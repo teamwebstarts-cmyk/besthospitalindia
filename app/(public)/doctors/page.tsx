@@ -47,7 +47,6 @@ import {
   buildFilterQueryString,
   readFilterValues,
   toFilterValueList,
-  type DiscoveryFacet,
 } from "@/features/discovery/types"
 import type { VerificationStatus } from "@/types"
 
@@ -145,61 +144,6 @@ const DOCTOR_LANGUAGES = [...new Set(doctorsList.flatMap((doctor) => doctor.lang
   (a, b) => a.localeCompare(b),
 )
 
-/** Doctor-specific facets — city, specialization, verification, languages, etc. */
-const FILTER_FACETS: DiscoveryFacet[] = [
-  {
-    kind: "select",
-    param: "city",
-    label: "City",
-    includeBlank: { value: "", label: "All cities" },
-    options: DOCTOR_CITIES.map((city) => ({ value: city, label: city })),
-  },
-  {
-    kind: "select",
-    param: "state",
-    label: "State",
-    includeBlank: { value: "", label: "All states" },
-    options: DOCTOR_STATES.map((state) => ({ value: state, label: state })),
-  },
-  {
-    kind: "select",
-    param: "specialization",
-    label: "Specialization",
-    includeBlank: { value: "", label: "All specializations" },
-    options: specialties.map((specialty) => ({ value: specialty.id, label: specialty.name })),
-  },
-  {
-    kind: "select",
-    param: "verification",
-    label: "Verification",
-    includeBlank: { value: "", label: "Any status" },
-    options: [
-      { value: "verified", label: "Verified" },
-      { value: "pending", label: "Pending review" },
-      { value: "unverified", label: "Unverified" },
-      { value: "rejected", label: "Rejected" },
-      { value: "expired", label: "Expired" },
-    ],
-  },
-  {
-    kind: "multi-select",
-    param: "language",
-    label: "Languages spoken",
-    options: DOCTOR_LANGUAGES.map((language) => ({ value: language, label: language })),
-  },
-  {
-    kind: "select",
-    param: "rating-status",
-    label: "Rating status",
-    includeBlank: { value: "", label: "Any rating status" },
-    options: [
-      { value: "published", label: "Has a published rating" },
-      { value: "pending", label: "Assessment pending" },
-      { value: "not_assessed", label: "Not yet rated" },
-    ],
-  },
-]
-
 // ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
@@ -283,21 +227,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
             title="Doctors"
             description="Browse by city and specialty. PER and MER stay separate."
           />
-          <div className="grid gap-3 sm:gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
-            <aside
-              aria-label="Doctor filters"
-              className="hidden lg:sticky lg:top-24 lg:block lg:self-start"
-            >
-              <ListingFilters
-                facets={FILTER_FACETS}
-                values={filterValues}
-                basePath={BASE_PATH}
-                extraParams={preservedScalars}
-                triggerLabel="Filters"
-              />
-            </aside>
-
-            <div className="min-w-0 space-y-4">
+          <div className="min-w-0 space-y-4">
               <Suspense fallback={<LoadingSkeleton variant="table" className="h-28 rounded-xl" />}>
                 <DirectoryFilterBar
                   basePath={BASE_PATH}
@@ -322,6 +252,20 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                       ],
                     },
                     {
+                      id: "doctor-filter-state",
+                      param: "state",
+                      label: "State",
+                      value: state ?? "",
+                      emptyValue: "",
+                      options: [
+                        { value: "", label: "All states" },
+                        ...DOCTOR_STATES.map((stateName) => ({
+                          value: stateName,
+                          label: stateName,
+                        })),
+                      ],
+                    },
+                    {
                       id: "doctor-filter-specialization",
                       param: "specialization",
                       label: "Specialization",
@@ -335,6 +279,34 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                         })),
                       ],
                     },
+                    {
+                      id: "doctor-filter-verification",
+                      param: "verification",
+                      label: "Verification",
+                      value: verification ?? "",
+                      emptyValue: "",
+                      options: [
+                        { value: "", label: "Any status" },
+                        { value: "verified", label: "Verified" },
+                        { value: "pending", label: "Pending review" },
+                        { value: "unverified", label: "Unverified" },
+                        { value: "rejected", label: "Rejected" },
+                        { value: "expired", label: "Expired" },
+                      ],
+                    },
+                    {
+                      id: "doctor-filter-rating-status",
+                      param: "rating-status",
+                      label: "Rating status",
+                      value: ratingStatus ?? "",
+                      emptyValue: "",
+                      options: [
+                        { value: "", label: "Any rating status" },
+                        { value: "published", label: "Published rating" },
+                        { value: "pending", label: "Pending" },
+                        { value: "not_assessed", label: "Not yet rated" },
+                      ],
+                    },
                   ]}
                   sort={{
                     param: "sort",
@@ -342,6 +314,26 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                     defaultValue: DEFAULT_SORT,
                     options: SORT_OPTIONS,
                   }}
+                  advancedFilters={
+                    <ListingFilters
+                      layout="sheet-only"
+                      triggerLabel="Languages"
+                      facets={[
+                        {
+                          kind: "multi-select",
+                          param: "language",
+                          label: "Languages spoken",
+                          options: DOCTOR_LANGUAGES.map((language) => ({
+                            value: language,
+                            label: language,
+                          })),
+                        },
+                      ]}
+                      values={filterValues}
+                      basePath={BASE_PATH}
+                      extraParams={preservedScalars}
+                    />
+                  }
                 />
               </Suspense>
 
@@ -396,7 +388,6 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                   />
                 </>
               )}
-            </div>
           </div>
         </div>
       </section>

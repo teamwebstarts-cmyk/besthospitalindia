@@ -9,11 +9,10 @@
 
 import type { ReactNode } from "react"
 
-import { Breadcrumbs, type BreadcrumbItem } from "@/components/shared/breadcrumbs"
 import { SectionHeading } from "@/components/shared/section-heading"
+import { cn } from "@/lib/utils"
 
 export interface PortalPageHeaderProps {
-  items: BreadcrumbItem[]
   title: string
   description?: string
   /** Right-aligned action slot (primary action must stay visible — pages/22 §4). */
@@ -22,22 +21,14 @@ export interface PortalPageHeaderProps {
 }
 
 export function PortalPageHeader({
-  items,
   title,
   description,
   action,
   className,
 }: PortalPageHeaderProps) {
   return (
-    <div className={className}>
-      <Breadcrumbs items={items} />
-      <SectionHeading
-        as="h1"
-        title={title}
-        description={description}
-        action={action}
-        className="mt-2"
-      />
+    <div className={cn("pb-1", className)}>
+      <SectionHeading as="h1" title={title} description={description} action={action} />
       <p className="mt-2 text-xs text-muted-foreground">
         Demo portal — all records, names and outcomes on this page are fictional
         fixture data. Nothing here connects to a real practice.

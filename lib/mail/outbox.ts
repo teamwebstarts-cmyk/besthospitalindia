@@ -1,7 +1,14 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises"
 import path from "node:path"
 
-import { sendTransactionalMail } from "./sender"
+import { mailProvider, sendTransactionalMail } from "./sender"
+
+/** Local / outbox-only testing — digits 1–6. Disabled when Resend or SMTP is configured. */
+export const OUTBOX_DEV_OTP = "123456"
+
+function issueOtpCode(): string {
+  return mailProvider() === "outbox" ? OUTBOX_DEV_OTP : String(Math.floor(100000 + Math.random() * 900000))
+}
 
 const FILE = path.join(process.cwd(), "data", "runtime", "outbox.json")
 const FROM = "info@wispr.hospital"
@@ -44,7 +51,7 @@ async function writeAll(messages: OutboxMessage[]): Promise<void> {
 export function recordLeadCode(leadId: string, email: string, purpose: "query" | "application" = "query"): Promise<string> {
   return withLock(async () => {
     const messages = await readAll()
-    const code = String(Math.floor(100000 + Math.random() * 900000))
+    const code = issueOtpCode()
     const subject = purpose === "application" ? `Your listing application ${leadId}` : `Your query id is ${leadId}`
     const body = purpose === "application"
       ? `Your application id is ${leadId}. Your email code is ${code}. This is not a patient query and is not sent to a city desk.`

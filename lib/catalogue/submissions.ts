@@ -34,6 +34,18 @@ export interface CatalogueProfileFields {
   /** Facility only. */
   category?: string
   services?: string[]
+  /** Optional public-card scores. Blank means the site shows "Not yet rated". */
+  perScore?: number | null
+  cerScore?: number | null
+  merScore?: number | null
+  /** Hospital only: doctor ids linked on the public profile. */
+  doctorIds?: string[]
+  /** Hospital only: plain-text doctor names when no profile is linked. */
+  doctorNames?: string[]
+  /** Hospital / facility: free-text treatment or service lines for the detail page. */
+  treatmentNames?: string[]
+  /** Hospital only: access notes shown under the overview. */
+  accessibility?: string[]
 }
 
 export interface CatalogueSubmission extends CatalogueProfileFields {
@@ -144,6 +156,7 @@ const PATCHABLE_PROFILE_FIELDS: (keyof CatalogueProfileFields)[] = [
   "overview", "state", "country", "imageUrl", "facilityType",
   "specialties", "treatments", "accreditations", "specialization",
   "qualifications", "yearsExperience", "languages", "category", "services",
+  "perScore", "cerScore", "merScore", "doctorIds", "doctorNames", "treatmentNames", "accessibility",
 ]
 
 export function updateSubmission(

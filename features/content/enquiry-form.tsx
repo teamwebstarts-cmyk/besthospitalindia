@@ -95,6 +95,8 @@ export interface EnquiryFormProps {
   successNote: string
   submitLabel?: string
   className?: string
+  /** Skip the outer card chrome when nested in another panel. */
+  embedded?: boolean
   /** Optional note below the submit control (e.g. terms on hero forms). */
   footer?: ReactNode
   /**
@@ -126,6 +128,7 @@ export function EnquiryForm({
   className,
   footer,
   fieldRows,
+  embedded = false,
 }: EnquiryFormProps) {
   const isHero = variant === "hero"
   const reactId = useId()
@@ -210,7 +213,9 @@ export function EnquiryForm({
       className={cn(
         isHero
           ? "rounded-2xl border border-cta/25 bg-linear-to-br from-primary via-primary to-cta p-5 text-primary-foreground shadow-xl ring-1 ring-white/10 sm:p-6 [&_[data-slot=select-trigger]]:border-white/25 [&_[data-slot=select-trigger]]:bg-white [&_[data-slot=select-trigger]]:text-foreground [&_[data-slot=select-trigger]]:shadow-sm [&_[data-slot=select-trigger]]:data-placeholder:text-muted-foreground [&_input]:border-white/25 [&_input]:bg-white [&_input]:text-foreground [&_input]:shadow-sm [&_input]:placeholder:text-foreground/45 [&_input]:dark:bg-white [&_input]:dark:text-foreground [&_textarea]:border-white/25 [&_textarea]:bg-white [&_textarea]:text-foreground [&_textarea]:shadow-sm [&_textarea]:placeholder:text-foreground/45 [&_textarea]:dark:bg-white [&_textarea]:dark:text-foreground [&_[data-slot=select-trigger]]:dark:bg-white"
-          : "rounded-2xl border bg-card p-6 shadow-xs sm:p-8",
+          : embedded
+            ? "bg-transparent p-0 shadow-none"
+            : "rounded-2xl border bg-card p-6 shadow-xs sm:p-8",
         className
       )}
     >

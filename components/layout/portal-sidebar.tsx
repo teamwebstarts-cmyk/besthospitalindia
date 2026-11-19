@@ -119,10 +119,10 @@ export function PortalSidebar({
         </Sheet>
         <span className="font-heading font-semibold tracking-tight">{title}</span>
       </div>
-      <aside className="hidden lg:sticky lg:top-14 lg:block lg:h-[calc(100vh-3.5rem)] lg:w-64 lg:shrink-0 lg:border-r bg-sidebar text-sidebar-foreground">
+      <aside className="hidden lg:sticky lg:top-0 lg:z-30 lg:block lg:h-screen lg:w-64 lg:shrink-0 lg:border-r bg-sidebar text-sidebar-foreground">
         <div className="flex h-full flex-col">
-          <div className="border-b px-4 py-4">
-            <p className="font-heading font-semibold tracking-tight">{title}</p>
+          <div className="border-b px-4 py-3">
+            <p className="font-heading text-sm font-semibold tracking-tight">{title}</p>
             {description ? <p className="mt-0.5 text-xs text-muted-foreground">{description}</p> : null}
           </div>
           <div className="flex-1 overflow-y-auto p-2">

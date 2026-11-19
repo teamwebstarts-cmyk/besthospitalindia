@@ -53,8 +53,14 @@ export interface Hospital {
   ratings: { per: RatingSummary; cer: RatingSummary };
   /** Doctor IDs — must resolve both ways against Doctor.hospitalIds. */
   doctorIds: string[];
+  /** Optional plain names when admins enter doctors without a linked profile. */
+  doctorNames?: string[];
+  /** Optional free-text treatment lines (admin-entered). */
+  treatmentNames?: string[];
   /** Local neutral placeholder path; no hotlinked assets in the mock phase. */
   image: string;
+  /** Optional access notes entered by admin. Omitted on fixture hospitals. */
+  accessibility?: string[];
 }
 
 /** Exactly as specified in 09-data-models-and-mock-data.md. */

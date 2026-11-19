@@ -47,7 +47,7 @@ import { ProviderSectionNav } from "@/features/providers/components/provider-sec
 import { RatingPair } from "@/features/ratings/rating-pair"
 import { VerificationBadge } from "@/features/providers/components/verification-badge"
 import { getHospitalBySlug, getRelatedDoctors, getTreatmentById } from "@/lib/search"
-import { hospitals, reviewsForProvider, specialtyById } from "@/data"
+import { doctorById, hospitals, reviewsForProvider, specialtyById } from "@/data"
 import { publishedHospitalBySlug } from "@/lib/catalogue/published"
 import { isCataloguePublic } from "@/lib/catalogue/store"
 import { doctorProfileHref, hospitalProfileHref, ROUTES } from "@/constants/routes"
@@ -89,15 +89,25 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
     notFound()
   }
 
-  const doctors = getRelatedDoctors(hospital.id).filter((doctor) => isCataloguePublic("doctor", doctor.id))
+  const seenDoctors = new Set<string>()
+  const doctors = [
+    ...getRelatedDoctors(hospital.id),
+    ...hospital.doctorIds.map((id) => doctorById[id]).filter((doctor) => doctor !== undefined),
+  ].filter((doctor) => {
+    if (seenDoctors.has(doctor.id) || !isCataloguePublic("doctor", doctor.id)) return false
+    seenDoctors.add(doctor.id)
+    return true
+  })
   const reviews = reviewsForProvider("hospital", hospital.id)
   const publishedReviews = reviews.filter((review) => review.status === "published")
   const specialtyNames = hospital.specialties
     .map((id) => specialtyById[id]?.name)
     .filter((name): name is string => name !== undefined)
-  const treatmentNames = hospital.treatments
-    .map((id) => getTreatmentById(id)?.name)
-    .filter((name): name is string => name !== undefined)
+  const treatmentNames = [
+    ...hospital.treatments.map((id) => getTreatmentById(id)?.name).filter((name): name is string => name !== undefined),
+    ...(hospital.treatmentNames ?? []),
+  ].filter((name, index, list) => list.indexOf(name) === index)
+  const plainDoctorNames = hospital.doctorNames ?? []
 
   const consultationHref = ROUTES.public.freeConsultation
   const contactHref = ROUTES.public.contact
@@ -177,6 +187,12 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
             <Card className="border-border/70 shadow-none">
               <CardContent className="gap-2 p-4 sm:p-5">
                 <p className="text-sm leading-relaxed text-muted-foreground">{hospital.overview}</p>
+                {hospital.accessibility && hospital.accessibility.length > 0 ? (
+                  <p className="text-sm text-foreground">
+                    <span className="font-medium">Access: </span>
+                    {hospital.accessibility.join(", ")}
+                  </p>
+                ) : null}
                 <p className="text-xs text-muted-foreground">
                   Profile information is supplied by the hospital and updated through our verification workflows.
                 </p>
@@ -250,7 +266,7 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
               title="Doctors at this hospital"
               description="Doctors associated with this hospital."
             />
-            {doctors.length > 0 ? (
+            {doctors.length > 0 || plainDoctorNames.length > 0 ? (
               <ul className="grid gap-2 sm:grid-cols-2">
                 {doctors.map((doctor) => (
                   <li key={doctor.id}>
@@ -266,6 +282,11 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
                       </span>
                       <StatusBadge status={doctor.verificationStatus} />
                     </Link>
+                  </li>
+                ))}
+                {plainDoctorNames.map((name) => (
+                  <li key={name}>
+                    <div className="rounded-lg border p-3 text-sm font-medium text-foreground">{name}</div>
                   </li>
                 ))}
               </ul>

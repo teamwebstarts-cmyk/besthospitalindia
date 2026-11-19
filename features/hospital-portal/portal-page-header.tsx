@@ -1,6 +1,5 @@
 import type { ReactNode } from "react"
 
-import { Breadcrumbs, type BreadcrumbItem } from "@/components/shared/breadcrumbs"
 import { SectionHeading } from "@/components/shared/section-heading"
 import { DemoNotice } from "@/features/content/demo-notice"
 import { cn } from "@/lib/utils"
@@ -32,14 +31,8 @@ export function PortalPageHeader({
   showDemoNotice = true,
   className,
 }: PortalPageHeaderProps) {
-  const items: BreadcrumbItem[] = [
-    { label: "Dashboard", href: "/hospital-portal" },
-    { label },
-  ]
-
   return (
-    <header className={cn("space-y-4", className)}>
-      <Breadcrumbs items={items} />
+    <header className={cn("space-y-4 pb-1", className)}>
       <SectionHeading as="h1" title={label} description={description} action={action} />
       {showDemoNotice ? (
         <DemoNotice

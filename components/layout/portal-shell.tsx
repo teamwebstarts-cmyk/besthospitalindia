@@ -1,8 +1,9 @@
 import type { ReactNode } from "react"
 
 import { PortalSidebar } from "@/components/layout/portal-sidebar"
-import { Badge } from "@/components/ui/badge"
+import { PortalTopBar } from "@/components/layout/portal-top-bar"
 import type { PortalNavEntry } from "@/constants/navigation"
+import { flattenPortalNav } from "@/lib/navigation/flatten-portal-nav"
 import { cn } from "@/lib/utils"
 
 export interface PortalShellProps {
@@ -10,6 +11,8 @@ export interface PortalShellProps {
   items: PortalNavEntry[]
   /** Portal title, shown in the sidebar and mobile drawer. */
   title: string
+  /** Breadcrumb root href (usually the portal dashboard). */
+  portalHomeHref: string
   /** Optional description under the sidebar title. */
   description?: string
   /** Optional right-aligned topbar slot (user menu, actions). */
@@ -26,21 +29,23 @@ export interface PortalShellProps {
 export function PortalShell({
   items,
   title,
+  portalHomeHref,
   description,
   actions,
   children,
   className,
 }: PortalShellProps) {
+  const navItems = flattenPortalNav(items)
   return (
     <div className="flex min-h-screen flex-col bg-background lg:flex-row">
       <PortalSidebar items={items} title={title} description={description} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="hidden h-14 items-center justify-between gap-4 border-b bg-background px-6 lg:flex">
-          <Badge variant="outline" className="text-muted-foreground">
-            Demo portal — mock data only
-          </Badge>
-          {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
-        </div>
+        <PortalTopBar
+          portalTitle={title}
+          portalHomeHref={portalHomeHref}
+          navItems={navItems}
+          actions={actions}
+        />
         <main
           id="main"
           className={cn(

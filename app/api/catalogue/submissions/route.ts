@@ -30,9 +30,18 @@ function profileFrom(body: Record<string, unknown> | null): Partial<CataloguePro
     const value = str(body, key)
     if (value) (profile as Record<string, unknown>)[key] = value
   }
-  for (const key of ["specialties", "treatments", "accreditations", "qualifications", "languages", "services"] as const) {
+  for (const key of ["specialties", "treatments", "accreditations", "qualifications", "languages", "services", "doctorIds", "doctorNames", "treatmentNames", "accessibility"] as const) {
     const value = strList(body, key)
     if (value) (profile as Record<string, unknown>)[key] = value
+  }
+  for (const key of ["perScore", "cerScore", "merScore"] as const) {
+    const raw = body?.[key]
+    if (raw === null || raw === "") {
+      (profile as Record<string, unknown>)[key] = null
+      continue
+    }
+    const score = typeof raw === "number" ? raw : typeof raw === "string" && raw.trim() !== "" ? Number(raw) : undefined
+    if (typeof score === "number" && Number.isFinite(score)) (profile as Record<string, unknown>)[key] = score
   }
   const years = body?.yearsExperience
   if (typeof years === "number" && Number.isFinite(years)) profile.yearsExperience = years

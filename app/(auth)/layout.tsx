@@ -40,8 +40,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       </main>
       <footer className="border-t">
         <div className="mx-auto w-full max-w-7xl px-4 py-4 text-center text-xs text-muted-foreground sm:px-6 lg:px-8">
-          Demo build — authentication is simulated. No real accounts, sessions
-          or emails exist.
+          Partner login is for hospitals and doctors. Patients book without an account.
         </div>
       </footer>
     </div>

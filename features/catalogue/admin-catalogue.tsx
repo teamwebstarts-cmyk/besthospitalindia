@@ -2,21 +2,31 @@
 
 import { useState } from "react"
 
-import { Card, CardContent } from "@/components/ui/card"
+import { FacilityListingCard } from "@/features/content/facility-listing/facility-listing-card"
+import { DoctorCard } from "@/features/providers/components/doctor-card"
+import { HospitalCard } from "@/features/providers/components/hospital-card"
 import type { CatalogueKind, CatalogueStatus } from "@/lib/catalogue/store"
+import type { Doctor, Facility, Hospital } from "@/types"
 
-const STATUSES: CatalogueStatus[] = ["approved", "pending", "rejected"]
+import { adminCatalogueGridClass, AdminCatalogueCardFrame } from "./admin-catalogue-card-frame"
+import { AdminFixturePreview } from "./admin-fixture-preview"
 
-export interface CatalogueRow {
-  id: string
-  name: string
-  place: string
-  status: CatalogueStatus
-}
+export type AdminCatalogueItem =
+  | { kind: "hospital"; id: string; status: CatalogueStatus; hospital: Hospital }
+  | { kind: "doctor"; id: string; status: CatalogueStatus; doctor: Doctor }
+  | { kind: "facility"; id: string; status: CatalogueStatus; facility: Facility }
 
-export function AdminCatalogue({ kind, initialRows }: { kind: CatalogueKind; initialRows: CatalogueRow[] }) {
-  const [rows, setRows] = useState(initialRows)
+export function AdminCatalogue({
+  kind,
+  initialItems,
+}: {
+  kind: CatalogueKind
+  initialItems: AdminCatalogueItem[]
+}) {
+  const [items, setItems] = useState(initialItems)
   const [error, setError] = useState<string | null>(null)
+  const [previewId, setPreviewId] = useState<string | null>(null)
+  const previewItem = previewId ? items.find((item) => item.id === previewId) ?? null : null
 
   async function setStatus(id: string, status: CatalogueStatus) {
     setError(null)
@@ -29,39 +39,55 @@ export function AdminCatalogue({ kind, initialRows }: { kind: CatalogueKind; ini
       setError("Could not update publication.")
       return
     }
-    setRows((current) => current.map((row) => (row.id === id ? { ...row, status } : row)))
+    setItems((current) => current.map((row) => (row.id === id ? { ...row, status } : row)))
   }
+
+  const title =
+    kind === "doctor" ? "Directory doctors" : kind === "facility" ? "Directory facilities" : "Directory hospitals"
 
   return (
     <div className="space-y-3">
-      <p className="text-sm text-muted-foreground">
-        Approved profiles stay on the public site. Pending and rejected profiles stay off it. This does not send patient queries to the hospital or doctor.
-      </p>
+      <h2 className="text-sm font-semibold text-foreground">{title}</h2>
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
-      <ul className="space-y-2">
-        {rows.map((row) => (
-          <li key={row.id}>
-            <Card>
-              <CardContent className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="min-w-0 text-sm">
-                  <p className="font-medium text-foreground">{row.name}</p>
-                  <p className="text-muted-foreground">{row.place}</p>
-                </div>
-                <select
-                  className="h-9 rounded-md border border-input bg-background px-2 text-sm"
-                  value={row.status}
-                  aria-label={`Publication for ${row.name}`}
-                  onChange={(event) => setStatus(row.id, event.target.value as CatalogueStatus)}
-                >
-                  {STATUSES.map((status) => (
-                    <option key={status} value={status}>{status}</option>
-                  ))}
-                </select>
-              </CardContent>
-            </Card>
-          </li>
-        ))}
+      <ul className={adminCatalogueGridClass}>
+        {items.map((item) => {
+          const name =
+            item.kind === "hospital"
+              ? item.hospital.name
+              : item.kind === "doctor"
+                ? item.doctor.name
+                : item.facility.name
+          return (
+            <AdminCatalogueCardFrame
+              key={item.id}
+              name={name}
+              status={item.status}
+              onStatusChange={(status) => void setStatus(item.id, status)}
+              openLabel={`Preview ${name}`}
+              onOpen={() => setPreviewId(item.id)}
+            >
+              {item.kind === "hospital" ? (
+                <HospitalCard hospital={item.hospital} layout="stacked" showCta={false} disableProfileLink compact />
+              ) : item.kind === "doctor" ? (
+                <DoctorCard doctor={item.doctor} showCta={false} disableProfileLink />
+              ) : (
+                <FacilityListingCard facility={item.facility} showCta={false} disableProfileLink compact />
+              )}
+            </AdminCatalogueCardFrame>
+          )
+        })}
       </ul>
+      <AdminFixturePreview
+        item={previewItem}
+        open={previewId !== null}
+        onOpenChange={(open) => {
+          if (!open) setPreviewId(null)
+        }}
+        onStatusChange={(status) => {
+          if (!previewItem) return
+          void setStatus(previewItem.id, status)
+        }}
+      />
     </div>
   )
 }

@@ -50,6 +50,12 @@ export interface HospitalCardProps {
    * (directory two-column listings).
    */
   layout?: "horizontal" | "stacked"
+  /** Hide Book Appointment / WhatsApp footer (e.g. admin catalogue preview). */
+  showCta?: boolean
+  /** When true, the card does not link to the public profile. */
+  disableProfileLink?: boolean
+  /** Shorter media for dense admin grids. */
+  compact?: boolean
   className?: string
 }
 
@@ -138,9 +144,11 @@ function HospitalCardCoverImage({
 function HospitalCardMedia({
   hospital,
   layout,
+  compact = false,
 }: {
   hospital: Hospital
   layout: "horizontal" | "stacked"
+  compact?: boolean
 }) {
   const placeholder = (
     <div className="flex size-full items-center justify-center bg-muted text-muted-foreground/60">
@@ -151,7 +159,10 @@ function HospitalCardMedia({
   if (layout === "stacked") {
     return (
       <div
-        className="pointer-events-none relative aspect-[16/9] w-full shrink-0 overflow-hidden border-b border-border/60 bg-muted"
+        className={cn(
+          "pointer-events-none relative w-full shrink-0 overflow-hidden border-b border-border/60 bg-muted",
+          compact ? "aspect-[2/1]" : "aspect-[16/9]",
+        )}
         aria-hidden
       >
         {hospital.image ? (
@@ -186,6 +197,9 @@ function HospitalCardMedia({
 export function HospitalCard({
   hospital,
   layout = "horizontal",
+  showCta = true,
+  disableProfileLink = false,
+  compact = false,
   className,
 }: HospitalCardProps) {
   const profileHref = hospitalProfileHref(hospital.slug)
@@ -204,13 +218,13 @@ export function HospitalCard({
         className
       )}
     >
-      <CardStretchLink href={profileHref} label={`View ${hospital.name}`} />
-      <HospitalCardMedia hospital={hospital} layout={layout} />
+      {disableProfileLink ? null : <CardStretchLink href={profileHref} label={`View ${hospital.name}`} />}
+      <HospitalCardMedia hospital={hospital} layout={layout} compact={compact} />
       <div className="pointer-events-none flex min-w-0 flex-1 flex-col">
         <CardContent
           className={cn(
             "gap-3",
-            isStacked && "min-h-0 flex-1 py-4",
+            isStacked && (compact ? "min-h-0 flex-1 py-3" : "min-h-0 flex-1 py-4"),
           )}
         >
           <div className="flex items-start justify-between gap-3">
@@ -281,44 +295,46 @@ export function HospitalCard({
           </div>
         ) : null}
 
-        <div
-          className={cn(
-            "relative z-[1] flex flex-row gap-2.5 border-t bg-muted/30 px-(--card-spacing) pointer-events-auto",
-            isStacked ? "mt-0 py-4" : "mt-auto py-3",
-          )}
-        >
-          <Button
-            variant="cta"
-            size={isStacked ? "default" : "sm"}
+        {showCta ? (
+          <div
             className={cn(
-              "min-w-0 flex-1 rounded-lg font-semibold shadow-sm",
-              isStacked ? "h-11 px-4 text-sm sm:text-[0.9375rem]" : "h-9 px-3",
+              "relative z-[1] flex flex-row gap-2.5 border-t bg-muted/30 px-(--card-spacing) pointer-events-auto",
+              isStacked ? "mt-0 py-4" : "mt-auto py-3",
             )}
-            render={<Link href={ROUTES.public.freeConsultation} />}
           >
-            Book Appointment
-            <span className="sr-only"> with {hospital.name}</span>
-          </Button>
-          <Button
-            variant="success-cta"
-            size={isStacked ? "default" : "sm"}
-            className={cn(
-              "min-w-0 flex-1 rounded-lg font-semibold shadow-sm",
-              isStacked ? "h-11 gap-2 px-4 text-sm sm:text-[0.9375rem]" : "h-9 gap-1.5 px-3",
-            )}
-            render={
-              <a
-                href={whatsappHref(`Hello, I want to know more about ${hospital.name}`)}
-                target="_blank"
-                rel="noopener noreferrer"
-              />
-            }
-          >
-            <WhatsAppIcon className={isStacked ? "size-[1.05rem]" : undefined} />
-            WhatsApp Us
-            <span className="sr-only"> about {hospital.name}</span>
-          </Button>
-        </div>
+            <Button
+              variant="cta"
+              size={isStacked ? "default" : "sm"}
+              className={cn(
+                "min-w-0 flex-1 rounded-lg font-semibold shadow-sm",
+                isStacked ? "h-11 px-4 text-sm sm:text-[0.9375rem]" : "h-9 px-3",
+              )}
+              render={<Link href={ROUTES.public.freeConsultation} />}
+            >
+              Book Appointment
+              <span className="sr-only"> with {hospital.name}</span>
+            </Button>
+            <Button
+              variant="success-cta"
+              size={isStacked ? "default" : "sm"}
+              className={cn(
+                "min-w-0 flex-1 rounded-lg font-semibold shadow-sm",
+                isStacked ? "h-11 gap-2 px-4 text-sm sm:text-[0.9375rem]" : "h-9 gap-1.5 px-3",
+              )}
+              render={
+                <a
+                  href={whatsappHref(`Hello, I want to know more about ${hospital.name}`)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                />
+              }
+            >
+              <WhatsAppIcon className={isStacked ? "size-[1.05rem]" : undefined} />
+              WhatsApp Us
+              <span className="sr-only"> about {hospital.name}</span>
+            </Button>
+          </div>
+        ) : null}
       </div>
     </Card>
   )

@@ -18,13 +18,13 @@ export interface PartnerInterestFormProps {
   /** Which partner flavour drives the field set and copy. */
   kind: "hospital" | "doctor"
   className?: string
+  compact?: boolean
 }
 
-const consentLabel =
-  "I agree to be contacted about listing on BestHospitalIndia and understand that approval, listing and ratings follow our partner review process. (Required)"
+const consentLabel = "I confirm these details are for listing review, not a patient query."
 
 /** Shared base fields for both partner forms (explicitly typed). */
-function baseFields(kind: "hospital" | "doctor"): EnquiryFormTextField[] {
+function baseFields(kind: "hospital" | "doctor", compact: boolean): EnquiryFormTextField[] {
   const isHospital = kind === "hospital"
   const organisationField: EnquiryFormTextField = {
     kind: "text",
@@ -73,13 +73,17 @@ function baseFields(kind: "hospital" | "doctor"): EnquiryFormTextField[] {
       placeholder: "e.g. Kerala",
       required: false,
     },
-    {
-      kind: "text",
-      name: "imageUrl",
-      label: "Photo URL (optional)",
-      placeholder: "https://…",
-      required: false,
-    },
+    ...(compact
+      ? []
+      : [
+          {
+            kind: "text" as const,
+            name: "imageUrl",
+            label: "Photo URL (optional)",
+            placeholder: "https://…",
+            required: false,
+          } satisfies EnquiryFormTextField,
+        ]),
     {
       kind: "text",
       name: "phone",
@@ -100,6 +104,7 @@ function baseFields(kind: "hospital" | "doctor"): EnquiryFormTextField[] {
 export function PartnerInterestForm({
   kind,
   className,
+  compact = false,
 }: PartnerInterestFormProps) {
   const isHospital = kind === "hospital"
 
@@ -160,12 +165,10 @@ export function PartnerInterestForm({
     label: consentLabel,
   }
 
-  const fields: readonly EnquiryFormField[] = [
-    ...baseFields(kind),
-    isHospital ? sizeField : experienceField,
-    messageField,
-    consentField,
-  ]
+  const extraField = isHospital ? sizeField : experienceField
+  const fields: readonly EnquiryFormField[] = compact
+    ? [...baseFields(kind, true), extraField, consentField]
+    : [...baseFields(kind, false), extraField, messageField, consentField]
 
   const schema: ValidationSchema = {
     [isHospital ? "organisation" : "fullName"]: [
@@ -182,21 +185,40 @@ export function PartnerInterestForm({
     city: [required("City is required"), minLength(2), maxLength(80)],
     phone: [required("Phone is required"), phone()],
     [isHospital ? "bedCapacity" : "experience"]: [required()],
-    message: [required(), minLength(10), maxLength(2000)],
+    ...(compact ? {} : { message: [required(), minLength(10), maxLength(2000)] }),
     consent: [required()],
   }
 
+  const fieldRows = compact
+    ? isHospital
+      ? [
+          ["organisation", "contactName"],
+          ["email", "phone"],
+          ["city", "state"],
+          ["bedCapacity"],
+          ["consent"],
+        ]
+      : [
+          ["fullName", "contactName"],
+          ["email", "phone"],
+          ["city", "state"],
+          ["experience"],
+          ["consent"],
+        ]
+    : undefined
+
   return (
     <EnquiryForm
-      title={
-        isHospital ? "Hospital interest form" : "Doctor interest form"
-      }
+      title={isHospital ? "Hospital registration" : "Doctor registration"}
+      heading={compact ? (isHospital ? "Register hospital" : "Register doctor") : undefined}
       fields={fields}
       schema={schema}
       onSubmit={handleSubmit}
-      submitLabel="Submit interest request"
-      successNote="Admin will review this listing. It is not a patient query and is not sent to a hospital or a city desk. It appears on the public site only after approval."
+      submitLabel="Submit for approval"
+      successNote="Admin will review this listing. It goes live only after approval."
       className={className}
+      embedded={compact}
+      fieldRows={fieldRows}
     />
   )
 }

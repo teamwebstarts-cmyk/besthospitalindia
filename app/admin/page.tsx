@@ -31,12 +31,21 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="space-y-6 py-6">
-      <AdminPageHeader
-        compact
-        items={[{ label: "Admin Portal", href: "/admin" }, { label: "Dashboard" }]}
-        title="Queries"
-        description="Every query is stored here and with the city desk. Hospitals and doctors do not receive them."
-      />
+      <AdminPageHeader compact title="Dashboard" showDemoNote={false} />
+      <section className="flex flex-wrap gap-2">
+        {[
+          { href: "/admin/leads", label: "Queries" },
+          { href: "/admin/vendors", label: "Vendors" },
+          { href: "/admin/hospitals", label: "Hospitals" },
+          { href: "/admin/doctors", label: "Doctors" },
+          { href: "/admin/facilities", label: "Facilities" },
+        ].map((link) => (
+          <Button key={link.href} variant="outline" size="sm" render={<Link href={link.href} />}>
+            {link.label}
+          </Button>
+        ))}
+      </section>
+
       <section className="grid gap-3 sm:grid-cols-3">
         <Card>
           <CardContent className="p-4">

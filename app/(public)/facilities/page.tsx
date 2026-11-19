@@ -220,50 +220,7 @@ export default async function FacilitiesPage({
             title="Facilities"
             description="Labs, centres and wellness listings. Filter by category or city."
           />
-          <div className="grid gap-3 sm:gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
-            <aside
-              aria-label="Facility filters"
-              className="hidden lg:sticky lg:top-24 lg:block lg:self-start"
-            >
-          <ListingFilters
-            facets={[
-              {
-                kind: "multi-select",
-                param: "category",
-                label: "Facility category",
-                options: getCategoryOptions(),
-              },
-              {
-                kind: "select",
-                param: "city",
-                label: "City",
-                includeBlank: { value: "__all__", label: "All cities" },
-                options: getCityOptions(),
-              },
-              {
-                kind: "multi-select",
-                param: "specialty",
-                label: "Specialty",
-                options: specialties.map((specialty) => ({
-                  value: specialty.slug,
-                  label: specialty.name,
-                })),
-              },
-              {
-                kind: "select",
-                param: "service",
-                label: "Service",
-                includeBlank: { value: "__all__", label: "All services" },
-                options: getServiceOptions(),
-              },
-            ]}
-            values={filterValues}
-            basePath={BASE_PATH}
-            extraParams={{ ...preservedScalars, ...sortExtra }}
-          />
-        </aside>
-
-        <section aria-label="Facility results" className="min-w-0 space-y-4">
+          <section aria-label="Facility results" className="min-w-0 space-y-4">
           <Suspense fallback={<LoadingSkeleton variant="table" className="h-28 rounded-xl" />}>
             <DirectoryFilterBar
               basePath={BASE_PATH}
@@ -309,6 +266,17 @@ export default async function FacilitiesPage({
                     })),
                   ],
                 },
+                {
+                  id: "facility-filter-service",
+                  param: "service",
+                  label: "Service",
+                  value: service ?? "__all__",
+                  emptyValue: "__all__",
+                  options: [
+                    { value: "__all__", label: "All services" },
+                    ...getServiceOptions(),
+                  ],
+                },
               ]}
               sort={{
                 param: "sort",
@@ -316,6 +284,32 @@ export default async function FacilitiesPage({
                 defaultValue: DEFAULT_SORT,
                 options: SORT_OPTIONS,
               }}
+              advancedFilters={
+                <ListingFilters
+                  layout="sheet-only"
+                  triggerLabel="More filters"
+                  facets={[
+                    {
+                      kind: "multi-select",
+                      param: "category",
+                      label: "Facility category (multiple)",
+                      options: getCategoryOptions(),
+                    },
+                    {
+                      kind: "multi-select",
+                      param: "specialty",
+                      label: "Specialty (multiple)",
+                      options: specialties.map((specialty) => ({
+                        value: specialty.slug,
+                        label: specialty.name,
+                      })),
+                    },
+                  ]}
+                  values={filterValues}
+                  basePath={BASE_PATH}
+                  extraParams={{ ...preservedScalars, ...sortExtra }}
+                />
+              }
             />
           </Suspense>
 
@@ -370,8 +364,7 @@ export default async function FacilitiesPage({
               />
             </>
           )}
-            </section>
-          </div>
+          </section>
         </div>
       </section>
 

@@ -29,6 +29,7 @@ export function HospitalPortalShell({ children }: HospitalPortalShellProps) {
     <PortalShell
       items={items}
       title="Hospital Portal"
+      portalHomeHref="/hospital-portal"
       description="Demo hospital workspace — selected hospital preview"
       actions={
         <span className="flex items-center gap-2 text-sm text-muted-foreground">

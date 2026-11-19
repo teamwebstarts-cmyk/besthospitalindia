@@ -42,6 +42,8 @@ export interface DirectoryFilterBarProps {
   }
   selects: readonly DirectoryFilterSelectField[]
   sort: DirectoryFilterSortField
+  /** e.g. multi-select facets in a sheet — rendered below the select row. */
+  advancedFilters?: React.ReactNode
   className?: string
 }
 
@@ -69,6 +71,7 @@ export function DirectoryFilterBar({
   search,
   selects,
   sort,
+  advancedFilters,
   className,
 }: DirectoryFilterBarProps) {
   const router = useRouter()
@@ -120,11 +123,19 @@ export function DirectoryFilterBar({
 
   const filterCellCount = selects.length + 1
 
+  const filterGridClass =
+    filterCellCount <= 3
+      ? "grid-cols-3"
+      : filterCellCount === 4
+        ? "grid-cols-2 sm:grid-cols-4"
+        : filterCellCount === 5
+          ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5"
+          : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6"
+
   return (
     <div
       className={cn(
-        "lg:hidden",
-        "rounded-lg border border-border/70 bg-card/95 p-2.5 shadow-xs",
+        "rounded-lg border border-border/70 bg-card/95 p-2.5 shadow-xs sm:p-3.5",
         className,
       )}
     >
@@ -160,12 +171,7 @@ export function DirectoryFilterBar({
         </Button>
       </form>
 
-      <div
-        className={cn(
-          "mt-2 grid gap-1.5",
-          filterCellCount <= 3 ? "grid-cols-3" : "grid-cols-2",
-        )}
-      >
+      <div className={cn("mt-2 grid gap-1.5 sm:gap-2", filterGridClass)}>
         {selects.map((field) => {
           const empty = field.emptyValue ?? "all"
           const controlled = field.value === "" ? empty : field.value
@@ -221,8 +227,10 @@ export function DirectoryFilterBar({
         </Select>
       </div>
 
+      {advancedFilters ? <div className="mt-2">{advancedFilters}</div> : null}
+
       {hasFilters ? (
-        <div className="mt-1.5 flex justify-end">
+        <div className="mt-1.5 flex justify-end sm:mt-2">
           <Button
             type="button"
             variant="ghost"

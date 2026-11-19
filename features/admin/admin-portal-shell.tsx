@@ -49,8 +49,13 @@ export function AdminPortalShell({ children }: AdminPortalShellProps) {
     <PortalShell
       items={adminNavGroups}
       title="Admin Portal"
-      description="Super admin workspace — fictional demo data only"
-      actions={<><AdminSignOut /><AdminUserChip /></>}
+      portalHomeHref="/admin"
+      actions={
+        <>
+          <AdminSignOut />
+          <AdminUserChip />
+        </>
+      }
     >
       {children}
     </PortalShell>

@@ -1,69 +1,88 @@
 "use client"
 
-import { useState } from "react"
+import { useState, type FormEvent } from "react"
 import Link from "next/link"
-import { BuildingIcon, StethoscopeIcon, UserRoundIcon } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { BuildingIcon, StethoscopeIcon } from "lucide-react"
 
+import { PartnerInterestForm } from "@/features/content/partner-forms"
+import { SubmissionStatus } from "@/features/catalogue/submission-status"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { ROUTES } from "@/constants/routes"
 import { cn } from "@/lib/utils"
 
-type Role = "patient" | "hospital" | "doctor"
+type PartnerRole = "hospital" | "doctor"
+type Mode = "signin" | "apply"
 
 const roles: readonly {
-  id: Role
+  id: PartnerRole
   label: string
-  description: string
-  icon: typeof UserRoundIcon
+  hint: string
+  icon: typeof BuildingIcon
 }[] = [
-  {
-    id: "patient",
-    label: "Patient",
-    description: "Find a hospital or doctor and request an appointment directly.",
-    icon: UserRoundIcon,
-  },
-  {
-    id: "hospital",
-    label: "Hospital partner",
-    description: "Manage your hospital profile, specialties, doctors and appointments.",
-    icon: BuildingIcon,
-  },
-  {
-    id: "doctor",
-    label: "Doctor partner",
-    description: "Manage your public profile, hospital associations and appointments.",
-    icon: StethoscopeIcon,
-  },
+  { id: "hospital", label: "Hospital", hint: "Facility listing", icon: BuildingIcon },
+  { id: "doctor", label: "Doctor", hint: "Profile listing", icon: StethoscopeIcon },
 ]
 
 export interface AuthEntryCardProps {
   className?: string
+  defaultRole?: PartnerRole
 }
 
-/**
- * MVP entry point. Patients do not create an account or open a separate
- * dashboard; they browse public providers and submit a direct appointment
- * request. Hospital and doctor partners enter through their interest forms.
- */
-export function AuthEntryCard({ className }: AuthEntryCardProps) {
-  const [role, setRole] = useState<Role>("patient")
-  const activeRole = roles.find((entry) => entry.id === role) ?? roles[0]
+export function AuthEntryCard({ className, defaultRole = "hospital" }: AuthEntryCardProps) {
+  const router = useRouter()
+  const [role, setRole] = useState<PartnerRole>(defaultRole)
+  const [mode, setMode] = useState<Mode>("signin")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState<string | null>(null)
+  const [pending, setPending] = useState(false)
+
+  async function signIn(event: FormEvent) {
+    event.preventDefault()
+    setPending(true)
+    setError(null)
+    const response = await fetch(`/api/catalogue/submissions?email=${encodeURIComponent(email)}`)
+    const payload = (await response.json().catch(() => null)) as {
+      submissions?: { kind: string; status: string }[]
+      error?: string
+    } | null
+    setPending(false)
+    if (!response.ok) {
+      setError(payload?.error ?? "Could not check that email.")
+      return
+    }
+    const mine = (payload?.submissions ?? []).filter((row) => row.kind === role)
+    const demoEmail =
+      role === "hospital" ? "hospital@besthospitalindian.com" : "doctor@besthospitalindian.com"
+    if (mine.some((row) => row.status === "approved") || email.trim().toLowerCase() === demoEmail) {
+      router.push(role === "hospital" ? ROUTES.hospitalPortal.dashboard : ROUTES.doctorPortal.dashboard)
+      return
+    }
+    if (mine.some((row) => row.status === "pending")) {
+      setError("This listing is waiting for admin approval.")
+      setMode("apply")
+      return
+    }
+    if (mine.some((row) => row.status === "rejected")) {
+      setError("This listing was not approved. Submit again if the details changed.")
+      setMode("apply")
+      return
+    }
+    setError("No listing for this email yet. Apply below.")
+    setMode("apply")
+  }
 
   return (
-    <div className={cn("mx-auto w-full max-w-lg space-y-5", className)}>
+    <div className={cn("mx-auto w-full max-w-2xl space-y-5", className)}>
       <div className="space-y-1 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-          Continue to BestHospitalIndia
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Choose how you want to use the platform.
-        </p>
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Partner access</h1>
+        <p className="text-sm text-muted-foreground">Hospitals and doctors only. Patients book without an account.</p>
       </div>
 
-      <div
-        role="radiogroup"
-        aria-label="Account role"
-        className="grid gap-2 sm:grid-cols-3"
-      >
+      <div role="radiogroup" aria-label="Partner type" className="grid grid-cols-2 gap-2">
         {roles.map((entry) => {
           const selected = role === entry.id
           return (
@@ -72,95 +91,96 @@ export function AuthEntryCard({ className }: AuthEntryCardProps) {
               type="button"
               role="radio"
               aria-checked={selected}
-              onClick={() => setRole(entry.id)}
+              onClick={() => {
+                setRole(entry.id)
+                setError(null)
+              }}
               className={cn(
-                "flex flex-col items-center gap-1.5 rounded-xl border p-4 text-center transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+                "flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
                 selected
                   ? "border-primary/60 bg-primary/5 text-foreground"
-                  : "bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"
+                  : "bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground",
               )}
             >
-              <entry.icon
-                aria-hidden
-                className={cn(
-                  "size-5",
-                  selected ? "text-primary" : "text-muted-foreground"
-                )}
-              />
-              <span className="text-sm font-semibold">{entry.label}</span>
-              <span className="text-xs leading-snug">{entry.description}</span>
+              <entry.icon aria-hidden className={cn("size-5 shrink-0", selected ? "text-primary" : "")} />
+              <span>
+                <span className="block text-sm font-semibold text-foreground">{entry.label}</span>
+                <span className="block text-xs">{entry.hint}</span>
+              </span>
             </button>
           )
         })}
       </div>
 
-      <section className="space-y-4 rounded-2xl border bg-card p-6 shadow-xs sm:p-8">
-        <div className="space-y-1 text-center">
-          <activeRole.icon aria-hidden className="mx-auto size-8 text-primary" />
-          {role === "patient" ? (
-            <>
-              <h2 className="text-lg font-semibold text-foreground">
-                Request an appointment without creating an account
-              </h2>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                Patients do not have a separate dashboard in this MVP. Choose a
-                hospital or doctor, enter your contact details and appointment
-                preference, and submit a request directly to that provider.
-              </p>
-            </>
-          ) : (
-            <>
-              <h2 className="text-lg font-semibold text-foreground">
-                {activeRole.label} registration
-              </h2>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                {role === "hospital"
-                  ? "Register your hospital so your team can manage its public profile, specialties, associated doctors and appointment requests."
-                  : "Register your doctor profile so you can manage your public information, hospital associations, availability and appointment requests."}
-              </p>
-            </>
-          )}
-        </div>
-
-        {role === "patient" ? (
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <Button className="flex-1" render={<Link href="/doctors" />}>
-              Browse doctors
-            </Button>
-            <Button variant="outline" className="flex-1" render={<Link href="/hospitals" />}>
-              Browse hospitals
-            </Button>
-          </div>
-        ) : (
-          <Button
-            className="w-full"
-            render={
-              <Link
-                href={
-                  role === "hospital"
-                    ? "/for-hospitals#interest-form"
-                    : "/for-doctors#interest-form"
-                }
-              />
-            }
+      <div className="flex rounded-lg border bg-muted/40 p-1">
+        {(["signin", "apply"] as const).map((item) => (
+          <button
+            key={item}
+            type="button"
+            onClick={() => {
+              setMode(item)
+              setError(null)
+            }}
+            className={cn(
+              "flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+              mode === item ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground",
+            )}
           >
-            {role === "hospital"
-              ? "Go to hospital interest form"
-              : "Go to doctor interest form"}
-          </Button>
-        )}
-      </section>
+            {item === "signin" ? "Sign in" : "Apply"}
+          </button>
+        ))}
+      </div>
 
-      <p className="text-center text-xs leading-relaxed text-muted-foreground">
-        By continuing you agree to our{" "}
-        <Link href="/terms" className="text-primary underline-offset-4 hover:underline">
-          Terms of Use
-        </Link>{" "}
-        and{" "}
-        <Link href="/privacy" className="text-primary underline-offset-4 hover:underline">
-          Privacy Policy
+      {mode === "signin" ? (
+        <section className="rounded-2xl border bg-card p-5 shadow-xs sm:p-6">
+          <form className="space-y-3" onSubmit={signIn}>
+            <div className="space-y-1.5">
+              <Label htmlFor="partner-email">Official email</Label>
+              <Input
+                id="partner-email"
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="partner-password">Password</Label>
+              <Input
+                id="partner-password"
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                minLength={6}
+                required
+              />
+            </div>
+            {error ? <p className="text-sm text-destructive">{error}</p> : null}
+            <Button type="submit" className="w-full" disabled={pending}>
+              {pending ? "Checking…" : `Sign in as ${role}`}
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              Demo: {role === "hospital" ? "hospital@besthospitalindian.com" : "doctor@besthospitalindian.com"}
+            </p>
+          </form>
+        </section>
+      ) : (
+        <>
+          <section className="rounded-2xl border bg-card p-5 shadow-xs sm:p-6">
+            <PartnerInterestForm key={role} kind={role} compact />
+          </section>
+          <section className="rounded-2xl border bg-card p-5 shadow-xs sm:p-6">
+            <h2 className="mb-3 text-sm font-semibold text-foreground">Check approval</h2>
+            <SubmissionStatus compact />
+          </section>
+        </>
+      )}
+
+      <p className="text-center text-xs text-muted-foreground">
+        Patients:{" "}
+        <Link href="/free-consultation" className="text-primary underline-offset-4 hover:underline">
+          request a consultation
         </Link>
-        .
       </p>
     </div>
   )

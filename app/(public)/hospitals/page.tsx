@@ -207,55 +207,7 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
             title="Hospitals"
             description="Compare hospitals with separate PER and CER ratings."
           />
-          <div className="grid gap-3 sm:gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
-        <aside
-          aria-label="Hospital filters"
-          className="hidden lg:sticky lg:top-24 lg:block lg:self-start"
-        >
-          <ListingFilters
-            facets={[
-              {
-                kind: "select",
-                param: "city",
-                label: "City",
-                includeBlank: { value: "", label: "All cities" },
-                options: cities.map((cityName) => ({ value: cityName, label: cityName })),
-              },
-              {
-                kind: "multi-select",
-                param: "specialty",
-                label: "Specialty",
-                options: specialties.map((specialty) => ({ value: specialty.id, label: specialty.name })),
-              },
-              {
-                kind: "select",
-                param: "accreditation",
-                label: "Accreditation",
-                includeBlank: { value: "", label: "Any accreditation state" },
-                options: [
-                  { value: "any", label: "Has accreditations" },
-                  { value: "none", label: "No accreditations listed" },
-                ],
-              },
-              {
-                kind: "select",
-                param: "rating-status",
-                label: "Rating status",
-                includeBlank: { value: "", label: "Any rating status" },
-                options: [
-                  { value: "published", label: "Has a published rating" },
-                  { value: "pending", label: "Assessment pending" },
-                  { value: "not_assessed", label: "Not yet rated" },
-                ],
-              },
-            ]}
-            values={facetValues}
-            basePath={BASE_PATH}
-            extraParams={{ ...preservedScalars, ...(rawSort ? { sort: rawSort } : {}) }}
-          />
-        </aside>
-
-        <div className="space-y-6">
+          <div className="space-y-6">
           <Suspense fallback={<LoadingSkeleton variant="table" className="h-28 rounded-xl" />}>
             <DirectoryFilterBar
               basePath={BASE_PATH}
@@ -290,6 +242,31 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
                     })),
                   ],
                 },
+                {
+                  id: "hospital-filter-accreditation",
+                  param: "accreditation",
+                  label: "Accreditation",
+                  value: accreditation ?? "",
+                  emptyValue: "",
+                  options: [
+                    { value: "", label: "Any accreditation" },
+                    { value: "any", label: "Has accreditations" },
+                    { value: "none", label: "No accreditations" },
+                  ],
+                },
+                {
+                  id: "hospital-filter-rating-status",
+                  param: "rating-status",
+                  label: "Rating status",
+                  value: ratingStatus ?? "",
+                  emptyValue: "",
+                  options: [
+                    { value: "", label: "Any rating status" },
+                    { value: "published", label: "Published rating" },
+                    { value: "pending", label: "Pending" },
+                    { value: "not_assessed", label: "Not yet rated" },
+                  ],
+                },
               ]}
               sort={{
                 param: "sort",
@@ -297,6 +274,26 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
                 defaultValue: DEFAULT_SORT,
                 options: HOSPITAL_SORT_OPTIONS,
               }}
+              advancedFilters={
+                <ListingFilters
+                  layout="sheet-only"
+                  triggerLabel="More specialties"
+                  facets={[
+                    {
+                      kind: "multi-select",
+                      param: "specialty",
+                      label: "Specialty (multiple)",
+                      options: specialties.map((specialty) => ({
+                        value: specialty.id,
+                        label: specialty.name,
+                      })),
+                    },
+                  ]}
+                  values={facetValues}
+                  basePath={BASE_PATH}
+                  extraParams={{ ...preservedScalars, ...(rawSort ? { sort: rawSort } : {}) }}
+                />
+              }
             />
           </Suspense>
 
@@ -353,7 +350,6 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
               />
             </>
           )}
-          </div>
           </div>
         </div>
       </section>

@@ -2,11 +2,28 @@
 
 import { useState } from "react"
 
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import type { Lead, LeadStatus } from "@/lib/leads/types"
 
 const STATUSES: LeadStatus[] = ["new", "contacted", "closed"]
+
+function trackLabel(lead: Lead): string {
+  if (lead.track === "camp") return "Medical camp"
+  if (lead.track === "surgery") return "Surgery"
+  if (lead.track === "consultation") return "Consultation"
+  return "Not chosen"
+}
+
+function deskLabel(lead: Lead): string {
+  if (!lead.vendorId) return "No active desk"
+  return lead.preferredCity === "delhi" ? "Delhi desk" : "Indore desk"
+}
+
+function regionLabel(lead: Lead): string {
+  return lead.audience === "indian" ? (lead.state ?? "—") : `Embassy · ${lead.embassy ?? "—"}`
+}
 
 export function AdminLeads({
   initialLeads,
@@ -44,45 +61,74 @@ export function AdminLeads({
   }
 
   if (leads.length === 0) {
-    return <p className="text-sm text-muted-foreground">No queries yet. New submissions from the free consultation form appear here and with the city vendor.</p>
+    return <p className="text-sm text-muted-foreground">No queries yet.</p>
   }
 
   return (
     <div className="space-y-3">
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
-      <ul className="space-y-3">
+      <ul className="grid gap-3 lg:grid-cols-2">
         {leads.map((lead) => (
           <li key={lead.id}>
-            <Card>
-              <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-start sm:justify-between">
-                <div className="min-w-0 space-y-1 text-sm">
-                  <p className="font-semibold text-foreground">{lead.name} · {lead.id}</p>
-                  <p className="text-muted-foreground">{lead.email}{lead.phone ? ` · ${lead.phone}` : ""}</p>
-                  <p className="text-muted-foreground">
-                    {lead.track === "camp" ? "Free medical camp" : lead.track === "surgery" ? "Free surgery" : lead.track === "consultation" ? "Free consultation" : "Request not chosen"}
-                    {" · "}
-                    {lead.vendorId ? (lead.preferredCity === "delhi" ? "Delhi vendor" : "Indore vendor") : "Admin only, no active desk"}
-                    {" · "}
-                    {lead.audience === "indian" ? lead.state : `Embassy of ${lead.embassy}`}
-                  </p>
-                  {lead.comment ? <p>{lead.comment}</p> : null}
-                  {lead.detail ? <p>{lead.detail}</p> : null}
-                  <p className="text-muted-foreground">
-                    {lead.emailVerified ? "Email checked" : "Email not checked yet"}
-                    {emailCodes[lead.id] ? ` · code ${emailCodes[lead.id]} · from info@wispr.hospital` : ""}
-                  </p>
-                </div>
-                <div className="flex shrink-0 flex-wrap items-center gap-2">
+            <Card className="h-full border-border/70 shadow-none">
+              <CardContent className="flex h-full flex-col gap-3 p-4">
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div className="min-w-0 space-y-1">
+                    <p className="font-heading text-base font-semibold text-foreground">{lead.name}</p>
+                    <p className="font-mono text-xs text-muted-foreground">{lead.id}</p>
+                  </div>
                   <select
-                    className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+                    className="h-9 shrink-0 rounded-md border border-input bg-background px-2 text-sm"
                     value={lead.status}
                     onChange={(event) => setStatus(lead.id, event.target.value as LeadStatus)}
                     aria-label={`Status for ${lead.name}`}
                   >
                     {STATUSES.map((status) => (
-                      <option key={status} value={status}>{status}</option>
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
                     ))}
                   </select>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5">
+                  <Badge variant="outline">{trackLabel(lead)}</Badge>
+                  <Badge variant="outline">{deskLabel(lead)}</Badge>
+                  <Badge variant="outline">{regionLabel(lead)}</Badge>
+                  <Badge variant={lead.emailVerified ? "default" : "secondary"}>
+                    {lead.emailVerified ? "Email verified" : "Email pending"}
+                  </Badge>
+                </div>
+
+                <dl className="grid gap-2 text-sm">
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Contact</dt>
+                    <dd className="text-foreground">
+                      {lead.email}
+                      {lead.phone ? ` · ${lead.phone}` : ""}
+                    </dd>
+                  </div>
+                  {lead.comment ? (
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Comment</dt>
+                      <dd className="line-clamp-3 text-foreground">{lead.comment}</dd>
+                    </div>
+                  ) : null}
+                  {lead.detail ? (
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Detail</dt>
+                      <dd className="line-clamp-4 text-foreground">{lead.detail}</dd>
+                    </div>
+                  ) : null}
+                  {emailCodes[lead.id] ? (
+                    <div>
+                      <dt className="text-xs text-muted-foreground">OTP (demo)</dt>
+                      <dd className="font-mono text-xs text-muted-foreground">{emailCodes[lead.id]}</dd>
+                    </div>
+                  ) : null}
+                </dl>
+
+                <div className="mt-auto flex justify-end">
                   <Button type="button" variant="outline" size="sm" onClick={() => remove(lead.id)}>
                     Delete
                   </Button>

@@ -1,9 +1,8 @@
 import type { Metadata } from "next"
 
 import { doctors } from "@/data"
-import { AdminPageHeader } from "@/features/admin"
-import { AdminCatalogue } from "@/features/catalogue/admin-catalogue"
-import { AdminSubmissions } from "@/features/catalogue/admin-submissions"
+import { AdminKindPage } from "@/features/catalogue/admin-kind-page"
+import type { AdminCatalogueItem } from "@/features/catalogue/admin-catalogue"
 import { hasAdminSession } from "@/lib/admin/session"
 import { catalogueSnapshot } from "@/lib/catalogue/store"
 import { listSubmissions } from "@/lib/catalogue/submissions"
@@ -20,27 +19,20 @@ export default async function AdminDoctorsPage() {
   if (!(await hasAdminSession())) return null
   const snapshot = catalogueSnapshot()
   const emailCodes = Object.fromEntries((await listOutbox()).map((message) => [message.leadId, message.code]))
-  const rows = doctors.map((doctor) => ({
+  const catalogueItems: AdminCatalogueItem[] = doctors.map((doctor) => ({
+    kind: "doctor",
     id: doctor.id,
-    name: doctor.name,
-    place: `${doctor.city}, ${doctor.state}`,
-    status: snapshot.doctor[doctor.id] ?? "approved" as const,
+    doctor,
+    status: snapshot.doctor[doctor.id] ?? "approved",
   }))
 
   return (
-    <div className="space-y-6 py-6">
-      <AdminPageHeader
-        compact
-        items={[{ label: "Admin Portal", href: "/admin" }, { label: "Doctors" }]}
-        title="Doctors"
-        description="Approved doctors appear in the public catalogue. Pending and rejected doctors do not."
-      />
-      <AdminSubmissions
-        kind="doctor"
-        emailCodes={emailCodes}
-        initialRows={listSubmissions("doctor").map((row) => ({ ...row }))}
-      />
-      <AdminCatalogue kind="doctor" initialRows={rows} />
-    </div>
+    <AdminKindPage
+      title="Doctors"
+      kind="doctor"
+      emailCodes={emailCodes}
+      initialRows={listSubmissions("doctor").map((row) => ({ ...row }))}
+      catalogueItems={catalogueItems}
+    />
   )
 }

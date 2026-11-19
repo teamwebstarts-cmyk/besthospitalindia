@@ -13,6 +13,10 @@ import "@/features/content/featured-hospitals/featured-hospitals.css"
 
 export interface FacilityListingCardProps {
   facility: Facility
+  /** Hide footer link (e.g. admin catalogue preview). */
+  showCta?: boolean
+  disableProfileLink?: boolean
+  compact?: boolean
   className?: string
 }
 
@@ -25,7 +29,13 @@ function facilityCardTitle(name: string, city: string): string {
 }
 
 /** Facility directory card — shared featured-hospital shell (no ratings block). */
-export function FacilityListingCard({ facility, className }: FacilityListingCardProps) {
+export function FacilityListingCard({
+  facility,
+  showCta = true,
+  disableProfileLink = false,
+  compact = false,
+  className,
+}: FacilityListingCardProps) {
   const profileHref = `${ROUTES.public.facilities}/${facility.slug}`
   const heroSrc = FACILITY_LISTING_IMAGE_BY_CATEGORY[facility.category]
   const isVerified = facility.verificationStatus === "verified"
@@ -35,8 +45,14 @@ export function FacilityListingCard({ facility, className }: FacilityListingCard
   const services = facility.services.slice(0, MAX_SERVICE_TAGS)
 
   return (
-    <article className={cn("fh-card fh-card--facility h-full w-full min-w-0", className)}>
-      <CardStretchLink href={profileHref} label={`View ${title}`} />
+    <article
+      className={cn(
+        "fh-card fh-card--facility h-full w-full min-w-0",
+        compact && "[&_.fh-media]:h-32 [&_.fh-media]:rounded-xl",
+        className,
+      )}
+    >
+      {disableProfileLink ? null : <CardStretchLink href={profileHref} label={`View ${title}`} />}
       <div className="fh-media">
         <Image src={heroSrc} alt="" fill sizes="(max-width: 1100px) 100vw, 50vw" className="object-cover" />
         {isVerified ? (
@@ -50,7 +66,7 @@ export function FacilityListingCard({ facility, className }: FacilityListingCard
       <div className="fh-card-main">
         <div className="fh-h-row">
           <div className="fh-h-icon">
-            <FhHospitalIcon className="size-10" />
+            <FhHospitalIcon />
           </div>
           <div className="fh-h-info">
             <h3 className="fh-h-title">{title}</h3>
@@ -77,13 +93,15 @@ export function FacilityListingCard({ facility, className }: FacilityListingCard
           )}
         </div>
 
-        <div className="fh-card-foot">
-          <div className="fh-actions fh-actions--single">
-            <Link href={profileHref} className="fh-btn fh-btn-primary">
-              <span>View facility</span>
-            </Link>
+        {showCta ? (
+          <div className="fh-card-foot">
+            <div className="fh-actions fh-actions--single">
+              <Link href={profileHref} className="fh-btn fh-btn-primary">
+                <span>View facility</span>
+              </Link>
+            </div>
           </div>
-        </div>
+        ) : null}
       </div>
     </article>
   )
