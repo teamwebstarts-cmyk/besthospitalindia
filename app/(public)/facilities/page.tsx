@@ -254,13 +254,60 @@ export default async function FacilitiesPage({
         </aside>
 
         <section aria-label="Facility results" className="min-w-0 space-y-4">
-          <FacilityListingSearch
-            basePath={BASE_PATH}
-            initialQuery={q}
-            filterValues={filterValues}
-            sort={sort}
-            defaultSort={DEFAULT_SORT}
-          />
+          <Suspense fallback={<LoadingSkeleton variant="table" className="h-28 rounded-xl" />}>
+            <DirectoryFilterBar
+              basePath={BASE_PATH}
+              search={{
+                label: "Search facilities",
+                placeholder: "Name, city or service…",
+                value: q,
+              }}
+              selects={[
+                {
+                  id: "facility-filter-category",
+                  param: "category",
+                  label: "Category",
+                  value: category ?? "all",
+                  emptyValue: "all",
+                  options: [
+                    { value: "all", label: "All categories" },
+                    ...getCategoryOptions(),
+                  ],
+                },
+                {
+                  id: "facility-filter-city",
+                  param: "city",
+                  label: "City",
+                  value: city ?? "__all__",
+                  emptyValue: "__all__",
+                  options: [
+                    { value: "__all__", label: "All cities" },
+                    ...getCityOptions(),
+                  ],
+                },
+                {
+                  id: "facility-filter-specialty",
+                  param: "specialty",
+                  label: "Specialty",
+                  value: specialtySlug ?? "all",
+                  emptyValue: "all",
+                  options: [
+                    { value: "all", label: "All specialties" },
+                    ...specialties.map((item) => ({
+                      value: item.slug,
+                      label: item.name,
+                    })),
+                  ],
+                },
+              ]}
+              sort={{
+                param: "sort",
+                value: sort,
+                defaultValue: DEFAULT_SORT,
+                options: SORT_OPTIONS,
+              }}
+            />
+          </Suspense>
 
           {q ? (
             <p className="text-sm text-muted-foreground">

@@ -50,7 +50,7 @@ export default async function InternationalPatientEnquiryPage({
       <Breadcrumbs
         items={[
           { label: "Home", href: "/" },
-          { label: "Medical Tourism", href: ROUTES.public.medicalTourism },
+          { label: "Hospitals", href: ROUTES.public.hospitals },
           { label: "International Patient Enquiry" },
         ]}
         className="mb-2"

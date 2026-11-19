@@ -226,7 +226,7 @@ export const patientJourneySteps: readonly JourneyStep[] = [
     title: "Travel & ongoing support",
     description:
       "International patients can explore travel-assistance information and track a medical-tourism case through each stage.",
-    href: ROUTES.public.medicalTourism,
+    href: ROUTES.public.hospitals,
     hrefLabel: "Medical tourism",
   },
 ]

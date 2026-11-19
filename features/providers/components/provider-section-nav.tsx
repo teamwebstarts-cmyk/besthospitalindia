@@ -94,7 +94,8 @@ export function ProviderSectionNav({ sections, label = "On this page", className
       aria-label={label}
       data-slot="provider-section-nav"
       className={cn(
-        "relative max-lg:-mx-1 max-lg:sticky max-lg:top-[calc(var(--site-header-offset,3.5rem)+0.25rem)] max-lg:z-20 max-lg:border-b max-lg:border-border/60 max-lg:bg-background/92 max-lg:py-2 max-lg:backdrop-blur-md",
+        "relative max-lg:-mx-1 max-lg:sticky max-lg:top-[calc(var(--site-header-offset,3.5rem)+0.25rem)] max-lg:z-30 max-lg:border-b max-lg:border-border/60 max-lg:bg-background/95 max-lg:py-2 max-lg:backdrop-blur-md",
+        "max-lg:after:pointer-events-none max-lg:after:absolute max-lg:after:top-0 max-lg:after:right-0 max-lg:after:bottom-0 max-lg:after:w-6 max-lg:after:bg-gradient-to-l max-lg:after:from-background max-lg:after:to-transparent",
         className,
       )}
     >
