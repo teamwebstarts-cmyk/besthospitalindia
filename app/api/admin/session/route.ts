@@ -10,9 +10,15 @@ export async function POST(request: Request) {
   if (!(await authenticateAdmin(email, password))) {
     return NextResponse.json({ error: "Email or password is not recognised." }, { status: 401 })
   }
-  const jar = await cookies()
-  jar.set(ADMIN_COOKIE, "admin", { httpOnly: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 14 })
-  return NextResponse.json({ ok: true })
+  const response = NextResponse.json({ ok: true })
+  response.cookies.set(ADMIN_COOKIE, "admin", {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 60 * 60 * 24 * 14,
+  })
+  return response
 }
 
 export async function DELETE() {

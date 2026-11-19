@@ -12,9 +12,15 @@ export async function POST(request: Request) {
   if (!vendor) {
     return NextResponse.json({ error: "Email or password is not recognised." }, { status: 401 })
   }
-  const jar = await cookies()
-  jar.set(VENDOR_COOKIE, vendor.id, { httpOnly: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 14 })
-  return NextResponse.json({ vendor })
+  const response = NextResponse.json({ vendor })
+  response.cookies.set(VENDOR_COOKIE, vendor.id, {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 60 * 60 * 24 * 14,
+  })
+  return response
 }
 
 export async function DELETE() {
