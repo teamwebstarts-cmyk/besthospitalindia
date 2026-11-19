@@ -13,6 +13,7 @@ export interface CatalogueSubmission {
   city: string
   note: string
   status: CatalogueStatus
+  emailVerified: boolean
   createdAt: string
   updatedAt: string
 }
@@ -44,7 +45,9 @@ function readFile(): CatalogueFile {
       hospital: parsed.hospital ?? {},
       doctor: parsed.doctor ?? {},
       facility: parsed.facility ?? {},
-      submissions: Array.isArray(parsed.submissions) ? parsed.submissions : [],
+      submissions: Array.isArray(parsed.submissions)
+        ? parsed.submissions.map((row) => ({ ...row, emailVerified: row.emailVerified ?? false }))
+        : [],
     }
   } catch {
     return { hospital: {}, doctor: {}, facility: {}, submissions: [] }
@@ -67,7 +70,7 @@ export function listSubmissions(kind?: "hospital" | "doctor"): CatalogueSubmissi
 }
 
 export function createSubmission(
-  input: Omit<CatalogueSubmission, "id" | "status" | "createdAt" | "updatedAt">,
+  input: Omit<CatalogueSubmission, "id" | "status" | "emailVerified" | "createdAt" | "updatedAt">,
 ): CatalogueSubmission {
   if (!isOfficialEmail(input.email)) throw new Error("FREE_EMAIL")
   const file = readFile()
@@ -81,6 +84,7 @@ export function createSubmission(
     note: input.note.trim(),
     id: `sub-${Math.floor(100000 + Math.random() * 900000)}`,
     status: "pending",
+    emailVerified: false,
     createdAt: now,
     updatedAt: now,
   }
@@ -89,12 +93,44 @@ export function createSubmission(
   return submission
 }
 
-export function setSubmissionStatus(id: string, status: CatalogueStatus): CatalogueSubmission | null {
+export function markSubmissionEmailVerified(id: string): CatalogueSubmission | null {
   const file = readFile()
   const submission = file.submissions.find((row) => row.id === id)
   if (!submission) return null
-  submission.status = status
+  submission.emailVerified = true
   submission.updatedAt = new Date().toISOString()
   writeFile(file)
   return submission
+}
+
+export function setSubmissionStatus(id: string, status: CatalogueStatus): CatalogueSubmission | null {
+  return updateSubmission(id, { status })
+}
+
+export function updateSubmission(
+  id: string,
+  patch: Partial<Pick<CatalogueSubmission, "name" | "email" | "phone" | "city" | "note" | "status">>,
+): CatalogueSubmission | null {
+  const file = readFile()
+  const submission = file.submissions.find((row) => row.id === id)
+  if (!submission) return null
+  if (patch.email !== undefined && !isOfficialEmail(patch.email)) throw new Error("FREE_EMAIL")
+  if (patch.name !== undefined) submission.name = patch.name.trim()
+  if (patch.email !== undefined) submission.email = patch.email.trim().toLowerCase()
+  if (patch.phone !== undefined) submission.phone = patch.phone.trim()
+  if (patch.city !== undefined) submission.city = patch.city.trim()
+  if (patch.note !== undefined) submission.note = patch.note.trim()
+  if (patch.status !== undefined) submission.status = patch.status
+  submission.updatedAt = new Date().toISOString()
+  writeFile(file)
+  return submission
+}
+
+export function deleteSubmission(id: string): boolean {
+  const file = readFile()
+  const next = file.submissions.filter((row) => row.id !== id)
+  if (next.length === file.submissions.length) return false
+  file.submissions = next
+  writeFile(file)
+  return true
 }

@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises"
 import path from "node:path"
 
+import { forgetLeadCode, recordLeadCode, recordLeadConfirmation } from "@/lib/mail/outbox"
 import { activeVendorId } from "@/lib/vendors/store"
 
 import type { Lead, LeadInput, LeadStatus, LeadTrack } from "./types"
@@ -23,7 +24,13 @@ async function readAll(): Promise<Lead[]> {
     const raw = await readFile(FILE, "utf8")
     const parsed = JSON.parse(raw) as unknown
     if (!Array.isArray(parsed)) return []
-    return (parsed as Lead[]).map((lead) => ({ ...lead, track: lead.track ?? null }))
+    return (parsed as Lead[]).map((lead) => ({
+      ...lead,
+      track: lead.track ?? null,
+      detail: lead.detail ?? null,
+      emailVerified: lead.emailVerified ?? false,
+      vendorId: lead.vendorId ?? null,
+    }))
   } catch {
     return []
   }
@@ -43,6 +50,23 @@ function nextId(leads: Lead[]): string {
   return id
 }
 
+export function assignOpenLeads(city: Lead["preferredCity"], vendorId: string): Promise<number> {
+  return withLock(async () => {
+    const leads = await readAll()
+    const now = new Date().toISOString()
+    let count = 0
+    for (const lead of leads) {
+      if (lead.preferredCity === city && !lead.vendorId) {
+        lead.vendorId = vendorId
+        lead.updatedAt = now
+        count += 1
+      }
+    }
+    if (count > 0) await writeAll(leads)
+    return count
+  })
+}
+
 export function listLeads(): Promise<Lead[]> {
   return withLock(async () => {
     const leads = await readAll()
@@ -53,9 +77,6 @@ export function listLeads(): Promise<Lead[]> {
 export function createLead(input: LeadInput): Promise<Lead> {
   return withLock(async () => {
     const vendorId = await activeVendorId(input.preferredCity)
-    if (!vendorId) {
-      throw new Error("NO_VENDOR")
-    }
     const leads = await readAll()
     const now = new Date().toISOString()
     const lead: Lead = {
@@ -69,6 +90,8 @@ export function createLead(input: LeadInput): Promise<Lead> {
       embassy: input.audience === "others" ? input.embassy ?? null : null,
       preferredCity: input.preferredCity,
       track: null,
+      detail: null,
+      emailVerified: false,
       vendorId,
       status: "new",
       createdAt: now,
@@ -76,6 +99,7 @@ export function createLead(input: LeadInput): Promise<Lead> {
     }
     leads.push(lead)
     await writeAll(leads)
+    await recordLeadCode(lead.id, lead.email)
     return lead
   })
 }
@@ -86,6 +110,31 @@ export function updateLeadTrack(id: string, track: LeadTrack): Promise<Lead | nu
     const lead = leads.find((item) => item.id === id)
     if (!lead) return null
     lead.track = track
+    lead.updatedAt = new Date().toISOString()
+    await writeAll(leads)
+    await recordLeadConfirmation(lead.id, lead.email, track)
+    return lead
+  })
+}
+
+export function updateLeadDetail(id: string, detail: string): Promise<Lead | null> {
+  return withLock(async () => {
+    const leads = await readAll()
+    const lead = leads.find((item) => item.id === id)
+    if (!lead) return null
+    lead.detail = detail.trim() || null
+    lead.updatedAt = new Date().toISOString()
+    await writeAll(leads)
+    return lead
+  })
+}
+
+export function markLeadEmailVerified(id: string): Promise<Lead | null> {
+  return withLock(async () => {
+    const leads = await readAll()
+    const lead = leads.find((item) => item.id === id)
+    if (!lead) return null
+    lead.emailVerified = true
     lead.updatedAt = new Date().toISOString()
     await writeAll(leads)
     return lead
@@ -110,6 +159,7 @@ export function deleteLead(id: string): Promise<boolean> {
     const next = leads.filter((item) => item.id !== id)
     if (next.length === leads.length) return false
     await writeAll(next)
+    await forgetLeadCode(id)
     return true
   })
 }

@@ -11,9 +11,16 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { doctors, reviewsForProvider, specialtyById } from "@/data"
+import { publishedDoctorBySlug } from "@/lib/catalogue/published"
 import { isCataloguePublic } from "@/lib/catalogue/store"
 import { getDoctorBySlug, getHospitalById, getTreatmentById } from "@/lib/search"
 import { DoctorProfilePageView } from "@/features/providers/components/doctor-profile-page"
+
+function resolveDoctor(slug: string) {
+  const fixture = getDoctorBySlug(slug)
+  if (fixture) return isCataloguePublic("doctor", fixture.id) ? fixture : undefined
+  return publishedDoctorBySlug(slug)
+}
 
 interface DoctorProfilePageProps {
   params: Promise<{ slug: string }>
@@ -23,12 +30,12 @@ export function generateStaticParams(): Array<{ slug: string }> {
   return doctors.map((doctor) => ({ slug: doctor.slug }))
 }
 
-export const dynamicParams = false
+export const dynamicParams = true
 
 export async function generateMetadata({ params }: DoctorProfilePageProps): Promise<Metadata> {
   const { slug } = await params
-  const doctor = getDoctorBySlug(slug)
-  if (!doctor || !isCataloguePublic("doctor", doctor.id)) {
+  const doctor = resolveDoctor(slug)
+  if (!doctor) {
     return { title: "Doctor not found" }
   }
 
@@ -45,8 +52,8 @@ export async function generateMetadata({ params }: DoctorProfilePageProps): Prom
 
 export default async function DoctorProfilePage({ params }: DoctorProfilePageProps) {
   const { slug } = await params
-  const doctor = getDoctorBySlug(slug)
-  if (!doctor || !isCataloguePublic("doctor", doctor.id)) {
+  const doctor = resolveDoctor(slug)
+  if (!doctor) {
     notFound()
   }
 

@@ -94,6 +94,15 @@ export function getVendor(id: string): Promise<VendorPublic | null> {
   })
 }
 
+function keepOneActiveDesk(vendors: Vendor[], city: LeadCity, keepId: string, now: string) {
+  for (const item of vendors) {
+    if (item.city === city && item.id !== keepId && item.active) {
+      item.active = false
+      item.updatedAt = now
+    }
+  }
+}
+
 export function createVendor(input: VendorInput): Promise<VendorPublic> {
   return withLock(async () => {
     const vendors = await readAll()
@@ -108,6 +117,7 @@ export function createVendor(input: VendorInput): Promise<VendorPublic> {
       createdAt: now,
       updatedAt: now,
     }
+    keepOneActiveDesk(vendors, vendor.city, vendor.id, now)
     vendors.push(vendor)
     await writeAll(vendors)
     return toPublic(vendor)
@@ -127,7 +137,9 @@ export function updateVendor(
     if (patch.password) vendor.password = patch.password
     if (patch.city) vendor.city = patch.city
     if (patch.active !== undefined) vendor.active = patch.active
-    vendor.updatedAt = new Date().toISOString()
+    const now = new Date().toISOString()
+    vendor.updatedAt = now
+    if (vendor.active) keepOneActiveDesk(vendors, vendor.city, vendor.id, now)
     await writeAll(vendors)
     return toPublic(vendor)
   })

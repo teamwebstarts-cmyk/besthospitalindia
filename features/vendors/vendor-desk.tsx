@@ -64,6 +64,7 @@ export function VendorDesk({ vendor, initialLeads }: { vendor: VendorPublic; ini
                       {lead.audience === "indian" ? lead.state : `Embassy of ${lead.embassy}`}
                     </p>
                     {lead.comment ? <p>{lead.comment}</p> : null}
+                    {lead.detail ? <p>{lead.detail}</p> : null}
                   </div>
                   <select
                     className="h-9 rounded-md border border-input bg-background px-2 text-sm"

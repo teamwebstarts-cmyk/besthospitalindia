@@ -19,7 +19,7 @@ import { LeadIntakeForm } from "@/features/leads/intake-form"
 export const metadata: Metadata = {
   title: "International Patient Enquiry",
   description:
-    "Submit an international patient enquiry with case details, report labels and travel preferences. Our coordination team reviews and follows up.",
+    "Send a query as an international patient. It goes to admin and the Delhi or Indore desk, not to a hospital or doctor.",
   alternates: { canonical: ROUTES.public.internationalPatientEnquiry },
 }
 

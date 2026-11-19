@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
 
+import { adminDenied } from "@/lib/admin/session"
+
 import { createLead, listLeads } from "@/lib/leads/store"
 import type { LeadAudience, LeadCity, LeadEmbassy, LeadInput } from "@/lib/leads/types"
 
@@ -44,6 +46,8 @@ function parseInput(body: unknown): { ok: true; value: LeadInput } | { ok: false
 }
 
 export async function GET() {
+  const denied = await adminDenied()
+  if (denied) return denied
   const leads = await listLeads()
   return NextResponse.json({ leads })
 }
@@ -53,13 +57,6 @@ export async function POST(request: Request) {
   if (!parsed.ok) {
     return NextResponse.json({ error: parsed.error }, { status: 400 })
   }
-  try {
-    const lead = await createLead(parsed.value)
-    return NextResponse.json({ lead }, { status: 201 })
-  } catch (error) {
-    if (error instanceof Error && error.message === "NO_VENDOR") {
-      return NextResponse.json({ error: "No active vendor is set for that city." }, { status: 400 })
-    }
-    throw error
-  }
+  const lead = await createLead(parsed.value)
+  return NextResponse.json({ lead }, { status: 201 })
 }

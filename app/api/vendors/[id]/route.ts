@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server"
 
+import { adminDenied } from "@/lib/admin/session"
+
 import type { LeadCity } from "@/lib/leads/types"
+import { ensureSingleActiveDesk } from "@/lib/vendors/single-desk"
 import { deleteVendor, updateVendor } from "@/lib/vendors/store"
 
 const CITIES = new Set<LeadCity>(["delhi", "indore"])
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
+  const denied = await adminDenied()
+  if (denied) return denied
   const { id } = await context.params
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null
   if (!body) return NextResponse.json({ error: "Invalid request." }, { status: 400 })
@@ -24,10 +29,13 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 
   const vendor = await updateVendor(id, patch)
   if (!vendor) return NextResponse.json({ error: "Vendor not found." }, { status: 404 })
+  if (vendor.active) await ensureSingleActiveDesk(vendor.city, vendor.id)
   return NextResponse.json({ vendor })
 }
 
 export async function DELETE(_request: Request, context: { params: Promise<{ id: string }> }) {
+  const denied = await adminDenied()
+  if (denied) return denied
   const { id } = await context.params
   const removed = await deleteVendor(id)
   if (!removed) return NextResponse.json({ error: "Vendor not found." }, { status: 404 })

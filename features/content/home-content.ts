@@ -207,27 +207,27 @@ export const patientJourneySteps: readonly JourneyStep[] = [
   },
   {
     id: "journey-enquire",
-    title: "Raise an enquiry",
+    title: "Send a query",
     description:
-      "Send a free-consultation or international-patient enquiry with your concern, reports and preferred date. Our coordination team picks it up.",
+      "Leave your name and email, then choose a free consultation, a free medical camp, or free surgery. The query is stored for admin and the Delhi or Indore desk.",
     href: ROUTES.public.freeConsultation,
     hrefLabel: "Free consultation",
   },
   {
     id: "journey-request",
-    title: "Request an appointment",
+    title: "The city desk follows up",
     description:
-      "Request a slot with a listed hospital or doctor. A request is a coordination workflow — it is not a confirmed booking until the provider confirms.",
-    href: ROUTES.public.doctors,
-    hrefLabel: "Find doctors",
+      "Delhi queries go to the Delhi desk and Indore queries go to the Indore desk. A hospital or doctor does not receive the query and does not confirm a booking.",
+    href: ROUTES.public.freeConsultation,
+    hrefLabel: "Send a query",
   },
   {
     id: "journey-support",
-    title: "Travel & ongoing support",
+    title: "WhatsApp if you want it",
     description:
-      "International patients can explore travel-assistance information and track a medical-tourism case through each stage.",
-    href: ROUTES.public.hospitals,
-    hrefLabel: "Medical tourism",
+      "After you choose a request, you can open WhatsApp on 8302610058 with your unique id already written. The dashboard remains the record.",
+    href: ROUTES.public.freeConsultation,
+    hrefLabel: "Free consultation",
   },
 ]
 

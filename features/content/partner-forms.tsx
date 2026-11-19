@@ -178,7 +178,7 @@ export function PartnerInterestForm({
       schema={schema}
       onSubmit={handleSubmit}
       submitLabel="Submit interest request"
-      successNote="Admin will review this listing. It is not a patient query and is not sent to a hospital or a city desk until you are approved."
+      successNote="Admin will review this listing. It is not a patient query and is not sent to a hospital or a city desk. It appears on the public site only after approval."
       className={className}
     />
   )

@@ -93,7 +93,7 @@ export function AdminVendors({ initialVendors }: { initialVendors: VendorPublic[
           </form>
           {error ? <p className="mt-3 text-sm text-destructive">{error}</p> : null}
           <p className="mt-3 text-xs text-muted-foreground">
-            Seed logins: delhi@besthospitalindian.com / delhi-demo, and indore@besthospitalindian.com / indore-demo.
+            Adding or enabling a desk turns off the other active desk for that same city. New queries go to the active desk only. Seed logins: delhi@besthospitalindian.com / delhi-demo, and indore@besthospitalindian.com / indore-demo.
           </p>
         </CardContent>
       </Card>

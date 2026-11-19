@@ -37,8 +37,8 @@ export default function PrivacyPage() {
       >
         <p>
           This draft covers the discovery platform (hospitals, doctors,
-          facilities, treatments), enquiry and appointment request flows,
-          patient accounts and partner portals. This draft is intended to be
+          facilities, treatments) and the patient query form. A query is stored
+          for admin and the Delhi or Indore desk. This draft is intended to be
           replaced, word for word, by approved legal text before production use.
         </p>
       </PageSection>
@@ -50,15 +50,14 @@ export default function PrivacyPage() {
         <p>
           The platform is expected to process: identity and contact details
           supplied in enquiry and account forms; concern descriptions and
-          free-text messages; report file names attached to enquiries;
-          appointment request details; and saved-provider preferences. Medical
-          information would be processed only to operate the requested workflows
-          (for example routing an enquiry to a provider) and never to build
+          free-text messages; and the Delhi or Indore choice on a query. Medical
+          information would be processed only to operate that query
+          (admin and the city desk, not a hospital or doctor) and never to build
           advertising profiles.
         </p>
         <p>
           Information you submit in forms is processed to operate the workflows
-          you request (for example routing an enquiry to a coordinator or provider).
+          you request (admin and the Delhi or Indore desk, not a hospital or doctor).
           Retention periods and data subject rights are set out in the approved
           policy when published.
         </p>
@@ -104,10 +103,9 @@ export default function PrivacyPage() {
         description="Who information would be shared with."
       >
         <p>
-          Information submitted through an enquiry or appointment request would
-          be shared only with the provider the request names (and its
-          coordinating staff), plus platform operations staff where required to
-          run the workflow. No sale of personal data, and no sharing with
+          Information submitted through a query would be shared with the site
+          admin and the Delhi or Indore desk for the city on the form. It is
+          not shared with a hospital or a doctor. No sale of personal data, and no sharing with
           unrelated third parties, is contemplated by this draft.
         </p>
       </PageSection>

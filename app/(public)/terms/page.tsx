@@ -49,11 +49,9 @@ export default function TermsPage() {
         description="The workflow boundary."
       >
         <p>
-          Submitting an enquiry or appointment request starts a coordination
-          workflow with an explicit status. Only a provider-side confirmation
-          changes a request into a confirmed appointment; nothing on the
-          platform should be read as instant confirmation until a provider
-          confirms the appointment.
+          Submitting a query stores it for the site admin and the Delhi or
+          Indore desk. It does not create a hospital or doctor appointment,
+          and a hospital or doctor does not confirm it.
         </p>
       </PageSection>
 

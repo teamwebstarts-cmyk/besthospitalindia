@@ -4,8 +4,10 @@ import { hospitals } from "@/data"
 import { AdminPageHeader } from "@/features/admin"
 import { AdminCatalogue } from "@/features/catalogue/admin-catalogue"
 import { AdminSubmissions } from "@/features/catalogue/admin-submissions"
+import { hasAdminSession } from "@/lib/admin/session"
 import { catalogueSnapshot } from "@/lib/catalogue/store"
 import { listSubmissions } from "@/lib/catalogue/submissions"
+import { listOutbox } from "@/lib/mail/outbox"
 
 export const metadata: Metadata = {
   title: "Hospitals",
@@ -14,8 +16,10 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic"
 
-export default function AdminHospitalsPage() {
+export default async function AdminHospitalsPage() {
+  if (!(await hasAdminSession())) return null
   const snapshot = catalogueSnapshot()
+  const emailCodes = Object.fromEntries((await listOutbox()).map((message) => [message.leadId, message.code]))
   const rows = hospitals.map((hospital) => ({
     id: hospital.id,
     name: hospital.name,
@@ -32,6 +36,8 @@ export default function AdminHospitalsPage() {
         description="Approved hospitals appear in the public catalogue. Pending and rejected hospitals do not."
       />
       <AdminSubmissions
+        kind="hospital"
+        emailCodes={emailCodes}
         initialRows={listSubmissions("hospital").map((row) => ({
           id: row.id,
           name: row.name,

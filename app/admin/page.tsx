@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { AdminPageHeader } from "@/features/admin"
+import { hasAdminSession } from "@/lib/admin/session"
 import { listLeads } from "@/lib/leads/store"
 import { listVendors } from "@/lib/vendors/store"
 
@@ -22,6 +23,7 @@ function trackLabel(track: string | null) {
 }
 
 export default async function AdminDashboardPage() {
+  if (!(await hasAdminSession())) return null
   const [leads, vendors] = await Promise.all([listLeads(), listVendors()])
   const delhi = leads.filter((lead) => lead.preferredCity === "delhi").length
   const indore = leads.filter((lead) => lead.preferredCity === "indore").length
@@ -72,7 +74,7 @@ export default async function AdminDashboardPage() {
                     <div className="min-w-0">
                       <p className="text-sm font-medium">{lead.name} · {lead.id}</p>
                       <p className="truncate text-xs text-muted-foreground">
-                        {trackLabel(lead.track)} · {lead.preferredCity === "delhi" ? "Delhi" : "Indore"} · {lead.status}
+                        {trackLabel(lead.track)} · {lead.vendorId ? (lead.preferredCity === "delhi" ? "Delhi" : "Indore") : "Admin only"} · {lead.status}
                       </p>
                     </div>
                   </li>
@@ -87,6 +89,11 @@ export default async function AdminDashboardPage() {
             <Button variant="outline" size="sm" render={<Link href="/admin/vendors" />}>Manage</Button>
           </CardHeader>
           <CardContent>
+            {leads.some((lead) => !lead.vendorId) ? (
+              <p className="mb-3 text-sm text-muted-foreground">
+                {leads.filter((lead) => !lead.vendorId).length} queries are with admin only because that city has no active desk.
+              </p>
+            ) : null}
             <ul className="space-y-3">
               {vendors.map((vendor) => {
                 const count = leads.filter((lead) => lead.vendorId === vendor.id).length

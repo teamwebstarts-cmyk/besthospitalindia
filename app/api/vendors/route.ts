@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server"
 
+import { adminDenied } from "@/lib/admin/session"
+
 import type { LeadCity } from "@/lib/leads/types"
+import { ensureSingleActiveDesk } from "@/lib/vendors/single-desk"
 import { createVendor, listVendors } from "@/lib/vendors/store"
 import type { VendorInput } from "@/lib/vendors/types"
 
@@ -21,13 +24,18 @@ function parseInput(body: unknown): { ok: true; value: VendorInput } | { ok: fal
 }
 
 export async function GET() {
+  const denied = await adminDenied()
+  if (denied) return denied
   const vendors = await listVendors()
   return NextResponse.json({ vendors })
 }
 
 export async function POST(request: Request) {
+  const denied = await adminDenied()
+  if (denied) return denied
   const parsed = parseInput(await request.json().catch(() => null))
   if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 })
   const vendor = await createVendor(parsed.value)
+  await ensureSingleActiveDesk(vendor.city, vendor.id)
   return NextResponse.json({ vendor }, { status: 201 })
 }

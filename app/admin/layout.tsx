@@ -1,6 +1,8 @@
 import type { Metadata } from "next"
 
+import { AdminLogin } from "@/features/admin/admin-login"
 import { AdminPortalShell } from "@/features/admin/admin-portal-shell"
+import { hasAdminSession } from "@/lib/admin/session"
 
 /**
  * Admin Portal layout (A11) — wraps every /admin route in the shared A00
@@ -9,9 +11,7 @@ import { AdminPortalShell } from "@/features/admin/admin-portal-shell"
  * the super-admin identity chip. Same pattern as the A09 hospital portal and
  * A10 doctor portal layouts.
  *
- * Mock access posture (10-routing-and-layouts.md): portal guards are mock-only
- * and must be labelled demo-only — the shell topbar renders the "Demo portal —
- * mock data only" badge. No real auth exists and none is implied.
+ * Admin sign-in is required before the shell or any patient query is shown.
  */
 
 export const metadata: Metadata = {
@@ -26,10 +26,11 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export default function AdminPortalLayout({
+export default async function AdminPortalLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  if (!(await hasAdminSession())) return <AdminLogin />
   return <AdminPortalShell>{children}</AdminPortalShell>
 }

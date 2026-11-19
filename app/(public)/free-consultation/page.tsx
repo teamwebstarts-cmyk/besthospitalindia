@@ -10,7 +10,7 @@ import { CircleCheckIcon, XIcon } from "lucide-react";
 export const metadata: Metadata = {
   title: "Free Consultation",
   description:
-    "Request a free consultation on BestHospitalIndia — describe your concern, choose a specialty, and hear back from our coordination team.",
+    "Send a query for a free consultation, medical camp, or free surgery. It goes to admin and the Delhi or Indore desk, not to a hospital or doctor.",
 };
 
 /**

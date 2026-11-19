@@ -14,7 +14,9 @@ export interface Lead {
   embassy: LeadEmbassy | null
   preferredCity: LeadCity
   track: LeadTrack | null
-  vendorId: string
+  detail: string | null
+  emailVerified: boolean
+  vendorId: string | null
   status: LeadStatus
   createdAt: string
   updatedAt: string

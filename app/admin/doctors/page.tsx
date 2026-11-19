@@ -4,8 +4,10 @@ import { doctors } from "@/data"
 import { AdminPageHeader } from "@/features/admin"
 import { AdminCatalogue } from "@/features/catalogue/admin-catalogue"
 import { AdminSubmissions } from "@/features/catalogue/admin-submissions"
+import { hasAdminSession } from "@/lib/admin/session"
 import { catalogueSnapshot } from "@/lib/catalogue/store"
 import { listSubmissions } from "@/lib/catalogue/submissions"
+import { listOutbox } from "@/lib/mail/outbox"
 
 export const metadata: Metadata = {
   title: "Doctors",
@@ -14,8 +16,10 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic"
 
-export default function AdminDoctorsPage() {
+export default async function AdminDoctorsPage() {
+  if (!(await hasAdminSession())) return null
   const snapshot = catalogueSnapshot()
+  const emailCodes = Object.fromEntries((await listOutbox()).map((message) => [message.leadId, message.code]))
   const rows = doctors.map((doctor) => ({
     id: doctor.id,
     name: doctor.name,
@@ -32,6 +36,8 @@ export default function AdminDoctorsPage() {
         description="Approved doctors appear in the public catalogue. Pending and rejected doctors do not."
       />
       <AdminSubmissions
+        kind="doctor"
+        emailCodes={emailCodes}
         initialRows={listSubmissions("doctor").map((row) => ({
           id: row.id,
           name: row.name,

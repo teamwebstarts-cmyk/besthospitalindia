@@ -8,7 +8,13 @@ import type { Lead, LeadStatus } from "@/lib/leads/types"
 
 const STATUSES: LeadStatus[] = ["new", "contacted", "closed"]
 
-export function AdminLeads({ initialLeads }: { initialLeads: Lead[] }) {
+export function AdminLeads({
+  initialLeads,
+  emailCodes,
+}: {
+  initialLeads: Lead[]
+  emailCodes: Record<string, string>
+}) {
   const [leads, setLeads] = useState(initialLeads)
   const [error, setError] = useState<string | null>(null)
 
@@ -55,11 +61,16 @@ export function AdminLeads({ initialLeads }: { initialLeads: Lead[] }) {
                   <p className="text-muted-foreground">
                     {lead.track === "camp" ? "Free medical camp" : lead.track === "surgery" ? "Free surgery" : lead.track === "consultation" ? "Free consultation" : "Request not chosen"}
                     {" · "}
-                    {lead.preferredCity === "delhi" ? "Delhi vendor" : "Indore vendor"}
+                    {lead.vendorId ? (lead.preferredCity === "delhi" ? "Delhi vendor" : "Indore vendor") : "Admin only, no active desk"}
                     {" · "}
                     {lead.audience === "indian" ? lead.state : `Embassy of ${lead.embassy}`}
                   </p>
                   {lead.comment ? <p>{lead.comment}</p> : null}
+                  {lead.detail ? <p>{lead.detail}</p> : null}
+                  <p className="text-muted-foreground">
+                    {lead.emailVerified ? "Email checked" : "Email not checked yet"}
+                    {emailCodes[lead.id] ? ` · code ${emailCodes[lead.id]} · from info@wispr.hospital` : ""}
+                  </p>
                 </div>
                 <div className="flex shrink-0 flex-wrap items-center gap-2">
                   <select

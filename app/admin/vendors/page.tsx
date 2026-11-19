@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 
 import { AdminPageHeader } from "@/features/admin"
 import { AdminVendors } from "@/features/vendors/admin-vendors"
+import { hasAdminSession } from "@/lib/admin/session"
 import { listVendors } from "@/lib/vendors/store"
 
 export const metadata: Metadata = {
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic"
 
 export default async function AdminVendorsPage() {
+  if (!(await hasAdminSession())) return null
   const vendors = await listVendors()
   return (
     <div className="space-y-6 py-6">

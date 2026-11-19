@@ -185,23 +185,13 @@ export function HomeHeroSection({
         </div>
 
         <div className="min-w-0 w-full shrink-0 max-lg:mx-auto max-lg:max-w-md max-lg:pt-0 lg:max-w-[min(100%,28rem)] lg:justify-self-end xl:max-w-[min(100%,32rem)]">
-          {/* Desktop keeps the enquiry card; smaller screens get one compact CTA
-              so the hero always fits the visible viewport. */}
+          {/* The short query form is the first block on a phone, so this column does not add a second button. */}
           <div className="hidden lg:block">
             <ContactForm
               variant="hero"
               className="w-full shadow-lg transition-shadow duration-500 hover:shadow-xl"
             />
           </div>
-          <Button
-            variant="cta"
-            size="lg"
-            className="h-12 min-h-12 w-full shrink-0 rounded-lg text-base font-semibold shadow-md max-lg:mt-0 lg:hidden"
-            render={<Link href="/free-consultation" />}
-          >
-            Get a free consultation
-            <span aria-hidden>→</span>
-          </Button>
         </div>
       </div>
     </section>

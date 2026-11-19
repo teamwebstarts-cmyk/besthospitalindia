@@ -10,10 +10,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { whatsappHref } from "@/constants/site-contact"
 import type { Lead, LeadAudience, LeadCity, LeadEmbassy, LeadTrack } from "@/lib/leads/types"
 
-const TRACKS: { id: LeadTrack; label: string }[] = [
-  { id: "consultation", label: "Free consultation" },
-  { id: "camp", label: "Attend free medical camp" },
-  { id: "surgery", label: "Apply for free surgery" },
+const TRACKS: { id: LeadTrack; label: string; prompt: string }[] = [
+  { id: "consultation", label: "Free consultation", prompt: "What would you like to ask?" },
+  { id: "camp", label: "Attend free medical camp", prompt: "Which camp or date should the desk know about?" },
+  { id: "surgery", label: "Apply for free surgery", prompt: "Which surgery are you asking about?" },
 ]
 
 const STATES = [
@@ -47,6 +47,9 @@ export function LeadIntakeForm() {
   const [pending, setPending] = useState(false)
   const [lead, setLead] = useState<Lead | null>(null)
   const [trackError, setTrackError] = useState<string | null>(null)
+  const [detail, setDetail] = useState("")
+  const [otp, setOtp] = useState("")
+  const [otpNote, setOtpNote] = useState<string | null>(null)
 
   async function chooseTrack(track: LeadTrack) {
     if (!lead) return
@@ -102,6 +105,7 @@ export function LeadIntakeForm() {
       lead.phone ? `Phone: ${lead.phone}` : null,
       `City: ${lead.preferredCity}`,
       lead.comment ? lead.comment : null,
+      lead.detail ? lead.detail : null,
     ]
       .filter(Boolean)
       .join("\n")
@@ -114,6 +118,31 @@ export function LeadIntakeForm() {
           <p className="text-muted-foreground">
             Choose one request. It goes to our admin team and the {lead.preferredCity === "delhi" ? "Delhi" : "Indore"} desk, not to a hospital or a doctor.
           </p>
+          <form
+            className="space-y-2"
+            onSubmit={async (event) => {
+              event.preventDefault()
+              setOtpNote(null)
+              const response = await fetch(`/api/leads/${lead.id}`, {
+                method: "PATCH",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({ otp }),
+              })
+              const payload = (await response.json().catch(() => null)) as { lead?: Lead; error?: string } | null
+              if (!response.ok || !payload?.lead) {
+                setOtpNote(payload?.error ?? "That code does not match.")
+                return
+              }
+              setLead(payload.lead)
+              setOtpNote("Email checked.")
+            }}
+          >
+            <Label htmlFor="lead-otp">Email code</Label>
+            <Input id="lead-otp" inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={(event) => setOtp(event.target.value)} placeholder="6-digit code" />
+            <p className="text-muted-foreground">Mail from info@wispr.hospital is not connected yet, so you can still choose a request without the code.</p>
+            <Button type="submit" variant="outline" className="rounded-full">Check code</Button>
+          </form>
+          {otpNote ? <p className={otpNote === "Email checked." ? "text-muted-foreground" : "text-destructive"}>{otpNote}</p> : null}
           <div className="flex flex-col gap-2">
             {TRACKS.map((item) => (
               <Button
@@ -128,6 +157,30 @@ export function LeadIntakeForm() {
             ))}
           </div>
           {trackError ? <p className="text-destructive">{trackError}</p> : null}
+          {lead.track ? (
+            <form
+              className="space-y-2"
+              onSubmit={async (event) => {
+                event.preventDefault()
+                setTrackError(null)
+                const response = await fetch(`/api/leads/${lead.id}`, {
+                  method: "PATCH",
+                  headers: { "content-type": "application/json" },
+                  body: JSON.stringify({ detail }),
+                })
+                const payload = (await response.json().catch(() => null)) as { lead?: Lead; error?: string } | null
+                if (!response.ok || !payload?.lead) {
+                  setTrackError(payload?.error ?? "Could not save that detail.")
+                  return
+                }
+                setLead(payload.lead)
+              }}
+            >
+              <Label htmlFor="lead-detail">{TRACKS.find((item) => item.id === lead.track)?.prompt}</Label>
+              <Textarea id="lead-detail" value={detail} onChange={(event) => setDetail(event.target.value)} rows={3} />
+              <Button type="submit" variant="outline" className="rounded-full">Save this detail</Button>
+            </form>
+          ) : null}
           {lead.track ? (
             <Button
               variant="cta"

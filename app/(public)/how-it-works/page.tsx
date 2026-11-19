@@ -10,7 +10,7 @@ import { ROUTES } from "@/constants/routes"
 export const metadata: Metadata = {
   title: "How It Works",
   description:
-    "How discovery, enquiry, appointment requests, the IUF-supported consultation and international patient pathways work on BestHospitalIndia.",
+    "How hospital discovery and a patient query work. A query goes to admin and the Delhi or Indore desk, not to a hospital or doctor.",
 }
 
 const breadcrumbItems = [
@@ -27,30 +27,30 @@ const pathways: readonly {
   {
     id: "path-hospital",
     title: "Hospital discovery pathway",
-    body: "Search the hospital directory by keyword, city, specialty or facility type, open a hospital profile, review its independent PER and CER ratings with their evidence metadata, then request an appointment or raise an enquiry.",
+    body: "Search the hospital directory by city or specialty and open a profile to read it. A query from that page is not sent to the hospital.",
     cta: { label: "Browse hospitals", href: ROUTES.public.hospitals },
   },
   {
     id: "path-doctor",
     title: "Doctor discovery pathway",
-    body: "Filter doctors by specialty, city, language or hospital association. Doctor profiles show qualifications, registration state, hospital links and separate PER and MER ratings before you request an appointment or consultation.",
+    body: "Filter doctors by specialty and city, then read the profile. Choosing a doctor does not send your query to that doctor.",
     cta: { label: "Browse doctors", href: ROUTES.public.doctors },
   },
   {
     id: "path-enquiry",
-    title: "Enquiry pathway (free consultation)",
-    body: "The free consultation and international-patient enquiry forms collect your concern, specialty, reports and preferred date. Submission creates a tracked enquiry with a status — responded, assigned or under review. An enquiry is not a booking and carries no charge in the IUF-supported initiative.",
+    title: "Query pathway",
+    body: "One short form asks for your name, email, and whether you are in India or writing through the Embassy of Kenya or Nepal. You then choose a free consultation, a free medical camp, or free surgery, and name Delhi or Indore. Admin and that city’s desk both receive it.",
     cta: { label: "Free consultation", href: ROUTES.public.freeConsultation },
   },
   {
     id: "path-appointment",
-    title: "Appointment request pathway",
-    body: "Appointment requests name a provider, a preferred date and the reason for the visit. The provider confirms or reschedules from their portal; until then the request stays in “requested” state. A frontend request is never presented as a confirmed appointment.",
+    title: "No hospital booking",
+    body: "The old appointment request is not a booking path. Hospitals and doctors do not get a queue of patients from this site. Follow-up stays with admin and the city desk.",
   },
   {
     id: "path-international",
     title: "International patient pathway",
-    body: "International patients can raise a dedicated enquiry with country, language and report details, follow the medical-tourism case stages (enquiry through follow-up) and read travel-assistance information before travelling.",
+    body: "International patients use the same query form and choose Embassy of Kenya or Embassy of Nepal. The query still goes to admin and the Delhi or Indore desk, not to a hospital.",
     cta: {
       label: "International patient enquiry",
       href: ROUTES.public.internationalPatientEnquiry,
@@ -63,7 +63,7 @@ export default function HowItWorksPage() {
     <div className="space-y-10 py-8">
       <PageHeader
         title="How BestHospitalIndia works"
-        description="From first search to follow-up: the discovery, enquiry, appointment request and international patient pathways on the platform."
+        description="Search the catalogue, then send one query. Admin and the Delhi or Indore desk receive it. A hospital or doctor does not."
         breadcrumbItems={breadcrumbItems}
       />
 
@@ -76,7 +76,7 @@ export default function HowItWorksPage() {
 
       <PageSection
         title="Pathways in detail"
-        description="What happens in each flow, and where requests end and confirmations begin."
+        description="Where a search ends, and where a query goes."
       >
         <div className="space-y-4">
           {pathways.map((pathway, index) => (

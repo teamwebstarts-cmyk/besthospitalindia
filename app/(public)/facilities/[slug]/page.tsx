@@ -112,7 +112,7 @@ export default async function FacilityDetailPage({ params }: FacilityPageProps) 
           {facility.city}, {facility.state}, {facility.country}
         </p>
         <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
-          Listed specialties, services, and verification status. An enquiry is not a confirmed booking.
+          Listed specialties, services, and verification status. A query goes to admin and the Delhi or Indore desk, not to this facility.
         </p>
         <div className="hidden flex-wrap gap-2 pt-1 lg:flex">
           <Button variant="cta" className="rounded-full font-semibold shadow-sm" render={<Link href="/free-consultation" />}>
@@ -209,7 +209,7 @@ export default async function FacilityDetailPage({ params }: FacilityPageProps) 
                 </span>
               </p>
               <p className="mt-3 text-xs text-muted-foreground">
-                Full address and direct contact details may be shared after an enquiry is reviewed.
+                The address is not a contact channel. A query is not sent to this facility.
               </p>
             </CardContent>
           </Card>
@@ -218,7 +218,7 @@ export default async function FacilityDetailPage({ params }: FacilityPageProps) 
             <CardHeader>
               <CardTitle>Interested in this facility?</CardTitle>
               <CardDescription>
-                Enquiries route to the contact and consultation flows for follow-up by our team.
+                A query goes to admin and the Delhi or Indore desk. It is not sent to this facility.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
@@ -229,7 +229,7 @@ export default async function FacilityDetailPage({ params }: FacilityPageProps) 
                 Free consultation
               </Button>
               <p className="text-xs text-muted-foreground">
-                Links open the enquiry flows with this facility in context where supported.
+                The form asks for Delhi or Indore. The facility name is not the destination of the query.
               </p>
             </CardContent>
           </Card>

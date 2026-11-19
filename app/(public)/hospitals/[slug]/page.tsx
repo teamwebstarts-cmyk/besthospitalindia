@@ -8,7 +8,7 @@
  *
  * Data rules (05 spec §6 + 00 trust model):
  * - Only typed fixtures; unknown slug → notFound().
- * - generateStaticParams + dynamicParams false — only fixture slugs render.
+ * - generateStaticParams prebuilds fixture slugs. Approved signup listings resolve on demand.
  * - PER + CER render via RatingPair as two independent panels — never merged.
  * - Accreditations carry VerificationBadge states straight from mock data;
  *   "verified" is never claimed without a verified record.
@@ -48,14 +48,21 @@ import { RatingPair } from "@/features/ratings/rating-pair"
 import { VerificationBadge } from "@/features/providers/components/verification-badge"
 import { getHospitalBySlug, getRelatedDoctors, getTreatmentById } from "@/lib/search"
 import { hospitals, reviewsForProvider, specialtyById } from "@/data"
+import { publishedHospitalBySlug } from "@/lib/catalogue/published"
 import { isCataloguePublic } from "@/lib/catalogue/store"
 import { doctorProfileHref, hospitalProfileHref, ROUTES } from "@/constants/routes"
 import { RATING_LABELS } from "@/constants/rating"
 
-export const dynamicParams = false
+export const dynamicParams = true
 
 export async function generateStaticParams() {
   return hospitals.map((hospital) => ({ slug: hospital.slug }))
+}
+
+function resolveHospital(slug: string) {
+  const fixture = getHospitalBySlug(slug)
+  if (fixture) return isCataloguePublic("hospital", fixture.id) ? fixture : undefined
+  return publishedHospitalBySlug(slug)
 }
 
 type HospitalProfilePageProps = {
@@ -64,8 +71,8 @@ type HospitalProfilePageProps = {
 
 export async function generateMetadata({ params }: HospitalProfilePageProps): Promise<Metadata> {
   const { slug } = await params
-  const hospital = getHospitalBySlug(slug)
-  if (!hospital || !isCataloguePublic("hospital", hospital.id)) {
+  const hospital = resolveHospital(slug)
+  if (!hospital) {
     return { title: "Hospital not found" }
   }
   return {
@@ -77,8 +84,8 @@ export async function generateMetadata({ params }: HospitalProfilePageProps): Pr
 
 export default async function HospitalProfilePage({ params }: HospitalProfilePageProps) {
   const { slug } = await params
-  const hospital = getHospitalBySlug(slug)
-  if (!hospital || !isCataloguePublic("hospital", hospital.id)) {
+  const hospital = resolveHospital(slug)
+  if (!hospital) {
     notFound()
   }
 

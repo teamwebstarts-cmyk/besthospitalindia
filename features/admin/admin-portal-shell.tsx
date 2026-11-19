@@ -16,10 +16,29 @@
  */
 
 import type { ReactNode } from "react"
+import { useRouter } from "next/navigation"
 
 import { PortalShell } from "@/components/layout/portal-shell"
+import { Button } from "@/components/ui/button"
 import { adminNavGroups } from "@/constants/navigation"
 import { AdminUserChip } from "@/features/admin/components/admin-user-chip"
+
+function AdminSignOut() {
+  const router = useRouter()
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      onClick={async () => {
+        await fetch("/api/admin/session", { method: "DELETE" })
+        router.refresh()
+      }}
+    >
+      Sign out
+    </Button>
+  )
+}
 
 export interface AdminPortalShellProps {
   children: ReactNode
@@ -31,7 +50,7 @@ export function AdminPortalShell({ children }: AdminPortalShellProps) {
       items={adminNavGroups}
       title="Admin Portal"
       description="Super admin workspace — fictional demo data only"
-      actions={<AdminUserChip />}
+      actions={<><AdminSignOut /><AdminUserChip /></>}
     >
       {children}
     </PortalShell>

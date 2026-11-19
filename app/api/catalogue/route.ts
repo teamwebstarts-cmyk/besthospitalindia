@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
 
+import { adminDenied } from "@/lib/admin/session"
+
 import {
   catalogueRecordExists,
   catalogueSnapshot,
@@ -13,6 +15,8 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
+  const denied = await adminDenied()
+  if (denied) return denied
   const body = (await request.json().catch(() => null)) as { kind?: unknown; id?: unknown; status?: unknown } | null
   const kind = typeof body?.kind === "string" ? body.kind : ""
   const id = typeof body?.id === "string" ? body.id : ""
