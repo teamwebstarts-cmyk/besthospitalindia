@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import {
+  PUBLIC_DIRECTORY_ENTITY_TYPES,
   type SearchEntityType,
   type GlobalSearchProps,
 } from "@/features/discovery/types"
@@ -35,16 +36,9 @@ const ENTITY_TYPE_LABELS: Record<SearchEntityType, string> = {
   facilities: "Facilities",
 }
 
-/** Value→label map so the closed trigger shows the label, not the raw value. */
-const ENTITY_TYPE_ITEMS: Record<string, React.ReactNode> = {
-  hospitals: ENTITY_TYPE_LABELS.hospitals,
-  doctors: ENTITY_TYPE_LABELS.doctors,
-  treatments: ENTITY_TYPE_LABELS.treatments,
-  facilities: ENTITY_TYPE_LABELS.facilities,
-}
-
 export function GlobalSearch({
   defaultEntityType = "facilities",
+  entityTypes = PUBLIC_DIRECTORY_ENTITY_TYPES,
   initialQuery = "",
   routes,
   submitLabel = "Search",
@@ -53,7 +47,19 @@ export function GlobalSearch({
   layout = "default",
 }: GlobalSearchProps) {
   const router = useRouter()
-  const [entityType, setEntityType] = React.useState<SearchEntityType>(defaultEntityType)
+  const resolvedDefault = entityTypes.includes(defaultEntityType)
+    ? defaultEntityType
+    : (entityTypes[0] ?? "hospitals")
+  const [entityType, setEntityType] = React.useState<SearchEntityType>(resolvedDefault)
+  const entityTypeItems = Object.fromEntries(
+    entityTypes.map((type) => [type, ENTITY_TYPE_LABELS[type]]),
+  )
+
+  React.useEffect(() => {
+    if (!entityTypes.includes(entityType)) {
+      setEntityType(entityTypes[0] ?? "hospitals")
+    }
+  }, [entityType, entityTypes])
   const [query, setQuery] = React.useState(initialQuery)
   const queryFieldId = React.useId()
 
@@ -73,7 +79,7 @@ export function GlobalSearch({
     <div className="flex h-full w-[7.25rem] min-w-[7.25rem] max-w-[7.25rem] shrink-0 items-stretch self-stretch border-r border-border/60 sm:w-[7.75rem] sm:min-w-[7.75rem] sm:max-w-[7.75rem]">
       <Select
         value={entityType}
-        items={ENTITY_TYPE_ITEMS}
+        items={entityTypeItems}
         onValueChange={(nextValue) => {
           if (typeof nextValue !== "string") return
           const next = nextValue as SearchEntityType
@@ -96,7 +102,7 @@ export function GlobalSearch({
           <SelectValue />
         </SelectTrigger>
         <SelectContent align="start" side="bottom" alignItemWithTrigger={false}>
-          {(Object.keys(ENTITY_TYPE_LABELS) as SearchEntityType[]).map((type) => (
+          {entityTypes.map((type) => (
             <SelectItem key={type} value={type}>
               {ENTITY_TYPE_LABELS[type]}
             </SelectItem>
@@ -111,7 +117,7 @@ export function GlobalSearch({
   ) : (
     <Select
       value={entityType}
-      items={ENTITY_TYPE_ITEMS}
+      items={entityTypeItems}
       onValueChange={(nextValue) => {
         if (typeof nextValue === "string") {
           setEntityType(nextValue as SearchEntityType)
@@ -122,7 +128,7 @@ export function GlobalSearch({
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {(Object.keys(ENTITY_TYPE_LABELS) as SearchEntityType[]).map((type) => (
+        {entityTypes.map((type) => (
           <SelectItem key={type} value={type}>
             {ENTITY_TYPE_LABELS[type]}
           </SelectItem>

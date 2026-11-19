@@ -80,9 +80,18 @@ export function toFilterValueList(value: string | string[] | undefined): string[
 /** Entity listing the GlobalSearch can route to. */
 export type SearchEntityType = "hospitals" | "doctors" | "treatments" | "facilities"
 
+/** Public site search targets (treatments listing removed — use hospitals). */
+export const PUBLIC_DIRECTORY_ENTITY_TYPES = [
+  "hospitals",
+  "doctors",
+  "facilities",
+] as const satisfies readonly SearchEntityType[]
+
 export interface GlobalSearchProps {
   /** Preselected entity type (still switchable in the select). */
   defaultEntityType?: SearchEntityType
+  /** Entity types shown in the picker (defaults to hospitals, doctors, facilities). */
+  entityTypes?: readonly SearchEntityType[]
   /** Initial query text (e.g. from the current listing's ?q= param). */
   initialQuery?: string
   /** Route path each entity type submits to, keyed by entity type. */

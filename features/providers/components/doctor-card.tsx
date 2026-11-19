@@ -25,6 +25,7 @@ import Image from "next/image"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { CardStretchLink } from "@/components/shared/card-stretch-link"
 import { VerificationBadge } from "@/features/providers/components/verification-badge"
 import { getHospitalById } from "@/lib/search"
 import { specialtyById } from "@/data"
@@ -119,11 +120,12 @@ export function DoctorCard({ doctor, className }: DoctorCardProps) {
   return (
     <Card
       className={cn(
-        "flex h-full flex-col gap-0 overflow-hidden rounded-xl border border-border/70 bg-card p-0 shadow-none ring-0",
+        "relative flex h-full flex-col gap-0 overflow-hidden rounded-xl border border-border/70 bg-card p-0 shadow-none ring-0",
         className,
       )}
     >
-      <CardContent className="min-h-0 flex-1 gap-4 py-4">
+      <CardStretchLink href={profileHref} label={`View profile for ${doctor.name}`} />
+      <CardContent className="pointer-events-none min-h-0 flex-1 gap-4 py-4">
         <div className="relative">
           <VerificationBadge
             status={doctor.verificationStatus}
@@ -153,13 +155,8 @@ export function DoctorCard({ doctor, className }: DoctorCardProps) {
               )}
             </Avatar>
             <div className="min-w-0 flex-1 space-y-1 pt-0.5">
-              <h3 className="font-heading text-base leading-snug font-semibold text-primary">
-                <Link
-                  href={profileHref}
-                  className="line-clamp-2 transition-colors outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
-                >
-                  {doctor.name}
-                </Link>
+              <h3 className="line-clamp-2 font-heading text-base leading-snug font-semibold text-primary">
+                {doctor.name}
               </h3>
               <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm text-muted-foreground">
                 <span className="font-medium text-foreground">{specializationName}</span>
@@ -202,7 +199,7 @@ export function DoctorCard({ doctor, className }: DoctorCardProps) {
         </div>
       </CardContent>
 
-      <div className="px-(--card-spacing) pb-4">
+      <div className="pointer-events-none px-(--card-spacing) pb-4">
         <p className="sr-only">
           Independent ratings for {doctor.name} — patient experience and medical expertise, shown
           separately
@@ -213,7 +210,7 @@ export function DoctorCard({ doctor, className }: DoctorCardProps) {
         </div>
       </div>
 
-      <div className="border-t border-border/60 bg-muted/15 px-(--card-spacing) py-4">
+      <div className="relative z-[1] border-t border-border/60 bg-muted/15 px-(--card-spacing) py-4 pointer-events-auto">
         <Button
           variant="cta"
           size="default"

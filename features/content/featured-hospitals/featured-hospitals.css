@@ -169,6 +169,7 @@
 }
 
 .fh-card {
+  position: relative;
   --fh-ink: #0b3d30;
   --fh-teal: #0d8468;
   --fh-teal-dark: #0b7a60;
@@ -324,8 +325,20 @@
   color: inherit;
   text-decoration: none;
 }
-.fh-h-title a:hover {
-  text-decoration: underline;
+.fh-card:has(.card-stretch-link) {
+  cursor: pointer;
+}
+.fh-card:has(.card-stretch-link) .fh-media,
+.fh-card:has(.card-stretch-link) .fh-card-main {
+  pointer-events: none;
+}
+.fh-card:has(.card-stretch-link) .fh-actions {
+  pointer-events: auto;
+}
+.card-stretch-link:focus-visible {
+  outline: 2px solid var(--fh-teal, #0d8468);
+  outline-offset: 3px;
+  z-index: 2;
 }
 .fh-h-loc {
   margin-top: 7px;
@@ -729,6 +742,28 @@
     max-height: none;
     overflow: visible;
     min-height: 0;
+  }
+  .fh-grid--directory .fh-tags {
+    flex-wrap: nowrap;
+    align-items: center;
+    min-height: 1.65rem;
+    max-height: 1.65rem;
+    overflow: hidden;
+  }
+  .fh-grid--directory .fh-tag {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: calc(50% - 3px);
+  }
+  .fh-grid:not(.fh-grid--directory) .fh-tags {
+    flex-wrap: nowrap;
+    max-height: 1.65rem;
+    overflow: hidden;
+  }
+  .fh-grid:not(.fh-grid--directory) .fh-tag {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: calc(50% - 3px);
   }
   .fh-actions {
     flex-direction: column;

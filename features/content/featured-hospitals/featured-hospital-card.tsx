@@ -8,6 +8,10 @@ import { ROUTES, hospitalProfileHref } from "@/constants/routes"
 import { specialtyById } from "@/data"
 import type { Hospital } from "@/types"
 
+import { CardStretchLink } from "@/components/shared/card-stretch-link"
+
+import { cn } from "@/lib/utils"
+
 import { getFeaturedHospitalHeroImage } from "./featured-hospital-heroes"
 import {
   FhCalendarIcon,
@@ -21,7 +25,8 @@ import {
 } from "./featured-hospital-icons"
 
 const WHATSAPP_URL = "https://wa.me/911140501200"
-const MAX_TAGS = 3
+const MAX_TAGS_DESKTOP = 3
+const MAX_TAGS_PHONE = 2
 
 function formatScore(score: number | null): string | null {
   if (score === null) return null
@@ -38,7 +43,7 @@ export function FeaturedHospitalCard({ hospital }: FeaturedHospitalCardProps) {
   const specialtyNames = hospital.specialties
     .map((id) => specialtyById[id]?.name)
     .filter((name): name is string => Boolean(name))
-    .slice(0, MAX_TAGS)
+    .slice(0, MAX_TAGS_DESKTOP)
   const perScore = formatScore(hospital.ratings.per.score)
   const cerScore = formatScore(hospital.ratings.cer.score)
   const isVerified = hospital.verificationStatus === "verified"
@@ -49,6 +54,7 @@ export function FeaturedHospitalCard({ hospital }: FeaturedHospitalCardProps) {
 
   return (
     <article className="fh-card h-full w-full min-w-0">
+      <CardStretchLink href={profileHref} label={`View ${hospital.name}`} />
       <div className="fh-media">
         <Image
           src={heroSrc}
@@ -72,9 +78,7 @@ export function FeaturedHospitalCard({ hospital }: FeaturedHospitalCardProps) {
             <FhHospitalIcon />
           </div>
           <div className="fh-h-info">
-            <h3 className="fh-h-title">
-              <Link href={profileHref}>{hospital.name}</Link>
-            </h3>
+            <h3 className="fh-h-title">{hospital.name}</h3>
             <div className="fh-h-loc">
               <FhPinIcon />
               <span>
@@ -86,8 +90,11 @@ export function FeaturedHospitalCard({ hospital }: FeaturedHospitalCardProps) {
 
         {specialtyNames.length > 0 ? (
           <div className="fh-tags">
-            {specialtyNames.map((tag) => (
-              <span key={tag} className="fh-tag">
+            {specialtyNames.map((tag, index) => (
+              <span
+                key={tag}
+                className={cn("fh-tag", index >= MAX_TAGS_PHONE && "max-[699px]:hidden")}
+              >
                 {tag}
               </span>
             ))}

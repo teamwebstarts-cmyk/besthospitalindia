@@ -43,7 +43,7 @@ import {
 import { TestimonialCard } from "@/features/content/testimonial-card"
 import { FaqList } from "@/features/content/faq-list"
 import type { Faq, FacilityCategory, Specialty, Testimonial } from "@/types"
-import { ROUTES, treatmentDetailHref } from "@/constants/routes"
+import { ROUTES } from "@/constants/routes"
 import { ScrollReveal, StaggerReveal } from "@/components/motion/scroll-reveal"
 import { fullBleedClassName } from "@/lib/full-bleed"
 import { homeInteractiveSurfaceClassName, homeInteractiveTileClassName } from "@/lib/home-motion"
@@ -482,7 +482,7 @@ export interface HomeLowestQuotesSectionProps {
   className?: string
 }
 
-/** Demo treatment profile shortcuts (layout grid — links to /treatments/[slug]). */
+/** Demo treatment profile shortcuts (layout grid — links into hospital directory search). */
 export function HomeLowestQuotesSection({ className }: HomeLowestQuotesSectionProps) {
   return (
     <HomeBleedBand
@@ -499,7 +499,7 @@ export function HomeLowestQuotesSection({ className }: HomeLowestQuotesSectionPr
       <ul className="grid w-full gap-4 text-left sm:grid-cols-2 lg:grid-cols-3">
         {homeFeaturedTreatments.items.map((treatment) => {
           const Icon = featuredTreatmentIcons[treatment.slug]
-          const profileHref = treatmentDetailHref(treatment.slug)
+          const profileHref = `${ROUTES.public.hospitals}?q=${encodeURIComponent(treatment.title)}`
           return (
             <li
               key={treatment.slug}
@@ -522,7 +522,7 @@ export function HomeLowestQuotesSection({ className }: HomeLowestQuotesSectionPr
                   href={profileHref}
                   className="text-sm font-semibold text-cta underline-offset-4 hover:underline"
                 >
-                  View treatment
+                  Find hospitals
                   <span className="sr-only">: {treatment.title}</span>
                 </Link>
               </div>

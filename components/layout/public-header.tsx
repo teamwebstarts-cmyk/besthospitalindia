@@ -28,7 +28,7 @@ import { cn } from "@/lib/utils"
 const headerSearchRoutes = {
   hospitals: ROUTES.public.hospitals,
   doctors: ROUTES.public.doctors,
-  treatments: ROUTES.public.treatments,
+  treatments: ROUTES.public.hospitals,
   facilities: ROUTES.public.facilities,
 } as const
 
@@ -90,9 +90,8 @@ function BrandMark({
   )
 }
 
-function searchEntityFromPath(pathname: string): "hospitals" | "doctors" | "treatments" | "facilities" {
+function searchEntityFromPath(pathname: string): "hospitals" | "doctors" | "facilities" {
   if (pathname === "/doctors" || pathname.startsWith("/doctors/")) return "doctors"
-  if (pathname === "/treatments" || pathname.startsWith("/treatments/")) return "treatments"
   if (pathname === "/facilities" || pathname.startsWith("/facilities/")) return "facilities"
   return "hospitals"
 }
@@ -105,7 +104,8 @@ function HeaderSearchBar({ className }: { className?: string }) {
       layout="header"
       defaultEntityType={searchEntityFromPath(pathname)}
       routes={headerSearchRoutes}
-      queryLabel="Search hospitals, doctors or treatments"
+      queryLabel="Search hospitals, doctors or facilities"
+      entityTypes={["hospitals", "doctors", "facilities"]}
       className={className}
     />
   )
@@ -224,7 +224,7 @@ function MobileNav({ links }: { links: NavLink[] }) {
         <SheetHeader>
           <SheetTitle className="text-left">BestHospitalIndia</SheetTitle>
           <SheetDescription className="text-left">
-            Explore hospitals, doctors, facilities and treatments.
+            Explore hospitals, doctors and facilities.
           </SheetDescription>
         </SheetHeader>
         <nav aria-label="Mobile" className="flex-1 overflow-y-auto px-4 pb-4">

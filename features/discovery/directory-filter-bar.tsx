@@ -115,7 +115,7 @@ export function DirectoryFilterBar({
   return (
     <div
       className={cn(
-        "grid gap-3 rounded-xl border border-border/80 bg-card p-3 shadow-xs sm:gap-3.5 sm:p-4",
+        "grid gap-3 rounded-xl border border-border/80 bg-card p-3 shadow-xs ring-1 ring-foreground/5 sm:gap-3.5 sm:p-4",
         selectCount <= 1 && "sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,10rem)_auto] lg:items-end",
         selectCount === 2 &&
           "sm:grid-cols-2 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,9rem)_minmax(0,9rem)_minmax(0,9rem)_auto] lg:items-end",
@@ -207,7 +207,11 @@ export function DirectoryFilterBar({
       <Button
         type="button"
         variant="ghost"
-        className="min-h-10 w-full sm:w-auto xl:justify-self-end"
+        className={cn(
+          "min-h-10 w-full sm:col-span-2 sm:w-auto",
+          selectCount >= 2 && "sm:col-span-1",
+          "xl:col-span-1 xl:w-auto xl:justify-self-end",
+        )}
         disabled={!hasFilters}
         onClick={clearAll}
       >

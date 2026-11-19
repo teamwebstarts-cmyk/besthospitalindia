@@ -122,9 +122,9 @@ export interface HomeFeaturedTreatmentItem {
 }
 
 export const homeFeaturedTreatments = {
-  title: "Explore treatments in the directory",
+  title: "Explore care options in the directory",
   description:
-    "Programme entries from our treatment directory — each links to a treatment profile and listed providers.",
+    "Common procedures from our directory — each shortcut opens hospital listings you can compare and enquire about.",
   items: [
     {
       slug: "coronary-angioplasty",
@@ -181,7 +181,7 @@ export const homeFeaturedTreatments = {
 
 export interface HomeSearchCategory {
   /** Value routed as the first URL segment. */
-  value: "hospitals" | "doctors" | "treatments"
+  value: "hospitals" | "doctors" | "facilities"
   label: string
 }
 
@@ -189,7 +189,7 @@ export interface HomeSearchCategory {
 export const homeSearchCategories: readonly HomeSearchCategory[] = [
   { value: "hospitals", label: "Hospitals" },
   { value: "doctors", label: "Doctors" },
-  { value: "treatments", label: "Treatments" },
+  { value: "facilities", label: "Facilities" },
 ]
 
 /* -------------------------------------------------------------------------
@@ -201,7 +201,7 @@ export const patientJourneySteps: readonly JourneyStep[] = [
     id: "journey-discover",
     title: "Discover providers",
     description:
-      "Search hospitals, doctors and treatments, and filter the directory by city, specialty or facility type.",
+      "Search hospitals, doctors and facilities, and filter the directory by city, specialty or facility type.",
     href: ROUTES.public.hospitals,
     hrefLabel: "Browse hospitals",
   },
@@ -251,7 +251,7 @@ export const aboutContent = {
     {
       id: "obj-discovery",
       title: "Structured discovery",
-      body: "Typed directories for hospitals, doctors, facilities and treatments, with URL-driven search, filters, sort and pagination.",
+      body: "Typed directories for hospitals, doctors and facilities, with URL-driven search, filters, sort and pagination.",
     },
     {
       id: "obj-ratings",

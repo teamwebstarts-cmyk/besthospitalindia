@@ -365,21 +365,21 @@ export function InternationalPatientEnquiryForm({
             </div>
 
             <p className="text-xs text-muted-foreground">
-              While you wait, explore{" "}
+              While you wait, browse{" "}
               <Link
-                href={ROUTES.public.treatments}
+                href={ROUTES.public.hospitals}
                 className="underline underline-offset-4 hover:text-foreground"
               >
-                treatments
+                hospitals
               </Link>{" "}
               or{" "}
               <Link
-                href={ROUTES.public.medicalTourism}
+                href={ROUTES.public.doctors}
                 className="underline underline-offset-4 hover:text-foreground"
               >
-                medical tourism support
+                doctors
               </Link>{" "}
-              in the meantime.
+              in the directory.
             </p>
 
             <Button

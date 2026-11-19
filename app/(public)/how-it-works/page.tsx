@@ -125,8 +125,8 @@ export default function HowItWorksPage() {
         links={[
           { label: "Hospitals directory", href: "/hospitals" },
           { label: "Doctors directory", href: "/doctors" },
-          { label: "Medical tourism programme", href: "/medical-tourism" },
-          { label: "Rating Methodology", href: "/rating-methodology" },
+          { label: "Facilities directory", href: "/facilities" },
+          { label: "Free consultation", href: "/free-consultation" },
           { label: "About the platform", href: "/about" },
         ]}
       />

@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils"
 const heroSearchRoutes = {
   hospitals: ROUTES.public.hospitals,
   doctors: ROUTES.public.doctors,
-  treatments: ROUTES.public.treatments,
+  treatments: ROUTES.public.hospitals,
   facilities: ROUTES.public.facilities,
 } as const
 
@@ -117,8 +117,9 @@ export function HomeHeroSection({
             <GlobalSearch
               layout="header"
               defaultEntityType="hospitals"
+              entityTypes={["hospitals", "doctors", "facilities"]}
               routes={heroSearchRoutes}
-              queryLabel="Search hospitals, doctors or treatments"
+              queryLabel="Search hospitals, doctors or facilities"
               className="h-10 shadow-sm"
             />
           </div>

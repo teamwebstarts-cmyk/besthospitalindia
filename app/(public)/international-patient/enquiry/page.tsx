@@ -13,8 +13,8 @@ import { InternationalPatientEnquiryForm } from "@/features/medical-tourism"
  * /international-patient/enquiry — FR-009 international case enquiry (Agent A06).
  *
  * Spec: implementation/12-international-enquiry.md. Server page resolves
- * searchParams (specialty/treatment preselects from /treatments and
- * /medical-tourism deep links), validates them against fixtures, and mounts
+ * searchParams (specialty/treatment preselects from legacy deep links), validates
+ * them against fixtures, and mounts
  * the client form. The journey STOPS at the mock confirmation — admin review
  * and provider response are documented future states and are never simulated.
  */

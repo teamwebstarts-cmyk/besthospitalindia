@@ -10,6 +10,7 @@ import { getHospitalById } from "@/lib/search"
 import { cn } from "@/lib/utils"
 import type { Doctor } from "@/types"
 
+import { CardStretchLink } from "@/components/shared/card-stretch-link"
 import {
   FhPeopleIcon,
   FhStethoscopeIcon,
@@ -85,6 +86,7 @@ export function FindDoctorCard({ doctor, highlighted = false }: FindDoctorCardPr
 
   return (
     <article className={cn("fd-card", highlighted && "fd-card-hl")}>
+      <CardStretchLink href={profileHref} label={`View profile for ${doctor.name}`} />
       <div className="fd-top">
         <div className="fd-avatar">
           <Image

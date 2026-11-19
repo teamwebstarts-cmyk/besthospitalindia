@@ -1,6 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 
+import { CardStretchLink } from "@/components/shared/card-stretch-link"
 import { FACILITY_CATEGORY_LABELS } from "@/features/discovery/facility-meta"
 import { FhCheckIcon, FhHospitalIcon, FhPinIcon } from "@/features/content/featured-hospitals/featured-hospital-icons"
 import { ROUTES } from "@/constants/routes"
@@ -35,6 +36,7 @@ export function FacilityListingCard({ facility, className }: FacilityListingCard
 
   return (
     <article className={cn("fh-card fh-card--facility h-full w-full min-w-0", className)}>
+      <CardStretchLink href={profileHref} label={`View ${title}`} />
       <div className="fh-media">
         <Image src={heroSrc} alt="" fill sizes="(max-width: 1100px) 100vw, 50vw" className="object-cover" />
         {isVerified ? (
@@ -51,9 +53,7 @@ export function FacilityListingCard({ facility, className }: FacilityListingCard
             <FhHospitalIcon className="size-10" />
           </div>
           <div className="fh-h-info">
-            <h3 className="fh-h-title">
-              <Link href={profileHref}>{title}</Link>
-            </h3>
+            <h3 className="fh-h-title">{title}</h3>
             <div className="fh-h-loc">
               <FhPinIcon />
               <span>

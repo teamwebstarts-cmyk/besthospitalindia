@@ -31,7 +31,7 @@ import { ROUTES } from "@/constants/routes"
 export const metadata: Metadata = {
   title: "Healthcare Discovery With Personal Care in India",
   description:
-    "Discover hospitals, doctors and treatments in India, compare independent PER, CER and MER ratings, and send enquiries for coordinated follow-up.",
+    "Discover hospitals, doctors and facilities in India, compare independent PER, CER and MER ratings, and send enquiries for coordinated follow-up.",
 }
 
 /** Home featured band — six demo cards (3 × 2 grid). */

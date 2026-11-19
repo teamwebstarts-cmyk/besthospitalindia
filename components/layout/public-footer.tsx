@@ -45,10 +45,10 @@ export function PublicFooter({ className }: PublicFooterProps) {
             </Link>
             <p className="max-w-sm text-sm leading-relaxed text-pretty text-primary-foreground/80">
               <span className="lg:hidden">
-                Discover hospitals, doctors and treatments — compare and request a consultation.
+                Discover hospitals, doctors and facilities — compare ratings and request a consultation.
               </span>
               <span className="hidden lg:inline">
-                Discover hospitals, doctors and facilities across India, compare treatment options
+                Discover hospitals, doctors and facilities across India, compare independent ratings
                 and request a free consultation.
               </span>
             </p>

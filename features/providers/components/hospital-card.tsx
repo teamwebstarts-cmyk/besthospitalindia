@@ -23,6 +23,7 @@ import { Building2Icon, MapPinIcon, StarIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { CardStretchLink } from "@/components/shared/card-stretch-link"
 import { VerificationBadge } from "@/features/providers/components/verification-badge"
 import { NOT_RATED_MESSAGE, RATING_LABELS, RATING_SCALE_MAX } from "@/constants/rating"
 import { ROUTES, hospitalProfileHref } from "@/constants/routes"
@@ -31,7 +32,7 @@ import { cn } from "@/lib/utils"
 import type { Hospital, RatingSummary } from "@/types"
 
 /** Max specialty chips shown before the "+N more" overflow chip. */
-const MAX_VISIBLE_SPECIALTIES = 3
+const MAX_VISIBLE_SPECIALTIES = 2
 
 const WHATSAPP_URL = "https://wa.me/911140501200"
 
@@ -151,7 +152,7 @@ function HospitalCardMedia({
   if (layout === "stacked") {
     return (
       <div
-        className="relative aspect-[16/9] w-full shrink-0 overflow-hidden border-b border-border/60 bg-muted"
+        className="pointer-events-none relative aspect-[16/9] w-full shrink-0 overflow-hidden border-b border-border/60 bg-muted"
         aria-hidden
       >
         {hospital.image ? (
@@ -168,7 +169,7 @@ function HospitalCardMedia({
 
   return (
     <div
-      className="relative hidden w-[38%] max-w-44 shrink-0 self-stretch bg-muted sm:block"
+      className="pointer-events-none relative hidden w-[38%] max-w-44 shrink-0 self-stretch bg-muted sm:block"
       aria-hidden
     >
       {hospital.image ? (
@@ -199,13 +200,14 @@ export function HospitalCard({
   return (
     <Card
       className={cn(
-        "h-full overflow-hidden border border-border/70 p-0 shadow-none ring-0",
+        "relative h-full overflow-hidden border border-border/70 p-0 shadow-none ring-0",
         isStacked ? "flex flex-col gap-0" : "flex flex-row",
         className
       )}
     >
+      <CardStretchLink href={profileHref} label={`View ${hospital.name}`} />
       <HospitalCardMedia hospital={hospital} layout={layout} />
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="pointer-events-none flex min-w-0 flex-1 flex-col">
         <CardContent
           className={cn(
             "gap-3",
@@ -215,12 +217,7 @@ export function HospitalCard({
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 space-y-1">
               <h3 className="font-heading text-base leading-snug font-semibold text-primary">
-                <Link
-                  href={profileHref}
-                  className="transition-colors outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
-                >
-                  {hospital.name}
-                </Link>
+                {hospital.name}
               </h3>
               <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-1">
@@ -287,7 +284,7 @@ export function HospitalCard({
 
         <div
           className={cn(
-            "flex flex-row gap-2.5 border-t bg-muted/30 px-(--card-spacing)",
+            "relative z-[1] flex flex-row gap-2.5 border-t bg-muted/30 px-(--card-spacing) pointer-events-auto",
             isStacked ? "mt-0 py-4" : "mt-auto py-3",
           )}
         >

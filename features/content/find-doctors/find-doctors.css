@@ -136,6 +136,7 @@
 }
 
 .fd-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -166,6 +167,16 @@
     transform: scale(1.04);
   }
 }
+.fd-card:has(.card-stretch-link) {
+  cursor: pointer;
+}
+.fd-card:has(.card-stretch-link) > *:not(.card-stretch-link) {
+  pointer-events: none;
+}
+.fd-card:has(.card-stretch-link) .fd-btn {
+  pointer-events: auto;
+}
+
 .fd-card-hl {
   border: 1.5px solid #a8e2cc;
   box-shadow: none;
@@ -409,6 +420,8 @@
 
 /* Full-width conversion button — pinned to the card bottom, min 16px gap */
 .fd-btn {
+  position: relative;
+  z-index: 1;
   margin-top: auto;
   width: 100%;
   height: clamp(2.75rem, 2.25rem + 0.8vw, 3.25rem);
