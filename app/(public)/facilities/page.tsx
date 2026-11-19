@@ -211,7 +211,10 @@ export default async function FacilitiesPage({
             description="Labs, centres and wellness listings. Filter by category or city."
           />
           <div className="grid gap-3 sm:gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
-            <aside aria-label="Facility filters" className="lg:sticky lg:top-24 lg:self-start">
+            <aside
+              aria-label="Facility filters"
+              className="hidden lg:sticky lg:top-24 lg:block lg:self-start"
+            >
           <ListingFilters
             facets={[
               {

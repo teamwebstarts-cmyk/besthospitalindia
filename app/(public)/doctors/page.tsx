@@ -295,13 +295,52 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
             </aside>
 
             <div className="min-w-0 space-y-4">
-              <DoctorListingSearch
-                basePath={BASE_PATH}
-                initialQuery={q ?? ""}
-                filterValues={filterValues}
-                sort={sort}
-                defaultSort={DEFAULT_SORT}
-              />
+              <Suspense fallback={<LoadingSkeleton variant="table" className="h-28 rounded-xl" />}>
+                <DirectoryFilterBar
+                  basePath={BASE_PATH}
+                  search={{
+                    label: "Search doctors",
+                    placeholder: "Name, specialty or hospital…",
+                    value: q ?? "",
+                  }}
+                  selects={[
+                    {
+                      id: "doctor-filter-city",
+                      param: "city",
+                      label: "City",
+                      value: city ?? "",
+                      emptyValue: "",
+                      options: [
+                        { value: "", label: "All cities" },
+                        ...DOCTOR_CITIES.map((cityName) => ({
+                          value: cityName,
+                          label: cityName,
+                        })),
+                      ],
+                    },
+                    {
+                      id: "doctor-filter-specialization",
+                      param: "specialization",
+                      label: "Specialization",
+                      value: specialization ?? "",
+                      emptyValue: "",
+                      options: [
+                        { value: "", label: "All specializations" },
+                        ...specialties.map((item) => ({
+                          value: item.id,
+                          label: item.name,
+                        })),
+                      ],
+                    },
+                  ]}
+                  sort={{
+                    param: "sort",
+                    value: sort,
+                    defaultValue: DEFAULT_SORT,
+                    options: SORT_OPTIONS,
+                  }}
+                />
+              </Suspense>
 
               {q ? (
                 <p className="text-sm text-muted-foreground">
