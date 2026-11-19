@@ -19,7 +19,6 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import { SlidersHorizontalIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -208,28 +207,30 @@ export function ListingFilters({
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetTrigger
             render={
-              <Button variant="outline" className="w-full sm:w-auto">
-                <SlidersHorizontalIcon data-icon="inline-start" />
+              <Button variant="outline" className="h-10 w-full rounded-xl text-sm font-semibold">
                 {triggerLabel}
                 {activeCountBadge}
               </Button>
             }
           />
-          <SheetContent side="left" className="gap-0 p-0">
-            <SheetHeader className="border-b pr-16">
-              <SheetTitle>{triggerLabel}</SheetTitle>
-              <SheetDescription>
-                Narrow the results — filters apply together.
+          <SheetContent
+            side="bottom"
+            className="z-[80] max-h-[min(78dvh,36rem)] gap-0 rounded-t-2xl p-0 pb-[calc(3.5rem+env(safe-area-inset-bottom,0px))]"
+          >
+            <SheetHeader className="border-b px-4 py-3 pr-12 text-left">
+              <SheetTitle className="text-base">{triggerLabel}</SheetTitle>
+              <SheetDescription className="text-xs">
+                Filters apply together. Close to see the list.
               </SheetDescription>
             </SheetHeader>
-            <div className="flex-1 space-y-6 overflow-y-auto px-4 py-4">
+            <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-4 py-3">
               {facetGroups}
             </div>
-            <SheetFooter className="flex-row gap-2 border-t">
-              <Button variant="ghost" className="flex-1" onClick={clearAll}>
+            <SheetFooter className="flex-row gap-2 border-t px-4 py-3">
+              <Button variant="ghost" className="h-10 flex-1" onClick={clearAll}>
                 Clear all
               </Button>
-              <Button className="flex-1" onClick={() => setMobileOpen(false)}>
+              <Button className="h-10 flex-1" onClick={() => setMobileOpen(false)}>
                 Show results
               </Button>
             </SheetFooter>

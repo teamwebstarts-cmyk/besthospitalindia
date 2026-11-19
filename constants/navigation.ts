@@ -1,7 +1,33 @@
 import type { LucideIcon } from "lucide-react"
-import { BuildingIcon, CalendarDaysIcon, HeartPulseIcon, HospitalIcon, LayoutDashboardIcon, StethoscopeIcon, UserRoundIcon, ClockIcon } from "lucide-react"
+import {
+  Building2Icon,
+  BuildingIcon,
+  CalendarDaysIcon,
+  HeartPulseIcon,
+  HomeIcon,
+  HospitalIcon,
+  LayoutDashboardIcon,
+  StethoscopeIcon,
+  UserRoundIcon,
+  ClockIcon,
+} from "lucide-react"
 
 export interface NavLink { label: string; href: string }
+
+/** Mobile bottom tab bar — discovery shortcuts (public layout only). */
+export interface PublicMobileTab {
+  label: string
+  href: string
+  icon: LucideIcon
+}
+
+export const publicMobileTabs: PublicMobileTab[] = [
+  { label: "Home", href: "/", icon: HomeIcon },
+  { label: "Hospitals", href: "/hospitals", icon: HospitalIcon },
+  { label: "Doctors", href: "/doctors", icon: StethoscopeIcon },
+  { label: "Facilities", href: "/facilities", icon: Building2Icon },
+  { label: "Consult", href: "/free-consultation", icon: CalendarDaysIcon },
+]
 export interface PortalNavItem { label: string; href: string; icon?: LucideIcon }
 export interface PortalNavGroup { heading: string; items: PortalNavItem[] }
 export type PortalNavEntry = PortalNavItem | PortalNavGroup

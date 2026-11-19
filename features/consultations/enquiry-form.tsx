@@ -45,11 +45,7 @@ import { submitEnquiry } from "@/lib/mock-actions";
 import type { FieldValues } from "@/lib/validation";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils";
-import {
-  ReportUploadMock,
-  REPORT_UPLOAD_HINT,
-  type MockReport,
-} from "@/features/consultations/report-upload-mock";
+import { ReportUploadMock, type MockReport } from "@/features/consultations/report-upload-mock";
 import {
   CalendarIcon,
   CircleAlertIcon,
@@ -592,12 +588,7 @@ export function EnquiryForm({ className }: EnquiryFormProps) {
               />
             </Field>
 
-            <Field
-              label="Attach reports"
-              htmlFor="enquiry-reports"
-              hint={REPORT_UPLOAD_HINT}
-              hintId="enquiry-reports-hint"
-            >
+            <Field label="Attach reports" htmlFor="enquiry-reports">
               <ReportUploadMock
                 label="Choose files"
                 value={reports}

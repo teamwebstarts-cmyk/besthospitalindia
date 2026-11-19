@@ -182,16 +182,16 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
         aria-label="Hospital directory"
         className={cn(
           fullBleedClassName,
-          "border-b border-border/70 bg-background py-8 sm:py-10",
+          "border-b border-border/70 bg-background py-5 sm:py-10",
         )}
       >
         <div className={homeSectionInnerClassName}>
           <DirectoryPageIntro
-            className="mb-8"
+            className="mb-4 sm:mb-8"
             title="Hospitals"
-            description="Compare hospitals across India with separate PER and CER ratings — filters, pagination and full profiles."
+            description="Compare hospitals with separate PER and CER ratings."
           />
-          <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
+          <div className="grid gap-3 sm:gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
         <aside aria-label="Hospital filters" className="lg:sticky lg:top-24 lg:self-start">
           <ListingFilters
             facets={[

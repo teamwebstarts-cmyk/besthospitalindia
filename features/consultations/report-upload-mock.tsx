@@ -27,9 +27,6 @@ const ACCEPTED_MIME_TYPES = [
 /** Demo size ceiling for a single report, in bytes. */
 export const MAX_REPORT_SIZE_BYTES = 10 * 1024 * 1024;
 
-/** Permitted-types/size hint shown under the picker (per pages/14 spec). */
-export const REPORT_UPLOAD_HINT = "Optional — PDF or images, up to 10 MB each (demo; not stored).";
-
 /** One mock-selected report; the File object is never sent anywhere. */
 export interface MockReport {
   /** Client-only local id (crypto.randomUUID when available). */

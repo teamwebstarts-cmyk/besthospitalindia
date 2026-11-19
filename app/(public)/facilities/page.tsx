@@ -199,16 +199,16 @@ export default async function FacilitiesPage({
         aria-label="Facility directory"
         className={cn(
           fullBleedClassName,
-          "border-b border-border/70 bg-background py-8 sm:py-10",
+          "border-b border-border/70 bg-background py-5 sm:py-10",
         )}
       >
         <div className={homeSectionInnerClassName}>
           <DirectoryPageIntro
-            className="mb-8"
+            className="mb-4 sm:mb-8"
             title="Facilities"
-            description="Hospitals, labs, centres and wellness listings across India — filter by category, city or service."
+            description="Labs, centres and wellness listings. Filter by category or city."
           />
-          <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
+          <div className="grid gap-3 sm:gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
             <aside aria-label="Facility filters" className="lg:sticky lg:top-24 lg:self-start">
           <ListingFilters
             facets={[

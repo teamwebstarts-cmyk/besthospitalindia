@@ -14,7 +14,10 @@ import { doctorProfileHref, hospitalProfileHref, ROUTES } from "@/constants/rout
 import { AppointmentRequestForm } from "@/features/appointments/appointment-request-form"
 import { RatingPair } from "@/features/ratings/rating-pair"
 import { VerificationBadge } from "@/features/providers/components/verification-badge"
+import { DoctorProfileAppointmentAside } from "@/features/providers/components/doctor-profile-appointment-aside"
+import { DoctorProfileStickyCta } from "@/features/providers/components/doctor-profile-sticky-cta"
 import { ProviderSectionNav } from "@/features/providers/components/provider-section-nav"
+import { cn } from "@/lib/utils"
 import type { Doctor, Hospital, Review, Treatment } from "@/types"
 
 const VERIFICATION_LABELS: Record<Review["reviewerVerification"], string> = {
@@ -56,14 +59,20 @@ function ProfileBlock({
   title,
   description,
   children,
+  className,
 }: {
   id: string
   title: string
   description?: string
   children: ReactNode
+  className?: string
 }) {
   return (
-    <section id={id} aria-labelledby={`${id}-heading`} className="scroll-mt-24 space-y-3">
+    <section
+      id={id}
+      aria-labelledby={`${id}-heading`}
+      className={cn("scroll-mt-[calc(var(--site-header-offset,3.5rem)+3.25rem)] space-y-3", className)}
+    >
       <SectionHeading as="h2" id={`${id}-heading`} title={title} description={description} />
       {children}
     </section>
@@ -157,7 +166,7 @@ export function DoctorProfilePageView({
     .toUpperCase()
 
   return (
-    <div className="space-y-6 py-6 sm:py-8">
+    <div className="space-y-5 py-4 sm:space-y-6 sm:py-8 max-lg:pb-[calc(7.25rem+env(safe-area-inset-bottom,0px))]">
       <Breadcrumbs
         items={[
           { label: "Home", href: ROUTES.public.home },
@@ -166,9 +175,9 @@ export function DoctorProfilePageView({
         ]}
       />
 
-      <header className="overflow-hidden rounded-xl border border-border/70 bg-card p-5 sm:p-6">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-          <Avatar className="size-20 shrink-0 ring-2 ring-primary/10 sm:size-24">
+      <header className="overflow-hidden rounded-xl border border-border/70 bg-card p-4 sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">
+          <Avatar className="size-16 shrink-0 ring-2 ring-primary/10 sm:size-24">
             {doctor.photo ? (
               <AvatarImage src={doctor.photo} alt="" />
             ) : null}
@@ -177,7 +186,7 @@ export function DoctorProfilePageView({
 
           <div className="min-w-0 flex-1 space-y-3">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-              <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">{doctor.name}</h1>
+              <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-3xl">{doctor.name}</h1>
               <VerificationBadge status={doctor.verificationStatus} />
             </div>
 
@@ -215,41 +224,14 @@ export function DoctorProfilePageView({
               </div>
             </dl>
 
-            <div className="flex flex-wrap gap-2 lg:hidden">
-              <Button
-                variant="cta"
-                className="h-11 flex-1 rounded-full px-5 font-semibold shadow-sm sm:flex-none"
-                render={<a href="#appointment">Request appointment</a>}
-              >
-                Request appointment
-              </Button>
-              <Button variant="outline" className="h-11" render={<Link href="#ratings" />}>
-                Ratings
-              </Button>
-            </div>
           </div>
         </div>
       </header>
 
-      <ProviderSectionNav sections={sections} />
+      <ProviderSectionNav sections={sections} label="Profile sections" />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_min(20rem,34vw)] lg:items-start lg:gap-8">
-        <aside
-          id="appointment"
-          className="order-1 space-y-2 lg:sticky lg:top-[calc(var(--site-header-offset,7.75rem)+0.5rem)] lg:order-2 lg:max-h-[calc(100svh-var(--site-header-offset,7.75rem)-1rem)] lg:self-start lg:overflow-y-auto lg:overscroll-contain"
-        >
-          <AppointmentRequestForm
-            variant="sidebar"
-            provider={appointmentProvider}
-            treatments={treatmentOptions}
-            backHref={profileHref}
-          />
-          <p className="hidden px-1 text-[0.6875rem] leading-relaxed text-muted-foreground lg:block">
-            Informational only — not medical advice.
-          </p>
-        </aside>
-
-        <div className="order-2 min-w-0 space-y-10 lg:order-1">
+        <div className="min-w-0 space-y-8 sm:space-y-10">
           <ProfileBlock id="overview" title="Overview">
             <Card className="border-border/70 shadow-none">
               <CardContent className="gap-5 p-4 sm:p-5">
@@ -335,7 +317,7 @@ export function DoctorProfilePageView({
           <ProfileBlock
             id="ratings"
             title="Independent ratings"
-            description="PER and MER are separate scores — never combined."
+            description="PER and MER are separate scores - never combined."
           >
             <RatingPair per={doctor.ratings.per} mer={doctor.ratings.mer} headingLevel="h3" />
           </ProfileBlock>
@@ -344,7 +326,24 @@ export function DoctorProfilePageView({
             <DoctorReviews reviews={doctorReviews} doctorName={doctor.name} />
           </ProfileBlock>
         </div>
+
+        <DoctorProfileAppointmentAside
+          providerName={doctor.name}
+          className="lg:sticky lg:top-[calc(var(--site-header-offset,7.75rem)+0.5rem)] lg:max-h-[calc(100svh-var(--site-header-offset,7.75rem)-1rem)] lg:self-start lg:overflow-y-auto lg:overscroll-contain"
+        >
+          <AppointmentRequestForm
+            variant="sidebar"
+            provider={appointmentProvider}
+            treatments={treatmentOptions}
+            backHref={profileHref}
+          />
+          <p className="hidden px-1 text-[0.6875rem] leading-relaxed text-muted-foreground lg:block">
+            Informational only - not medical advice.
+          </p>
+        </DoctorProfileAppointmentAside>
       </div>
+
+      <DoctorProfileStickyCta />
     </div>
   )
 }

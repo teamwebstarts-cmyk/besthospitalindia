@@ -198,6 +198,8 @@ export interface MedicalDestinationCitiesProps {
   destinations: readonly MedicalDestinationCityCard[]
   title: string
   description: string
+  /** Shorter lead below `lg` when set (desktop keeps `description`). */
+  descriptionMobile?: string
   /** Full-bleed band (default) or flush block inside a parent white band. */
   layout?: "band" | "embedded"
   className?: string
@@ -208,6 +210,7 @@ export function MedicalDestinationCities({
   destinations,
   title,
   description,
+  descriptionMobile,
   layout = "band",
   className,
 }: MedicalDestinationCitiesProps) {
@@ -228,6 +231,7 @@ export function MedicalDestinationCities({
           headingId="home-destinations-heading"
           title={title}
           description={description}
+          descriptionMobile={descriptionMobile}
         />
       </ScrollReveal>
       <StaggerReveal

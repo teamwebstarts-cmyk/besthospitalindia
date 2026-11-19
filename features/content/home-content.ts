@@ -31,7 +31,7 @@ export const homeHero = {
     "Compare hospitals and doctors across India with independent ratings and request coordinated support for your care journey.",
   /** One-line hero lead on small screens only (`HomeHeroSection`). */
   subheadingMobile:
-    "Compare hospitals and doctors in India — independent ratings and free consultation support.",
+    "Compare hospitals and doctors in India - independent ratings and free consultation support.",
 } as const
 
 /** Copy for the city-destination pill row on the home page. */
@@ -39,6 +39,8 @@ export const homeMedicalDestinations = {
   title: "Top medical destinations",
   description:
     "Explore hospitals and specialists across India’s leading care states — select a destination to open the directory.",
+  /** Shorter lead below `lg` (`MedicalDestinationCities`). */
+  descriptionMobile: "India’s top care states — tap a destination to browse hospitals.",
 } as const
 
 /** Platform capabilities surfaced on the home page (aligned with about scope — demo only). */

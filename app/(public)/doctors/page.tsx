@@ -269,16 +269,16 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
         aria-label="Doctor directory"
         className={cn(
           fullBleedClassName,
-          "border-b border-border/70 bg-background py-8 sm:py-10",
+          "border-b border-border/70 bg-background py-5 sm:py-10",
         )}
       >
         <div className={homeSectionInnerClassName}>
           <DirectoryPageIntro
-            className="mb-8"
-            title="Find the right doctor"
-            description="Browse doctors by city and specialty with independent PER and MER ratings on every card."
+            className="mb-4 sm:mb-8"
+            title="Doctors"
+            description="Browse by city and specialty. PER and MER stay separate."
           />
-          <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
+          <div className="grid gap-3 sm:gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
             <aside aria-label="Doctor filters" className="lg:sticky lg:top-24 lg:self-start">
               <ListingFilters
                 facets={FILTER_FACETS}

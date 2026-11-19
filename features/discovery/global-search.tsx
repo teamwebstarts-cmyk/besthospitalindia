@@ -70,24 +70,32 @@ export function GlobalSearch({
   const isHeader = layout === "header"
 
   const headerSelectField = (
-    <div className="flex h-full shrink-0 items-center self-stretch border-r border-border/60">
+    <div className="flex h-full w-[7.25rem] min-w-[7.25rem] max-w-[7.25rem] shrink-0 items-stretch self-stretch border-r border-border/60 sm:w-[7.75rem] sm:min-w-[7.75rem] sm:max-w-[7.75rem]">
       <Select
         value={entityType}
         items={ENTITY_TYPE_ITEMS}
         onValueChange={(nextValue) => {
-          if (typeof nextValue === "string") {
-            setEntityType(nextValue as SearchEntityType)
-          }
+          if (typeof nextValue !== "string") return
+          const next = nextValue as SearchEntityType
+          setEntityType(next)
+          const targetRoute = routes[next]
+          if (!targetRoute) return
+          const trimmedQuery = query.trim()
+          router.push(
+            trimmedQuery === ""
+              ? targetRoute
+              : `${targetRoute}?q=${encodeURIComponent(trimmedQuery)}`,
+          )
         }}
       >
         <SelectTrigger
           aria-label="Search entity type"
           size="default"
-          className="h-full w-[7.25rem] gap-1 rounded-none rounded-l-full border-0 bg-transparent px-3 py-0 text-sm font-medium text-foreground shadow-none focus-visible:ring-0 data-[size=default]:h-full sm:w-[7.75rem]"
+          className="h-full w-[7.25rem] min-w-[7.25rem] max-w-[7.25rem] gap-1 rounded-none rounded-l-full border-0 bg-transparent px-2.5 py-0 text-base font-medium text-foreground shadow-none focus-visible:ring-0 data-[size=default]:h-full sm:w-[7.75rem] sm:min-w-[7.75rem] sm:max-w-[7.75rem] sm:text-sm"
         >
           <SelectValue />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent align="start" side="bottom" alignItemWithTrigger={false}>
           {(Object.keys(ENTITY_TYPE_LABELS) as SearchEntityType[]).map((type) => (
             <SelectItem key={type} value={type}>
               {ENTITY_TYPE_LABELS[type]}
@@ -148,7 +156,7 @@ export function GlobalSearch({
         placeholder={isHeader ? "Search…" : "Search by name, city or service…"}
         className={cn(
           isHeader
-            ? "h-full min-h-0 min-w-0 rounded-none rounded-r-full border-0 bg-transparent py-0 pl-3 pr-10 text-sm leading-normal text-foreground shadow-none placeholder:text-muted-foreground focus-visible:ring-0"
+            ? "h-full min-h-0 min-w-0 rounded-none rounded-r-full border-0 bg-transparent py-0 pl-3 pr-10 text-base leading-normal text-foreground shadow-none placeholder:text-muted-foreground focus-visible:ring-0 sm:text-sm"
             : "pl-9"
         )}
       />
@@ -176,7 +184,7 @@ export function GlobalSearch({
         role="search"
         onSubmit={handleSubmit}
         className={cn(
-          "flex h-10 w-full min-w-0 items-center overflow-hidden rounded-full border border-border/70 bg-background shadow-sm transition-shadow duration-200 focus-within:border-primary/25 focus-within:shadow-md",
+          "flex h-11 w-full min-h-11 max-h-11 min-w-0 shrink-0 items-stretch overflow-hidden rounded-full border border-border/70 bg-background shadow-sm transition-[border-color,box-shadow] duration-200 focus-within:border-primary/25 focus-within:shadow-md",
           className
         )}
       >

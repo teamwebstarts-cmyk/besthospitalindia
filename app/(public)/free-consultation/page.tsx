@@ -23,25 +23,28 @@ export const metadata: Metadata = {
  */
 export default function FreeConsultationPage() {
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 py-6 sm:py-8">
-      <Breadcrumbs
-        items={[
-          { label: "Home", href: ROUTES.public.home },
-          { label: "Free Consultation" },
-        ]}
-      />
-
-      <header>
-        <h1 className="text-2xl font-bold tracking-tight text-balance sm:text-3xl">
-          Free consultation
-          <span className="mx-1.5 text-lg font-normal text-muted-foreground/80" aria-hidden>
-            ·
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 pt-1 pb-4 sm:gap-5 sm:py-6 lg:py-8">
+      <header className="flex flex-col gap-0.5 sm:gap-2">
+        <Breadcrumbs
+          className="hidden md:block"
+          items={[
+            { label: "Home", href: ROUTES.public.home },
+            { label: "Free Consultation" },
+          ]}
+        />
+        <h1 className="text-[1.35rem] leading-[1.2] font-bold tracking-tight text-balance sm:text-3xl sm:leading-tight">
+          <span className="text-foreground">Free consultation</span>
+          <span className="mt-1 block text-sm font-medium leading-snug text-muted-foreground sm:mt-0 sm:ml-2 sm:inline sm:text-[length:inherit] sm:font-normal sm:text-muted-foreground/90">
+            <span className="hidden sm:inline" aria-hidden>
+              {" "}
+              ·{" "}
+            </span>
+            Ask before you decide
           </span>
-          ask before you decide
         </h1>
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
         <section aria-labelledby="consultation-form-heading" className="flex min-w-0 flex-col gap-4">
           <h2 id="consultation-form-heading" className="sr-only">
             Consultation request form

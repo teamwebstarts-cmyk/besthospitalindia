@@ -42,10 +42,13 @@ function isPathActive(pathname: string, href: string): boolean {
 function BrandMark({
   inverted = false,
   compact = false,
+  alwaysShowTitle = false,
   className,
 }: {
   inverted?: boolean
   compact?: boolean
+  /** Keep the wordmark visible on narrow screens (consultation page header). */
+  alwaysShowTitle?: boolean
   className?: string
 }) {
   return (
@@ -73,7 +76,10 @@ function BrandMark({
         className={cn(
           "font-heading leading-tight font-bold tracking-tight",
           compact
-            ? "max-w-[9.5rem] truncate text-base sm:max-w-none sm:overflow-visible sm:text-lg sm:whitespace-nowrap"
+            ? cn(
+                "min-w-0 truncate text-sm font-bold whitespace-nowrap sm:text-base",
+                !alwaysShowTitle && "max-sm:sr-only",
+              )
             : "text-lg whitespace-nowrap sm:text-[1.35rem]",
           inverted ? "text-primary-foreground" : "text-foreground",
         )}
@@ -84,11 +90,20 @@ function BrandMark({
   )
 }
 
+function searchEntityFromPath(pathname: string): "hospitals" | "doctors" | "treatments" | "facilities" {
+  if (pathname === "/doctors" || pathname.startsWith("/doctors/")) return "doctors"
+  if (pathname === "/treatments" || pathname.startsWith("/treatments/")) return "treatments"
+  if (pathname === "/facilities" || pathname.startsWith("/facilities/")) return "facilities"
+  return "hospitals"
+}
+
 function HeaderSearchBar({ className }: { className?: string }) {
+  const pathname = usePathname()
   return (
     <GlobalSearch
+      key={searchEntityFromPath(pathname)}
       layout="header"
-      defaultEntityType="hospitals"
+      defaultEntityType={searchEntityFromPath(pathname)}
       routes={headerSearchRoutes}
       queryLabel="Search hospitals, doctors or treatments"
       className={className}
@@ -113,14 +128,7 @@ function HeaderTopBar() {
       <div className="relative mx-auto flex min-h-14 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <BrandMark inverted />
         <div className="flex shrink-0 items-center gap-2.5">
-          <Button
-            size="sm"
-            className="h-9 gap-1.5 rounded-full border-0 bg-secondary px-4 text-sm font-semibold text-primary shadow-sm transition-[background-color,box-shadow] duration-200 hover:bg-secondary/85 hover:shadow-md"
-            render={<Link href="/free-consultation" />}
-          >
-            <CalendarDaysIcon aria-hidden className="size-4 shrink-0" />
-            Get Free Consultation
-          </Button>
+          <FreeConsultationHeaderButton />
           <Button
             variant="outline"
             size="sm"
@@ -168,6 +176,31 @@ function DesktopNavLinks({ links }: { links: NavLink[] }) {
   )
 }
 
+/** Same mint pill as desktop top bar — shared on mobile/tablet header row. */
+function FreeConsultationHeaderButton({ className }: { className?: string }) {
+  const pathname = usePathname()
+  const href = ROUTES.public.freeConsultation
+
+  return (
+    <Button
+      size="sm"
+      className={cn(
+        "h-9 shrink-0 gap-1.5 rounded-full border-0 bg-secondary px-4 text-sm font-semibold text-primary shadow-sm transition-[background-color,box-shadow] duration-200 hover:bg-secondary/85 hover:shadow-md",
+        className,
+      )}
+      render={
+        <Link
+          href={href}
+          aria-current={isPathActive(pathname, href) ? "page" : undefined}
+        />
+      }
+    >
+      <CalendarDaysIcon aria-hidden className="size-4 shrink-0" />
+      Get Free Consultation
+    </Button>
+  )
+}
+
 function MobileNav({ links }: { links: NavLink[] }) {
   const [open, setOpen] = React.useState(false)
   const pathname = usePathname()
@@ -180,7 +213,7 @@ function MobileNav({ links }: { links: NavLink[] }) {
           <Button
             variant="ghost"
             size="icon"
-            className="shrink-0 lg:hidden"
+            className="size-9 shrink-0 lg:hidden"
             aria-label="Open navigation menu"
           />
         }
@@ -242,11 +275,12 @@ function MobileNav({ links }: { links: NavLink[] }) {
           </ul>
           <div className="flex flex-col gap-2">
             <Button
-              className="h-10 gap-1.5 rounded-full bg-secondary font-semibold text-primary"
+              variant="secondary"
+              className="h-10 gap-1.5 rounded-full font-semibold shadow-none hover:bg-secondary/85"
               render={<Link href="/free-consultation" onClick={close} />}
             >
               <CalendarDaysIcon aria-hidden className="size-4" />
-              Get Free Consultation
+              Free consultation
             </Button>
             <Button
               variant="outline"
@@ -273,29 +307,47 @@ export interface PublicHeaderProps {
  * band with consultation CTA, then mint nav row with pill active state + search.
  */
 export function PublicHeader({ links = publicNav, className }: PublicHeaderProps) {
+  const pathname = usePathname()
+  const isHome = pathname === "/"
+  const isFreeConsultation = pathname === ROUTES.public.freeConsultation
+  const showMobileSearch = !isHome && !isFreeConsultation
+  const compactMobileHeader = isHome || isFreeConsultation
+
   return (
-    <header className={cn("sticky top-0 z-40 w-full bg-background", className)}>
+    <header
+      className={cn(
+        "sticky top-0 z-40 w-full bg-background",
+        compactMobileHeader
+          ? "max-lg:[--site-header-offset:calc(3rem+env(safe-area-inset-top,0px))]"
+          : "max-lg:[--site-header-offset:7.25rem]",
+        className,
+      )}
+    >
       <HeaderTopBar />
 
-      {/* Mobile & tablet */}
-      <div className="border-b border-border/70 bg-background lg:hidden">
-        <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-2 px-4 sm:h-[3.25rem] sm:px-6">
-          <BrandMark compact />
-          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-            <Button
-              size="sm"
-              className="h-8 gap-1 rounded-full bg-secondary px-2.5 text-xs font-semibold text-primary sm:px-3 sm:text-sm"
-              render={<Link href="/free-consultation" />}
-            >
-              <span className="hidden min-[400px]:inline">Free Consult</span>
-              <span className="min-[400px]:hidden">Consult</span>
-            </Button>
+      {/* Mobile & tablet — home search lives in the hero instead of this bar */}
+      <div className="border-b border-border/70 bg-background pt-[env(safe-area-inset-top,0px)] lg:hidden">
+        <div
+          className={cn(
+            "mx-auto flex w-full max-w-7xl items-center gap-2 px-3 py-2 sm:gap-2.5 sm:px-6",
+            isFreeConsultation ? "min-h-12" : "min-h-[3.25rem]",
+          )}
+        >
+          <BrandMark
+            compact
+            alwaysShowTitle={isFreeConsultation}
+            className="min-w-0 flex-1 items-center"
+          />
+          <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
+            {!isFreeConsultation ? <FreeConsultationHeaderButton /> : null}
             <MobileNav links={links} />
           </div>
         </div>
-        <div className="border-t border-border/50 bg-background px-4 pt-3 pb-3 sm:px-6">
-          <HeaderSearchBar className="h-10" />
-        </div>
+        {showMobileSearch ? (
+          <div className="border-t border-border/50 bg-background px-4 pt-2.5 pb-2.5 sm:px-6 sm:pt-3 sm:pb-3">
+            <HeaderSearchBar className="h-10" />
+          </div>
+        ) : null}
       </div>
 
       {/* Desktop nav + search — solid white bar (not glass over hero) */}

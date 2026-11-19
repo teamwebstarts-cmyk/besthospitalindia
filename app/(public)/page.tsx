@@ -157,6 +157,7 @@ export default function HomePage() {
           destinations={homeMedicalDestinationStates}
           title={homeMedicalDestinations.title}
           description={homeMedicalDestinations.description}
+          descriptionMobile={homeMedicalDestinations.descriptionMobile}
         />
 
         <HomeBleedBand
