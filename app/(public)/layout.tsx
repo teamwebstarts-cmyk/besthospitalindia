@@ -12,7 +12,7 @@ import { PublicMobileTabBar } from "@/components/layout/public-mobile-tab-bar"
  */
 export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col bg-background max-lg:pb-[calc(3.25rem+env(safe-area-inset-bottom,0px))]">
+    <div className="flex min-h-screen flex-col bg-background max-lg:pb-[calc(3.25rem+env(safe-area-inset-bottom,0px))] max-lg:has-[[data-profile-action-bar]]:pb-[calc(7.25rem+env(safe-area-inset-bottom,0px))]">
       <PublicHeader />
       <main
         id="main"

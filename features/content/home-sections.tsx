@@ -325,7 +325,7 @@ function SpecialtyTileIcon({ slug, className }: { slug: string; className?: stri
   return <Icon aria-hidden className={cn("size-11 text-primary sm:size-12", className)} strokeWidth={1.35} />
 }
 
-/** Specialty tiles → /treatments?specialty=<slug> (A06 route owns the param). */
+/** Specialty tiles → hospital directory filtered by specialty id. */
 export function SpecialtyTileGrid({
   specialties,
   className,
@@ -342,7 +342,7 @@ export function SpecialtyTileGrid({
       {specialties.map((specialty) => (
         <li key={specialty.id}>
           <Link
-            href={`${ROUTES.public.treatments}?specialty=${encodeURIComponent(specialty.slug)}`}
+            href={`${ROUTES.public.hospitals}?specialty=${encodeURIComponent(specialty.id)}`}
             className={cn(
               "group flex h-full items-center gap-3 rounded-xl border border-border/70 bg-card p-3.5 text-left shadow-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50 sm:gap-4 sm:p-4",
               homeInteractiveTileClassName,
@@ -639,8 +639,8 @@ export function MedicalTourismBlock({ className }: MedicalTourismBlockProps) {
           stage, not live concierge booking.
         </p>
         <div className="flex flex-wrap gap-2.5 pt-1">
-          <Button className="h-11 rounded-lg px-5" render={<Link href={ROUTES.public.medicalTourism} />}>
-            Explore medical tourism
+          <Button className="h-11 rounded-lg px-5" render={<Link href={ROUTES.public.hospitals} />}>
+            Explore hospitals
           </Button>
           <Button
             variant="outline"

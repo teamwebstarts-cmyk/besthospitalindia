@@ -29,12 +29,14 @@ export interface RatingPairProps {
   headingLevel?: "h2" | "h3" | "h4"
   /** Show evidence metadata on both panels. Defaults to true. */
   showEvidence?: boolean
+  /** Forwarded to both panels. */
+  density?: "default" | "compact"
   /** Screen-reader intro clarifying that the two ratings are independent. */
   srLead?: string
   className?: string
 }
 
-export function RatingPair({ per, cer, mer, headingLevel, showEvidence = true, srLead, className }: RatingPairProps) {
+export function RatingPair({ per, cer, mer, headingLevel, showEvidence = true, density, srLead, className }: RatingPairProps) {
   // Hospitals carry per+cer; doctors carry per+mer. Never both experts at once.
   const expert = cer ?? mer
   const pairLabel = cer ? "experience and clinical expertise ratings" : "experience and medical expertise ratings"
@@ -45,8 +47,10 @@ export function RatingPair({ per, cer, mer, headingLevel, showEvidence = true, s
       data-slot="rating-pair"
       className={cn("grid gap-4 md:grid-cols-2", className)}
     >
-      <RatingPanel rating={per} headingLevel={headingLevel} showEvidence={showEvidence} />
-      {expert ? <RatingPanel rating={expert} headingLevel={headingLevel} showEvidence={showEvidence} /> : null}
+      <RatingPanel rating={per} headingLevel={headingLevel} showEvidence={showEvidence} density={density} />
+      {expert ? (
+        <RatingPanel rating={expert} headingLevel={headingLevel} showEvidence={showEvidence} density={density} />
+      ) : null}
     </section>
   )
 }

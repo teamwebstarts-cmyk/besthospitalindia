@@ -45,14 +45,17 @@ export const publicNav: NavLink[] = [
 
 export const footerGroups: FooterNavGroup[] = [
   { heading: "Platform", links: [
-    { label: "Hospitals", href: "/hospitals" }, { label: "Doctors", href: "/doctors" },
-    { label: "Facilities", href: "/facilities" }, { label: "Treatments", href: "/treatments" },
-    { label: "Medical Tourism", href: "/medical-tourism" }, { label: "Free Consultation", href: "/free-consultation" },
+    { label: "Hospitals", href: "/hospitals" },
+    { label: "Doctors", href: "/doctors" },
+    { label: "Facilities", href: "/facilities" },
+    { label: "Free Consultation", href: "/free-consultation" },
   ]},
   { heading: "Company", links: [
-    { label: "About", href: "/about" }, { label: "How It Works", href: "/how-it-works" },
-    { label: "Rating Methodology", href: "/rating-methodology" }, { label: "International Urban Forum", href: "/international-urban-forum" },
-    { label: "For Hospitals", href: "/for-hospitals" }, { label: "For Doctors", href: "/for-doctors" }, { label: "Contact", href: "/contact" },
+    { label: "About", href: "/about" },
+    { label: "How It Works", href: "/how-it-works" },
+    { label: "For Hospitals", href: "/for-hospitals" },
+    { label: "For Doctors", href: "/for-doctors" },
+    { label: "Contact", href: "/contact" },
   ]},
   { heading: "Legal", links: [
     { label: "Privacy Policy", href: "/privacy" }, { label: "Terms of Use", href: "/terms" }, { label: "Medical Disclaimer", href: "/disclaimer" },

@@ -15,6 +15,7 @@
  */
 
 import type { Metadata } from "next"
+import { Suspense } from "react"
 
 import { facilities, specialties } from "@/data"
 import { getSpecialtyBySlug, paginate, searchFacilities } from "@/lib/search"
@@ -24,7 +25,8 @@ import { SectionHeading } from "@/components/shared/section-heading"
 import { FacilityListingCard } from "@/features/content/facility-listing/facility-listing-card"
 import { FaqList } from "@/features/content/faq-list"
 import { FACILITY_CATEGORY_LABELS } from "@/features/discovery/facility-meta"
-import { FacilityListingSearch } from "@/features/discovery/facility-listing-search"
+import { DirectoryFilterBar } from "@/features/discovery/directory-filter-bar"
+import { LoadingSkeleton } from "@/components/shared/loading-skeleton"
 import { ListingFilters } from "@/features/discovery/listing-filters"
 import { UrlPagination } from "@/features/discovery/url-pagination"
 import { buildFilterQueryString, readFilterValues } from "@/features/discovery/types"

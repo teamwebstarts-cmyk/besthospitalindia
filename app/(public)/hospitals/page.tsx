@@ -18,6 +18,7 @@
 
 import type { Metadata } from "next"
 import Link from "next/link"
+import { Suspense } from "react"
 import { Building2Icon } from "lucide-react"
 
 import { DirectoryPageIntro } from "@/components/shared/directory-page-intro"
@@ -30,7 +31,8 @@ import {
   ListingFilters,
 } from "@/features/discovery/listing-filters"
 import { UrlPagination } from "@/features/discovery/url-pagination"
-import { HospitalListingSearch } from "@/features/discovery/hospital-listing-search"
+import { DirectoryFilterBar } from "@/features/discovery/directory-filter-bar"
+import { LoadingSkeleton } from "@/components/shared/loading-skeleton"
 import {
   buildFilterQueryString,
   readFilterValues,
@@ -81,6 +83,14 @@ const hospitalDirectoryFaqs = [
 ] as const
 
 const DEFAULT_SORT: SearchSort = "relevance"
+
+const HOSPITAL_SORT_OPTIONS = [
+  { value: "relevance", label: "Featured order" },
+  { value: "name-asc", label: "Name A–Z" },
+  { value: "name-desc", label: "Name Z–A" },
+  { value: "rating-desc-per", label: "PER (high → low)" },
+  { value: "rating-desc-cer", label: "CER (high → low)" },
+] as const
 
 /** Map the URL ?sort= value onto the lib/search contract (one rating kind only). */
 function resolveSort(raw: string | undefined): { sort: SearchSort; ratingKind?: "PER" | "CER" } {
@@ -192,7 +202,10 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
             description="Compare hospitals with separate PER and CER ratings."
           />
           <div className="grid gap-3 sm:gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
-        <aside aria-label="Hospital filters" className="lg:sticky lg:top-24 lg:self-start">
+        <aside
+          aria-label="Hospital filters"
+          className="hidden lg:sticky lg:top-24 lg:block lg:self-start"
+        >
           <ListingFilters
             facets={[
               {
@@ -237,12 +250,49 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
         </aside>
 
         <div className="space-y-6">
-          <HospitalListingSearch
-            basePath={BASE_PATH}
-            initialQuery={q ?? ""}
-            filterValues={filterValues}
-            sort={rawSort}
-          />
+          <Suspense fallback={<LoadingSkeleton variant="table" className="h-28 rounded-xl" />}>
+            <DirectoryFilterBar
+              basePath={BASE_PATH}
+              search={{
+                label: "Search hospitals",
+                placeholder: "Name, city or specialty…",
+                value: q ?? "",
+              }}
+              selects={[
+                {
+                  id: "hospital-filter-city",
+                  param: "city",
+                  label: "City",
+                  value: city ?? "",
+                  emptyValue: "",
+                  options: [
+                    { value: "", label: "All cities" },
+                    ...cities.map((cityName) => ({ value: cityName, label: cityName })),
+                  ],
+                },
+                {
+                  id: "hospital-filter-specialty",
+                  param: "specialty",
+                  label: "Specialty",
+                  value: specialtyIds[0] ?? "all",
+                  emptyValue: "all",
+                  options: [
+                    { value: "all", label: "All specialties" },
+                    ...specialties.map((specialty) => ({
+                      value: specialty.id,
+                      label: specialty.name,
+                    })),
+                  ],
+                },
+              ]}
+              sort={{
+                param: "sort",
+                value: rawSort ?? DEFAULT_SORT,
+                defaultValue: DEFAULT_SORT,
+                options: HOSPITAL_SORT_OPTIONS,
+              }}
+            />
+          </Suspense>
 
           {q ? (
             <p className="text-sm text-muted-foreground">

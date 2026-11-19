@@ -21,17 +21,22 @@ export function DoctorProfileAppointmentAside({
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
-    const syncFromHash = () => {
-      if (window.location.hash === "#appointment") {
-        setOpen(true)
-        requestAnimationFrame(() => {
-          document.getElementById("appointment")?.scrollIntoView({ behavior: "smooth", block: "start" })
-        })
-      }
+    const openForm = () => {
+      setOpen(true)
+      requestAnimationFrame(() => {
+        document.getElementById("appointment")?.scrollIntoView({ behavior: "smooth", block: "start" })
+      })
     }
-    syncFromHash()
-    window.addEventListener("hashchange", syncFromHash)
-    return () => window.removeEventListener("hashchange", syncFromHash)
+    const onHash = () => {
+      if (window.location.hash === "#appointment") openForm()
+    }
+    onHash()
+    window.addEventListener("hashchange", onHash)
+    window.addEventListener("doctor-appointment-open", openForm)
+    return () => {
+      window.removeEventListener("hashchange", onHash)
+      window.removeEventListener("doctor-appointment-open", openForm)
+    }
   }, [])
 
   return (
@@ -42,40 +47,38 @@ export function DoctorProfileAppointmentAside({
         className,
       )}
     >
-      <div className="lg:hidden">
-        {open ? (
-          <div className="space-y-2">
+      <div className={cn("lg:hidden", open && "hidden")}>
+        <Card className="border-border/70 shadow-sm">
+          <CardContent className="flex flex-col gap-3 p-4">
+            <p className="text-sm font-medium text-foreground">Book with {providerName}</p>
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              Send a request in a few steps. Not confirmed until the doctor accepts.
+            </p>
             <Button
               type="button"
-              variant="ghost"
-              size="sm"
-              className="h-8 px-2 text-xs text-muted-foreground"
-              onClick={() => setOpen(false)}
+              variant="cta"
+              className="h-10 w-full rounded-full font-semibold"
+              onClick={() => setOpen(true)}
             >
-              Close form
+              Open appointment form
             </Button>
-            {children}
-          </div>
-        ) : (
-          <Card className="border-border/70 shadow-sm">
-            <CardContent className="flex flex-col gap-3 p-4">
-              <p className="text-sm font-medium text-foreground">Book with {providerName}</p>
-              <p className="text-xs leading-relaxed text-muted-foreground">
-                Send a request in a few steps. Not confirmed until the doctor accepts.
-              </p>
-              <Button
-                type="button"
-                variant="cta"
-                className="h-10 w-full rounded-full font-semibold"
-                onClick={() => setOpen(true)}
-              >
-                Open appointment form
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+          </CardContent>
+        </Card>
       </div>
-      <div className="hidden lg:block">{children}</div>
+      <div className={cn("space-y-2", !open && "max-lg:hidden")}>
+        {open ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-8 px-2 text-xs text-muted-foreground lg:hidden"
+            onClick={() => setOpen(false)}
+          >
+            Close form
+          </Button>
+        ) : null}
+        {children}
+      </div>
     </aside>
   )
 }

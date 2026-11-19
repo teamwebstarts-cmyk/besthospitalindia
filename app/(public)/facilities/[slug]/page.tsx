@@ -24,7 +24,9 @@ import { MapPinIcon } from "lucide-react"
 import { facilities, specialtyById } from "@/data"
 import { getFacilityBySlug } from "@/lib/search"
 import { Breadcrumbs } from "@/components/shared/breadcrumbs"
+import { ProfileMobileActionBar } from "@/components/shared/profile-mobile-action-bar"
 import { SectionHeading } from "@/components/shared/section-heading"
+import { ProviderSectionNav } from "@/features/providers/components/provider-section-nav"
 import { StatusBadge } from "@/components/shared/status-badge"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -35,7 +37,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
 import { FACILITY_CATEGORY_LABELS } from "@/features/discovery/facility-meta"
 import type { Facility } from "@/types"
 
@@ -79,9 +80,14 @@ export default async function FacilityDetailPage({ params }: FacilityPageProps) 
   if (!facility) notFound()
 
   const facilitySpecialties = getFacilitySpecialties(facility)
+  const sections = [
+    { id: "overview", label: "Overview" },
+    { id: "specialties", label: "Specialties" },
+    { id: "services", label: "Services" },
+  ]
 
   return (
-    <div className="space-y-8 py-8">
+    <div className="space-y-5 py-4 sm:space-y-6 sm:py-8 max-lg:pb-[calc(7.25rem+env(safe-area-inset-bottom,0px))]">
       <Breadcrumbs
         items={[
           { label: "Home", href: "/" },
@@ -90,42 +96,41 @@ export default async function FacilityDetailPage({ params }: FacilityPageProps) 
         ]}
       />
 
-      <header className="space-y-3">
+      <header className="space-y-3 rounded-xl border border-border/70 bg-card p-4 sm:p-6">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary">
             {FACILITY_CATEGORY_LABELS[facility.category]}
           </Badge>
           <StatusBadge status={facility.verificationStatus} />
         </div>
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+        <h1 className="text-xl font-bold tracking-tight text-balance sm:text-3xl">
           {facility.name}
         </h1>
         <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <MapPinIcon aria-hidden className="size-4 shrink-0" />
+          <MapPinIcon aria-hidden className="size-3.5 shrink-0 text-primary/80" />
           {facility.city}, {facility.state}, {facility.country}
         </p>
-        <p className="max-w-3xl text-sm text-balance text-muted-foreground">
-          Facility profile with verification status, listed specialties and
-          services. Use the enquiry options to request information or a free
-          consultation — an enquiry is not a confirmed booking.
+        <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
+          Listed specialties, services, and verification status. An enquiry is not a confirmed booking.
         </p>
-        <div className="flex flex-wrap gap-2 pt-1">
-          <Button render={<Link href="/contact" />}>
-            Request information
-          </Button>
-          <Button variant="outline" render={<Link href="/free-consultation" />}>
+        <div className="hidden flex-wrap gap-2 pt-1 lg:flex">
+          <Button variant="cta" className="rounded-full font-semibold shadow-sm" render={<Link href="/free-consultation" />}>
             Get a free consultation
+          </Button>
+          <Button variant="outline" className="rounded-full" render={<Link href="/contact" />}>
+            Request information
           </Button>
         </div>
       </header>
 
-      <Separator />
+      <ProviderSectionNav sections={sections} label="Facility sections" />
 
-      <div className="grid gap-8 lg:grid-cols-[1fr_20rem]">
-        <div className="min-w-0 space-y-10">
-          <section aria-labelledby="overview-heading" className="space-y-3">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start lg:gap-8">
+        <div className="min-w-0 space-y-8 sm:space-y-10">
+          <section id="overview" aria-labelledby="overview-heading" className="scroll-mt-[calc(var(--site-header-offset,3.5rem)+3.25rem)] space-y-3">
             <SectionHeading as="h2" title="Overview" />
-            <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
+            <Card className="border-border/70 shadow-none">
+            <CardContent className="space-y-3 p-4 text-sm leading-relaxed text-muted-foreground sm:p-5">
               <p>
                 {facility.name} is listed as a{" "}
                 {FACILITY_CATEGORY_LABELS[facility.category].toLowerCase()} in{" "}
@@ -138,12 +143,13 @@ export default async function FacilityDetailPage({ params }: FacilityPageProps) 
                 <strong className="font-medium text-foreground">
                   {facility.verificationStatus}
                 </strong>{" "}
-                — updated as our team completes registry and accreditation checks.
+                - updated as our team completes registry and accreditation checks.
               </p>
-            </div>
+            </CardContent>
+            </Card>
           </section>
 
-          <section aria-labelledby="specialties-heading" className="space-y-3">
+          <section id="specialties" aria-labelledby="specialties-heading" className="scroll-mt-[calc(var(--site-header-offset,3.5rem)+3.25rem)] space-y-3">
             <SectionHeading
               as="h2"
               title="Specialties"
@@ -164,7 +170,7 @@ export default async function FacilityDetailPage({ params }: FacilityPageProps) 
             )}
           </section>
 
-          <section aria-labelledby="services-heading" className="space-y-3">
+          <section id="services" aria-labelledby="services-heading" className="scroll-mt-[calc(var(--site-header-offset,3.5rem)+3.25rem)] space-y-3">
             <SectionHeading
               as="h2"
               title="Services"
@@ -183,7 +189,7 @@ export default async function FacilityDetailPage({ params }: FacilityPageProps) 
           </section>
         </div>
 
-        <aside aria-label="Location and enquiry" className="space-y-4">
+        <aside aria-label="Location and enquiry" className="space-y-4 lg:sticky lg:top-[calc(var(--site-header-offset,7.75rem)+0.5rem)] lg:self-start">
           <Card size="sm">
             <CardHeader>
               <CardTitle>Location</CardTitle>
@@ -207,7 +213,7 @@ export default async function FacilityDetailPage({ params }: FacilityPageProps) 
             </CardContent>
           </Card>
 
-          <Card size="sm">
+          <Card size="sm" className="hidden lg:block">
             <CardHeader>
               <CardTitle>Interested in this facility?</CardTitle>
               <CardDescription>
@@ -228,6 +234,13 @@ export default async function FacilityDetailPage({ params }: FacilityPageProps) 
           </Card>
         </aside>
       </div>
+
+      <ProfileMobileActionBar
+        primaryHref="/free-consultation"
+        primaryLabel="Free consultation"
+        secondaryHref="/contact"
+        secondaryLabel="Contact"
+      />
     </div>
   )
 }

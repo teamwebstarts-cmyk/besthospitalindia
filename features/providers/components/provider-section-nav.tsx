@@ -12,7 +12,7 @@
  * anchor via IntersectionObserver and reflects it with `aria-current`.
  */
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { cn } from "@/lib/utils"
 
@@ -33,6 +33,23 @@ export interface ProviderSectionNavProps {
 
 export function ProviderSectionNav({ sections, label = "On this page", className }: ProviderSectionNavProps) {
   const [activeId, setActiveId] = useState<string | null>(null)
+  const listRef = useRef<HTMLUListElement>(null)
+
+  useEffect(() => {
+    if (!activeId || !listRef.current) return
+    const list = listRef.current
+    const item = list.querySelector<HTMLElement>(`[data-section-id="${activeId}"]`)
+    if (!item) return
+    const itemLeft = item.offsetLeft
+    const itemRight = itemLeft + item.offsetWidth
+    const viewLeft = list.scrollLeft
+    const viewRight = viewLeft + list.clientWidth
+    if (itemLeft < viewLeft) {
+      list.scrollTo({ left: Math.max(0, itemLeft - 12), behavior: "smooth" })
+    } else if (itemRight > viewRight) {
+      list.scrollTo({ left: itemRight - list.clientWidth + 12, behavior: "smooth" })
+    }
+  }, [activeId])
 
   useEffect(() => {
     if (sections.length === 0) return
@@ -82,22 +99,23 @@ export function ProviderSectionNav({ sections, label = "On this page", className
       )}
     >
       <ul
+        ref={listRef}
         className={cn(
-          "flex gap-1.5 overflow-x-auto overscroll-x-contain pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] sm:flex-wrap sm:overflow-visible [&::-webkit-scrollbar]:hidden",
+          "flex gap-1.5 overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] lg:flex-wrap lg:overflow-visible [&::-webkit-scrollbar]:hidden",
           "max-lg:snap-x max-lg:snap-mandatory",
         )}
       >
         {sections.map((section) => {
           const isActive = activeId === section.id
           return (
-            <li key={section.id} className="shrink-0 snap-start">
+            <li key={section.id} data-section-id={section.id} className="shrink-0 snap-start">
               <a
                 href={`#${section.id}`}
                 aria-current={isActive ? "true" : undefined}
                 className={cn(
                   "inline-flex h-9 items-center rounded-full border border-transparent px-3.5 text-xs font-semibold whitespace-nowrap text-muted-foreground transition-colors sm:h-8 sm:rounded-md sm:px-3 sm:text-sm sm:font-medium",
                   "hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring",
-                  isActive && "border-border bg-muted text-foreground"
+                  isActive && "border-primary/25 bg-primary/10 text-primary"
                 )}
               >
                 {section.label}

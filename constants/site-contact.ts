@@ -12,4 +12,4 @@ export const SITE_CONTACT = {
 } as const
 
 export const SITE_DISCLAIMER =
-  "BestHospitalIndia helps you discover hospitals, doctors and treatments in India. Information is for discovery and coordination only and does not constitute medical advice. Always verify details directly with providers before making care decisions."
+  "For discovery and coordination only—not medical advice. Verify all care details directly with providers before deciding."

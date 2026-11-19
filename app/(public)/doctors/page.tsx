@@ -21,6 +21,7 @@
  */
 
 import Link from "next/link"
+import { Suspense } from "react"
 
 import { DirectoryPageIntro } from "@/components/shared/directory-page-intro"
 import { EmptyState } from "@/components/shared/empty-state"
@@ -36,7 +37,8 @@ import { doctors as doctorsList, specialties } from "@/data"
 import { ROUTES } from "@/constants/routes"
 import { paginate, searchDoctors } from "@/lib/search"
 import type { RatingKindForSort, SearchSort } from "@/lib/search"
-import { DoctorListingSearch } from "@/features/discovery/doctor-listing-search"
+import { DirectoryFilterBar } from "@/features/discovery/directory-filter-bar"
+import { LoadingSkeleton } from "@/components/shared/loading-skeleton"
 import { ListingFilters } from "@/features/discovery/listing-filters"
 import { UrlPagination } from "@/features/discovery/url-pagination"
 import {
@@ -279,7 +281,10 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
             description="Browse by city and specialty. PER and MER stay separate."
           />
           <div className="grid gap-3 sm:gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
-            <aside aria-label="Doctor filters" className="lg:sticky lg:top-24 lg:self-start">
+            <aside
+              aria-label="Doctor filters"
+              className="hidden lg:sticky lg:top-24 lg:block lg:self-start"
+            >
               <ListingFilters
                 facets={FILTER_FACETS}
                 values={filterValues}

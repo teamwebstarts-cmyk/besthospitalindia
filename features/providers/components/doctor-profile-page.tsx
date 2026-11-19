@@ -216,11 +216,11 @@ export function DoctorProfilePageView({
                 </dt>
                 <dd className="mt-0.5 font-semibold text-foreground tabular-nums">{hospitals.length}</dd>
               </div>
-              <div className="rounded-lg bg-muted/50 px-3 py-2">
+              <div className="col-span-2 rounded-lg bg-muted/50 px-3 py-2 sm:col-span-1">
                 <dt className="text-[0.6875rem] font-medium tracking-wide text-muted-foreground uppercase">
                   Languages
                 </dt>
-                <dd className="mt-0.5 truncate font-semibold text-foreground">{doctor.languages.join(", ")}</dd>
+                <dd className="mt-0.5 font-semibold text-foreground">{doctor.languages.join(", ")}</dd>
               </div>
             </dl>
 
@@ -319,7 +319,7 @@ export function DoctorProfilePageView({
             title="Independent ratings"
             description="PER and MER are separate scores - never combined."
           >
-            <RatingPair per={doctor.ratings.per} mer={doctor.ratings.mer} headingLevel="h3" />
+            <RatingPair per={doctor.ratings.per} mer={doctor.ratings.mer} headingLevel="h3" density="compact" />
           </ProfileBlock>
 
           <ProfileBlock id="reviews" title="Patient reviews">

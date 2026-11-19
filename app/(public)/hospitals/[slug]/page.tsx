@@ -39,6 +39,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Breadcrumbs } from "@/components/shared/breadcrumbs"
+import { ProfileMobileActionBar } from "@/components/shared/profile-mobile-action-bar"
 import { EmptyState } from "@/components/shared/empty-state"
 import { SectionHeading } from "@/components/shared/section-heading"
 import { StatusBadge } from "@/components/shared/status-badge"
@@ -96,14 +97,14 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
   const sections = [
     { id: "overview", label: "Overview" },
     { id: "ratings", label: "Ratings" },
-    { id: "specialties", label: "Specialties & treatments" },
+    { id: "specialties", label: "Specialties" },
     { id: "doctors", label: "Doctors" },
     { id: "accreditations", label: "Accreditations" },
-    { id: "reviews", label: "Patient reviews" },
+    { id: "reviews", label: "Reviews" },
   ]
 
   return (
-    <div className="space-y-8 py-8">
+    <div className="space-y-5 py-4 sm:space-y-6 sm:py-8 max-lg:pb-[calc(7.25rem+env(safe-area-inset-bottom,0px))]">
       <Breadcrumbs
         items={[
           { label: "Home", href: ROUTES.public.home },
@@ -113,11 +114,11 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
       />
 
       {/* Identity + verified state */}
-      <header className="space-y-4">
-        <div className="flex flex-wrap items-start justify-between gap-4">
+      <header className="space-y-3 sm:space-y-4">
+        <div className="flex flex-wrap items-start justify-between gap-3 sm:gap-4">
           <div className="min-w-0 space-y-2">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-3xl font-bold tracking-tight text-balance sm:text-4xl">{hospital.name}</h1>
+              <h1 className="text-xl font-bold tracking-tight text-balance sm:text-3xl">{hospital.name}</h1>
               <VerificationBadge status={hospital.verificationStatus} />
             </div>
             <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm text-muted-foreground">
@@ -132,7 +133,7 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
               </span>
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="hidden flex-wrap gap-2 lg:flex">
             <Button variant="cta" className="rounded-full px-5 font-semibold shadow-sm" render={<Link href={consultationHref} />}>
               <CalendarCheckIcon data-icon="inline-start" />
               Request appointment
@@ -144,7 +145,7 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
           </div>
         </div>
         {hospital.image ? (
-          <div className="relative aspect-[21/9] w-full overflow-hidden rounded-xl bg-muted">
+          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-muted sm:aspect-[21/9]">
             <Image
               src={hospital.image}
               alt=""
@@ -156,32 +157,37 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
             />
           </div>
         ) : null}
-        <ProviderSectionNav sections={sections} />
       </header>
 
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="space-y-10">
+      <ProviderSectionNav sections={sections} />
+
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start lg:gap-8">
+        <div className="min-w-0 space-y-8 sm:space-y-10">
           {/* Overview */}
-          <section id="overview" className="space-y-3 scroll-mt-24">
+          <section id="overview" className="scroll-mt-[calc(var(--site-header-offset,3.5rem)+3.25rem)] space-y-3">
             <SectionHeading as="h2" title="Overview" />
-            <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">{hospital.overview}</p>
-            <p className="max-w-3xl text-xs text-muted-foreground">
-              Profile information is supplied by the hospital and updated through our verification workflows.
-            </p>
+            <Card className="border-border/70 shadow-none">
+              <CardContent className="gap-2 p-4 sm:p-5">
+                <p className="text-sm leading-relaxed text-muted-foreground">{hospital.overview}</p>
+                <p className="text-xs text-muted-foreground">
+                  Profile information is supplied by the hospital and updated through our verification workflows.
+                </p>
+              </CardContent>
+            </Card>
           </section>
 
           {/* Ratings — PER and CER side by side, never combined */}
-          <section id="ratings" className="space-y-3 scroll-mt-24">
+          <section id="ratings" className="scroll-mt-[calc(var(--site-header-offset,3.5rem)+3.25rem)] space-y-3">
             <SectionHeading
               as="h2"
               title="Independent ratings"
               description="Patient experience and clinical expertise are assessed separately. There is no overall or combined hospital score."
             />
-            <RatingPair per={hospital.ratings.per} cer={hospital.ratings.cer} headingLevel="h3" />
+            <RatingPair per={hospital.ratings.per} cer={hospital.ratings.cer} headingLevel="h3" density="compact" />
           </section>
 
           {/* Specialties & treatments — names resolved from the fixture lookup maps */}
-          <section id="specialties" className="space-y-3 scroll-mt-24">
+          <section id="specialties" className="scroll-mt-[calc(var(--site-header-offset,3.5rem)+3.25rem)] space-y-3">
             <SectionHeading as="h2" title="Specialties & treatments" />
             <div className="grid gap-4 sm:grid-cols-2">
               <Card>
@@ -230,7 +236,7 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
           </section>
 
           {/* Doctors — plain link list; DoctorCard belongs to A05 and is not duplicated */}
-          <section id="doctors" className="space-y-3 scroll-mt-24">
+          <section id="doctors" className="scroll-mt-[calc(var(--site-header-offset,3.5rem)+3.25rem)] space-y-3">
             <SectionHeading
               as="h2"
               title="Doctors at this hospital"
@@ -265,11 +271,11 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
           </section>
 
           {/* Accreditations — statuses rendered exactly as recorded in the mock data */}
-          <section id="accreditations" className="space-y-3 scroll-mt-24">
+          <section id="accreditations" className="scroll-mt-[calc(var(--site-header-offset,3.5rem)+3.25rem)] space-y-3">
             <SectionHeading
               as="h2"
               title="Accreditations"
-              description="Verification states are shown exactly as recorded — nothing is shown as verified without a verified record."
+              description="Verification states are shown exactly as recorded - nothing is shown as verified without a verified record."
             />
             {hospital.accreditations.length > 0 ? (
               <ul className="space-y-2">
@@ -299,11 +305,11 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
           </section>
 
           {/* Reviews — individual patient opinions, distinct from PER/CER */}
-          <section id="reviews" className="space-y-3 scroll-mt-24">
+          <section id="reviews" className="scroll-mt-[calc(var(--site-header-offset,3.5rem)+3.25rem)] space-y-3">
             <SectionHeading
               as="h2"
               title="Patient reviews"
-              description="Individual patient feedback. Review stars are personal opinions — they are separate from the independent PER/CER assessments above."
+              description="Individual patient feedback. Review stars are personal opinions - they are separate from the independent PER/CER assessments above."
             />
             {publishedReviews.length > 0 ? (
               <ul className="space-y-3">
@@ -351,7 +357,7 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
         </div>
 
         {/* Sticky side CTA (desktop two-column per 05 spec) */}
-        <aside className="lg:sticky lg:top-24 lg:self-start" aria-label="Enquiry and contact">
+        <aside className="hidden lg:sticky lg:top-[calc(var(--site-header-offset,7.75rem)+0.5rem)] lg:block lg:self-start" aria-label="Enquiry and contact">
           <Card>
             <CardHeader className="pb-0">
               <p className="text-base font-semibold text-foreground">Request a free consultation</p>
@@ -373,19 +379,26 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
                   <dt className="sr-only">Ratings model</dt>
                   <CircleCheckIcon aria-hidden className="mt-0.5 size-3.5 shrink-0" />
                   <dd>
-                    {RATING_LABELS.PER} and {RATING_LABELS.CER} are independent — never combined.
+                    {RATING_LABELS.PER} and {RATING_LABELS.CER} are independent - never combined.
                   </dd>
                 </div>
                 <div className="flex items-start gap-1.5">
                   <dt className="sr-only">Data provenance</dt>
                   <ShieldCheckIcon aria-hidden className="mt-0.5 size-3.5 shrink-0" />
-                  <dd>Ratings and reviews reflect recorded assessments and published patient feedback — never a combined score.</dd>
+                  <dd>Ratings and reviews reflect recorded assessments and published patient feedback - never a combined score.</dd>
                 </div>
               </dl>
             </CardContent>
           </Card>
         </aside>
       </div>
+
+      <ProfileMobileActionBar
+        primaryHref={consultationHref}
+        primaryLabel="Request appointment"
+        secondaryHref={contactHref}
+        secondaryLabel="Contact"
+      />
     </div>
   )
 }

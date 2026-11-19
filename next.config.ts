@@ -10,6 +10,14 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      { source: "/treatments", destination: "/hospitals", permanent: true },
+      { source: "/treatments/:path*", destination: "/hospitals", permanent: true },
+      { source: "/medical-tourism", destination: "/hospitals", permanent: true },
+      { source: "/medical-tourism/:path*", destination: "/hospitals", permanent: true },
+    ]
+  },
 }
 
 export default nextConfig

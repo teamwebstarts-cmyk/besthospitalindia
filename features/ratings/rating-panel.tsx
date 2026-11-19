@@ -92,6 +92,8 @@ export interface RatingPanelProps {
   headingLevel?: "h2" | "h3" | "h4"
   /** Show the full evidence block (basis, sample, date, methodology). Defaults to true. */
   showEvidence?: boolean
+  /** Tighter type and spacing for public profile pages on small screens. */
+  density?: "default" | "compact"
   className?: string
 }
 
@@ -101,7 +103,14 @@ function formatDate(iso: string | null): string | null {
   return Number.isNaN(parsed.getTime()) ? null : parsed.toLocaleDateString("en-IN", { dateStyle: "medium" })
 }
 
-export function RatingPanel({ rating, headingLevel: Heading = "h3", showEvidence = true, className }: RatingPanelProps) {
+export function RatingPanel({
+  rating,
+  headingLevel: Heading = "h3",
+  showEvidence = true,
+  density = "default",
+  className,
+}: RatingPanelProps) {
+  const compact = density === "compact"
   const presentation = KIND_PRESENTATION[rating.kind]
   const status = STATUS_PRESENTATION[rating.status]
   const isRated = rating.score !== null
@@ -115,22 +124,22 @@ export function RatingPanel({ rating, headingLevel: Heading = "h3", showEvidence
   }
 
   return (
-    <Card className={cn("gap-3", presentation.accentClass, className)} data-slot="rating-panel" data-rating-kind={rating.kind}>
-      <CardHeader className="gap-1">
+    <Card className={cn("gap-3", compact && "gap-2", presentation.accentClass, className)} data-slot="rating-panel" data-rating-kind={rating.kind}>
+      <CardHeader className={cn("gap-1", compact && "gap-0.5 pb-0")}>
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <Heading className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+          <Heading className={cn("flex items-center gap-1.5 text-sm font-semibold text-foreground", compact && "text-[0.8125rem]")}>
             <StarIcon aria-hidden className={cn("size-4 shrink-0", presentation.iconClass)} />
             {presentation.label}
             <span className="sr-only"> — {presentation.description}</span>
           </Heading>
           <StatusBadge status={rating.status} label={status.label} tone={status.tone} />
         </div>
-        <p className="text-xs text-muted-foreground">{presentation.description}</p>
+        <p className={cn("text-xs leading-snug text-muted-foreground", compact && "line-clamp-2")}>{presentation.description}</p>
       </CardHeader>
-      <CardContent className="gap-3">
+      <CardContent className={cn("gap-3", compact && "gap-2")}>
         {isRated ? (
           <p className="flex items-baseline gap-1.5">
-            <span className="text-3xl font-semibold tabular-nums text-foreground">{rating.score}</span>
+            <span className={cn("text-3xl font-semibold tabular-nums text-foreground", compact && "text-2xl")}>{rating.score}</span>
             <span className="text-base font-medium text-muted-foreground">/ {RATING_SCALE_MAX}</span>
             <span className="sr-only"> — {presentation.label}</span>
           </p>

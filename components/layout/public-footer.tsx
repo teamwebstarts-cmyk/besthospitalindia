@@ -2,7 +2,8 @@ import Link from "next/link"
 import { HeartPulseIcon, MailIcon, PhoneIcon } from "lucide-react"
 
 import { footerGroups } from "@/constants/navigation"
-import { SITE_CONTACT, SITE_DISCLAIMER } from "@/constants/site-contact"
+import { PublicFooterLegal } from "@/components/layout/public-footer-legal"
+import { SITE_CONTACT } from "@/constants/site-contact"
 import { cn } from "@/lib/utils"
 
 export interface PublicFooterProps {
@@ -89,14 +90,7 @@ export function PublicFooter({ className }: PublicFooterProps) {
             </nav>
           ))}
         </div>
-        <div className="mt-6 space-y-2 border-t border-primary-foreground/15 pt-5 max-lg:mt-7 max-lg:pt-5 sm:mt-10 sm:pt-6 lg:flex lg:items-end lg:justify-between lg:gap-8">
-          <p className="max-w-3xl text-[0.6875rem] leading-relaxed text-pretty text-primary-foreground/65 sm:text-xs">
-            {SITE_DISCLAIMER}
-          </p>
-          <p className="shrink-0 text-xs text-primary-foreground/65 lg:text-right">
-            © {new Date().getFullYear()} BestHospitalIndia. All rights reserved.
-          </p>
-        </div>
+        <PublicFooterLegal />
       </div>
     </footer>
   )
