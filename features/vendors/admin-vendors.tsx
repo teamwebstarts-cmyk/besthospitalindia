@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, type FormEvent } from "react"
+import { MapPinIcon, PencilIcon, Trash2Icon } from "lucide-react"
 
 import { AdminFormSheet } from "@/features/admin/components/admin-form-sheet"
 import { Badge } from "@/components/ui/badge"
@@ -11,16 +12,19 @@ import { Label } from "@/components/ui/label"
 import type { LeadCity } from "@/lib/leads/types"
 import type { VendorPublic } from "@/lib/vendors/types"
 
-const fieldClass = "h-9 rounded-md border border-input bg-background px-2 text-sm"
+const fieldClass = "h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
 
 export function AdminVendors({ initialVendors }: { initialVendors: VendorPublic[] }) {
   const [vendors, setVendors] = useState(initialVendors)
   const [error, setError] = useState<string | null>(null)
   const [addOpen, setAddOpen] = useState(false)
+  const [editVendor, setEditVendor] = useState<VendorPublic | null>(null)
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [city, setCity] = useState<LeadCity>("delhi")
+  const [editName, setEditName] = useState("")
+  const [editEmail, setEditEmail] = useState("")
 
   async function create(event: FormEvent) {
     event.preventDefault()
@@ -55,9 +59,11 @@ export function AdminVendors({ initialVendors }: { initialVendors: VendorPublic[
       return
     }
     setVendors((current) => current.map((vendor) => (vendor.id === id ? payload.vendor! : vendor)))
+    return payload.vendor
   }
 
   async function remove(id: string) {
+    if (!window.confirm("Delete this city desk? Leads already routed stay in the database.")) return
     setError(null)
     const response = await fetch(`/api/vendors/${id}`, { method: "DELETE" })
     if (!response.ok) {
@@ -67,30 +73,32 @@ export function AdminVendors({ initialVendors }: { initialVendors: VendorPublic[
     setVendors((current) => current.filter((vendor) => vendor.id !== id))
   }
 
+  function openEdit(vendor: VendorPublic) {
+    setEditVendor(vendor)
+    setEditName(vendor.name)
+    setEditEmail(vendor.email)
+  }
+
+  async function saveEdit(event: FormEvent) {
+    event.preventDefault()
+    if (!editVendor) return
+    const updated = await patch(editVendor.id, { name: editName, email: editEmail })
+    if (updated) setEditVendor(null)
+  }
+
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold text-foreground">City desks</h2>
-        <AdminFormSheet
-          title="Add vendor"
-          triggerLabel="Add vendor"
-          open={addOpen}
-          onOpenChange={setAddOpen}
-        >
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground">One active desk per city receives new patient queries.</p>
+        <AdminFormSheet title="Add city desk" triggerLabel="Add vendor" open={addOpen} onOpenChange={setAddOpen}>
           <form className="grid gap-3 sm:grid-cols-2" onSubmit={create}>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor="vendor-name">Name</Label>
+              <Label htmlFor="vendor-name">Desk name</Label>
               <Input id="vendor-name" value={name} onChange={(event) => setName(event.target.value)} required />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="vendor-email">Email</Label>
-              <Input
-                id="vendor-email"
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                required
-              />
+              <Label htmlFor="vendor-email">Login email</Label>
+              <Input id="vendor-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="vendor-password">Password</Label>
@@ -105,45 +113,47 @@ export function AdminVendors({ initialVendors }: { initialVendors: VendorPublic[
             </div>
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="vendor-city">City</Label>
-              <select
-                id="vendor-city"
-                className={fieldClass}
-                value={city}
-                onChange={(event) => setCity(event.target.value as LeadCity)}
-              >
+              <select id="vendor-city" className={fieldClass} value={city} onChange={(event) => setCity(event.target.value as LeadCity)}>
                 <option value="delhi">Delhi</option>
                 <option value="indore">Indore</option>
               </select>
             </div>
             <div className="sm:col-span-2">
-              <Button type="submit">Save vendor</Button>
+              <Button type="submit" className="w-full sm:w-auto">
+                Save vendor
+              </Button>
             </div>
           </form>
         </AdminFormSheet>
       </div>
 
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
+      {error ? (
+        <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">
+          {error}
+        </p>
+      ) : null}
 
-      <ul className="grid gap-3 sm:grid-cols-2">
+      <ul className="grid gap-4 sm:grid-cols-2">
         {vendors.map((vendor) => (
           <li key={vendor.id}>
-            <Card className="h-full border-border/70 shadow-none">
-              <CardContent className="flex h-full flex-col gap-3 p-4">
+            <Card className="h-full overflow-hidden border-border/80 shadow-sm transition-shadow hover:shadow-md">
+              <CardContent className="flex h-full flex-col gap-4 p-5">
                 <div className="space-y-2">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-heading text-base font-semibold text-foreground">{vendor.name}</p>
-                    <Badge variant={vendor.active ? "default" : "secondary"}>
-                      {vendor.active ? "Active" : "Disabled"}
-                    </Badge>
+                    <h3 className="text-lg font-semibold text-foreground">{vendor.name}</h3>
+                    <Badge variant={vendor.active ? "default" : "secondary"}>{vendor.active ? "Active" : "Disabled"}</Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">{vendor.email}</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    <Badge variant="outline" className="capitalize">
-                      {vendor.city}
-                    </Badge>
-                  </div>
+                  <Badge variant="outline" className="gap-1 capitalize">
+                    <MapPinIcon className="size-3" aria-hidden />
+                    {vendor.city}
+                  </Badge>
                 </div>
                 <div className="mt-auto flex flex-wrap gap-2">
+                  <Button type="button" variant="default" size="sm" className="gap-1" onClick={() => openEdit(vendor)}>
+                    <PencilIcon className="size-3.5" aria-hidden />
+                    Edit
+                  </Button>
                   <Button type="button" variant="outline" size="sm" onClick={() => patch(vendor.id, { active: !vendor.active })}>
                     {vendor.active ? "Disable" : "Enable"}
                   </Button>
@@ -156,9 +166,16 @@ export function AdminVendors({ initialVendors }: { initialVendors: VendorPublic[
                       if (next) patch(vendor.id, { password: next })
                     }}
                   >
-                    Set password
+                    Reset password
                   </Button>
-                  <Button type="button" variant="outline" size="sm" onClick={() => remove(vendor.id)}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-1 text-destructive hover:text-destructive"
+                    onClick={() => remove(vendor.id)}
+                  >
+                    <Trash2Icon className="size-3.5" aria-hidden />
                     Delete
                   </Button>
                 </div>
@@ -167,6 +184,29 @@ export function AdminVendors({ initialVendors }: { initialVendors: VendorPublic[
           </li>
         ))}
       </ul>
+
+      {editVendor ? (
+        <AdminFormSheet
+          title={`Edit ${editVendor.name}`}
+          hideTrigger
+          open={editVendor !== null}
+          onOpenChange={(open) => {
+            if (!open) setEditVendor(null)
+          }}
+        >
+          <form className="space-y-3" onSubmit={saveEdit}>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-vendor-name">Desk name</Label>
+              <Input id="edit-vendor-name" value={editName} onChange={(e) => setEditName(e.target.value)} required />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-vendor-email">Login email</Label>
+              <Input id="edit-vendor-email" type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} required />
+            </div>
+            <Button type="submit">Save changes</Button>
+          </form>
+        </AdminFormSheet>
+      ) : null}
     </div>
   )
 }
