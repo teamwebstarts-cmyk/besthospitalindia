@@ -3,7 +3,12 @@ import { NextResponse } from "next/server"
 import { adminDenied } from "@/lib/admin/session"
 import { isCatalogueKind, isCatalogueStatus } from "@/lib/catalogue/store"
 import {
-  createSubmission, deleteSubmission, listSubmissions, markSubmissionEmailVerified, updateSubmission,
+  createAdminSubmission,
+  createSubmission,
+  deleteSubmission,
+  listSubmissions,
+  markSubmissionEmailVerified,
+  updateSubmission,
   type CatalogueProfileFields,
 } from "@/lib/catalogue/submissions"
 import { forgetLeadCode, recordLeadCode, verifyLeadCode } from "@/lib/mail/outbox"
@@ -82,9 +87,17 @@ export async function POST(request: Request) {
   if (!kind || name.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || city.length < 2) {
     return NextResponse.json({ error: "Enter the name, official email, and city." }, { status: 400 })
   }
+  const denied = await adminDenied()
+  const isAdmin = denied === null
+
   try {
-    const submission = await createSubmission({ kind, name, email, phone, city, note, ...profileFrom(body) })
-    await recordLeadCode(submission.id, submission.email, "application")
+    const payload = { kind, name, email, phone, city, note, ...profileFrom(body) }
+    const submission = isAdmin
+      ? await createAdminSubmission(payload)
+      : await createSubmission(payload)
+    if (!isAdmin) {
+      await recordLeadCode(submission.id, submission.email, "application")
+    }
     return NextResponse.json({ submission }, { status: 201 })
   } catch (error) {
     if (error instanceof Error && error.message === "FREE_EMAIL") {

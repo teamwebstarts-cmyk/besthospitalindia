@@ -10,7 +10,7 @@ import { AdminListingCardShell } from "./admin-listing-card-shell"
 
 /** Shared admin catalogue grid: 1 → 2 → 3 columns */
 export const adminCatalogueGridClass =
-  "grid gap-3 sm:grid-cols-2 xl:grid-cols-3"
+  "grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
 
 export function AdminCatalogueCardFrame({
   name,
@@ -30,8 +30,8 @@ export function AdminCatalogueCardFrame({
   footer?: ReactNode
 }) {
   return (
-    <li className="flex min-w-0 flex-col gap-1">
-      <div className="relative">
+    <li className="flex min-w-0 flex-col gap-2">
+      <div className="relative overflow-hidden rounded-xl border border-border/80 bg-card shadow-sm transition-shadow hover:shadow-md">
         <AdminCatalogueStatusBar
           name={name}
           status={status}
@@ -42,19 +42,35 @@ export function AdminCatalogueCardFrame({
           {children}
         </AdminListingCardShell>
       </div>
-      {footer ? <div className="flex flex-wrap items-center justify-end gap-2">{footer}</div> : null}
+      {footer ? <div className="flex flex-wrap items-center justify-between gap-2 px-0.5">{footer}</div> : null}
     </li>
   )
 }
 
-export function AdminCatalogueCardRemove({
-  onRemove,
+export function AdminCatalogueCardActions({
+  onEdit,
+  onDelete,
 }: {
-  onRemove: () => void
+  onEdit: () => void
+  onDelete: () => void
 }) {
   return (
+    <div className="flex w-full flex-wrap items-center justify-end gap-2">
+      <Button type="button" variant="default" size="sm" className="h-8 text-xs" onClick={onEdit}>
+        Edit
+      </Button>
+      <Button type="button" variant="outline" size="sm" className="h-8 text-xs text-destructive hover:text-destructive" onClick={onDelete}>
+        Delete
+      </Button>
+    </div>
+  )
+}
+
+/** @deprecated Use AdminCatalogueCardActions */
+export function AdminCatalogueCardRemove({ onRemove }: { onRemove: () => void }) {
+  return (
     <Button type="button" variant="outline" size="sm" className="h-8 text-xs" onClick={onRemove}>
-      Remove
+      Delete
     </Button>
   )
 }

@@ -109,6 +109,30 @@ export async function listSubmissions(kind?: CatalogueKind): Promise<CatalogueSu
   return kind ? rows.filter((row) => row.kind === kind) : rows
 }
 
+/** Admin panel — listings go live immediately (approved + email verified). */
+export async function createAdminSubmission(
+  input: Omit<CatalogueSubmission, "id" | "status" | "emailVerified" | "createdAt" | "updatedAt">,
+): Promise<CatalogueSubmission> {
+  const rows = await readAll()
+  const now = new Date().toISOString()
+  const submission: CatalogueSubmission = {
+    ...input,
+    name: input.name.trim(),
+    email: input.email.trim().toLowerCase(),
+    phone: input.phone.trim(),
+    city: input.city.trim(),
+    note: input.note.trim(),
+    id: `sub-${Math.floor(100000 + Math.random() * 900000)}`,
+    status: "approved",
+    emailVerified: true,
+    createdAt: now,
+    updatedAt: now,
+  }
+  rows.unshift(submission)
+  await persist(rows)
+  return submission
+}
+
 export async function createSubmission(
   input: Omit<CatalogueSubmission, "id" | "status" | "emailVerified" | "createdAt" | "updatedAt">,
 ): Promise<CatalogueSubmission> {

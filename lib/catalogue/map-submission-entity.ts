@@ -76,10 +76,10 @@ function validIds(ids: string[] | undefined, lookup: Record<string, unknown>): s
   return (ids ?? []).filter((id) => typeof id === "string" && lookup[id] !== undefined)
 }
 
-function accreditations(names: string[] | undefined): Accreditation[] {
+function accreditations(names: string[] | undefined, verified: boolean): Accreditation[] {
   return (names ?? [])
     .filter((name) => typeof name === "string" && name.trim().length > 0)
-    .map((name) => ({ name: name.trim(), status: "pending" as const }))
+    .map((name) => ({ name: name.trim(), status: verified ? ("verified" as const) : ("pending" as const) }))
 }
 
 function asTextList(value: string[] | string | undefined): string[] {
@@ -104,6 +104,7 @@ const FACILITY_CATEGORIES: FacilityCategory[] = [
 ]
 
 export function mapSubmissionToHospital(row: SubmissionMapInput): Hospital {
+  const verified = row.status === "approved"
   return {
     id: row.id,
     slug: submissionSlug(row),
@@ -115,8 +116,8 @@ export function mapSubmissionToHospital(row: SubmissionMapInput): Hospital {
     overview: row.overview?.trim() || row.note || "Listed after admin approval.",
     specialties: validIds(row.specialties, specialtyById),
     treatments: validIds(row.treatments, treatmentById),
-    accreditations: accreditations(row.accreditations),
-    verificationStatus: "pending",
+    accreditations: accreditations(row.accreditations, verified),
+    verificationStatus: verified ? "verified" : "pending",
     ratings: { per: ratingFrom("PER", row.perScore), cer: ratingFrom("CER", row.cerScore) },
     doctorIds: asTextList(row.doctorIds),
     doctorNames: asTextList(row.doctorNames),
@@ -127,6 +128,7 @@ export function mapSubmissionToHospital(row: SubmissionMapInput): Hospital {
 }
 
 export function mapSubmissionToDoctor(row: SubmissionMapInput): Doctor {
+  const verified = row.status === "approved"
   return {
     id: row.id,
     slug: submissionSlug(row),
@@ -141,16 +143,17 @@ export function mapSubmissionToDoctor(row: SubmissionMapInput): Doctor {
       typeof row.yearsExperience === "number" && Number.isFinite(row.yearsExperience)
         ? row.yearsExperience
         : null,
-    registration: { authority: "Not listed", numberMasked: "—", status: "pending" },
+    registration: { authority: "Not listed", numberMasked: "—", status: verified ? "verified" : "pending" },
     hospitalIds: [],
     treatments: validIds(row.treatments, treatmentById),
     languages: asTextList(row.languages),
     ratings: { per: ratingFrom("PER", row.perScore), mer: ratingFrom("MER", row.merScore) },
-    verificationStatus: "pending",
+    verificationStatus: verified ? "verified" : "pending",
   }
 }
 
 export function mapSubmissionToFacility(row: SubmissionMapInput): Facility {
+  const verified = row.status === "approved"
   return {
     id: row.id,
     slug: submissionSlug(row),
@@ -163,6 +166,6 @@ export function mapSubmissionToFacility(row: SubmissionMapInput): Facility {
     country: row.country?.trim() || "India",
     specialties: validIds(row.specialties, specialtyById),
     services: asTextList(row.services),
-    verificationStatus: "pending",
+    verificationStatus: verified ? "verified" : "pending",
   }
 }

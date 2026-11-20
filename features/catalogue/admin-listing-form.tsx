@@ -156,8 +156,18 @@ export function AdminListingForm({
         </label>
       ) : null}
 
-      <fieldset className="space-y-3 rounded-lg border border-border/70 p-3">
-        <legend className="px-1 text-xs font-semibold text-foreground">Basic</legend>
+      <fieldset className="space-y-3 rounded-xl border border-border/80 bg-muted/20 p-4">
+        <legend className="px-1 text-sm font-semibold text-foreground">Basic details</legend>
+        <label className="space-y-1.5 text-xs sm:col-span-2">
+          <span className="font-medium">Cover image URL</span>
+          <Input
+            value={form.imageUrl}
+            onChange={(e) => set("imageUrl", e.target.value)}
+            placeholder="https://… (Google Drive / CDN / hospital site)"
+            type="url"
+          />
+          <span className="block text-[11px] text-muted-foreground">Paste a direct image link — shown on the public listing card.</span>
+        </label>
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="space-y-1 text-xs sm:col-span-2">
             <span className="font-medium">Name</span>
@@ -258,10 +268,6 @@ function AdvancedFields({
           value={form.overview}
           onChange={(e) => set("overview", e.target.value)}
         />
-      </label>
-      <label className="space-y-1 text-xs">
-        <span className="font-medium">Cover image URL</span>
-        <Input value={form.imageUrl} onChange={(e) => set("imageUrl", e.target.value)} placeholder="Optional" />
       </label>
 
       {form.kind !== "doctor" ? (

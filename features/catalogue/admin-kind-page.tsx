@@ -10,8 +10,10 @@ export interface AdminKindPageProps {
   title: string
   kind: CatalogueKind
   initialRows: SubmissionRow[]
-  catalogueItems: AdminCatalogueItem[]
+  catalogueItems?: AdminCatalogueItem[]
   emailCodes?: Record<string, string>
+  /** Legacy fixture directory — hidden by default; admin listings are the source of truth. */
+  showFixtureDirectory?: boolean
   /** Approved doctor names for hospital "link existing" picker. */
   linkableDoctorNames?: string[]
 }
@@ -24,9 +26,10 @@ export function AdminKindPage({
   title,
   kind,
   initialRows,
-  catalogueItems,
+  catalogueItems = [],
   emailCodes,
   linkableDoctorNames,
+  showFixtureDirectory = false,
 }: AdminKindPageProps) {
   return (
     <div className="space-y-8 py-6">
@@ -37,7 +40,9 @@ export function AdminKindPage({
         emailCodes={emailCodes}
         linkableDoctorNames={linkableDoctorNames}
       />
-      <AdminCatalogue kind={kind} initialItems={catalogueItems} />
+      {showFixtureDirectory && catalogueItems.length > 0 ? (
+        <AdminCatalogue kind={kind} initialItems={catalogueItems} />
+      ) : null}
     </div>
   )
 }

@@ -16,8 +16,8 @@ import type { CatalogueProfileFields } from "@/lib/catalogue/submissions"
 
 import {
   adminCatalogueGridClass,
+  AdminCatalogueCardActions,
   AdminCatalogueCardFrame,
-  AdminCatalogueCardRemove,
 } from "./admin-catalogue-card-frame"
 import {
   AdminListingForm,
@@ -99,18 +99,7 @@ export function AdminSubmissions({
       setError(payload?.error ?? "Could not add the listing.")
       return
     }
-    const approved = await fetch("/api/catalogue/submissions", {
-      method: "PATCH",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ id: payload.submission.id, status: "approved", ...listingFormToPayload(form) }),
-    })
-    if (!approved.ok) {
-      setError("The listing was saved, but it is not public yet.")
-      setRows((current) => [payload.submission as SubmissionRow, ...current])
-      return
-    }
-    const payloadRow = (await approved.json().catch(() => null)) as { submission?: SubmissionRow } | null
-    setRows((current) => [(payloadRow?.submission ?? { ...payload.submission, status: "approved" }) as SubmissionRow, ...current])
+    setRows((current) => [payload.submission as SubmissionRow, ...current])
     setForm(initialListingForm(form.kind))
     setCreateOpen(false)
   }
@@ -155,7 +144,7 @@ export function AdminSubmissions({
   return (
     <section className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold text-foreground">Added by admin</h2>
+        <h2 className="text-base font-semibold tracking-tight text-foreground">Your listings</h2>
         <AdminFormSheet
           title={`New ${noun}`}
           triggerLabel={addLabel}
@@ -196,12 +185,10 @@ export function AdminSubmissions({
             openLabel={`Open ${row.name} details`}
             onOpen={() => setEditId(row.id)}
             footer={
-              <>
-                <AdminCatalogueCardRemove onRemove={() => removeRow(row.id)} />
-                {emailCodes[row.id] ? (
-                  <span className="text-xs text-muted-foreground">Code {emailCodes[row.id]}</span>
-                ) : null}
-              </>
+              <AdminCatalogueCardActions
+                onEdit={() => setEditId(row.id)}
+                onDelete={() => removeRow(row.id)}
+              />
             }
           >
             {row.kind === "hospital" ? (

@@ -1,13 +1,31 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
+import { CalendarIcon, MailIcon, PhoneIcon, Trash2Icon } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { Lead, LeadStatus } from "@/lib/leads/types"
+import { cn } from "@/lib/utils"
 
 const STATUSES: LeadStatus[] = ["new", "contacted", "closed"]
+
+type StatusFilter = "all" | LeadStatus
+
+function statusLabel(status: LeadStatus): string {
+  if (status === "new") return "New"
+  if (status === "contacted") return "Contacted"
+  return "Closed"
+}
 
 function trackLabel(lead: Lead): string {
   if (lead.track === "camp") return "Medical camp"
@@ -17,12 +35,20 @@ function trackLabel(lead: Lead): string {
 }
 
 function deskLabel(lead: Lead): string {
-  if (!lead.vendorId) return "No active desk"
+  if (!lead.vendorId) return "No desk"
   return lead.preferredCity === "delhi" ? "Delhi desk" : "Indore desk"
 }
 
 function regionLabel(lead: Lead): string {
   return lead.audience === "indian" ? (lead.state ?? "—") : `Embassy · ${lead.embassy ?? "—"}`
+}
+
+function formatWhen(iso: string): string {
+  try {
+    return new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short" }).format(new Date(iso))
+  } catch {
+    return iso
+  }
 }
 
 export function AdminLeads({
@@ -34,6 +60,18 @@ export function AdminLeads({
 }) {
   const [leads, setLeads] = useState(initialLeads)
   const [error, setError] = useState<string | null>(null)
+  const [filter, setFilter] = useState<StatusFilter>("all")
+
+  const counts = useMemo(() => {
+    const base = { new: 0, contacted: 0, closed: 0, all: leads.length }
+    for (const lead of leads) base[lead.status] += 1
+    return base
+  }, [leads])
+
+  const visible = useMemo(
+    () => (filter === "all" ? leads : leads.filter((lead) => lead.status === filter)),
+    [filter, leads],
+  )
 
   async function setStatus(id: string, status: LeadStatus) {
     setError(null)
@@ -51,6 +89,7 @@ export function AdminLeads({
   }
 
   async function remove(id: string) {
+    if (!window.confirm("Delete this query permanently?")) return
     setError(null)
     const response = await fetch(`/api/leads/${id}`, { method: "DELETE" })
     if (!response.ok) {
@@ -61,34 +100,81 @@ export function AdminLeads({
   }
 
   if (leads.length === 0) {
-    return <p className="text-sm text-muted-foreground">No queries yet.</p>
+    return (
+      <Card className="border-dashed">
+        <CardContent className="py-12 text-center text-sm text-muted-foreground">No patient queries yet.</CardContent>
+      </Card>
+    )
   }
 
   return (
-    <div className="space-y-3">
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
-      <ul className="grid gap-3 lg:grid-cols-2">
-        {leads.map((lead) => (
+    <div className="space-y-5">
+      {error ? (
+        <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">
+          {error}
+        </p>
+      ) : null}
+
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {(
+          [
+            { key: "all" as const, label: "Total", value: counts.all },
+            { key: "new" as const, label: "New", value: counts.new },
+            { key: "contacted" as const, label: "Contacted", value: counts.contacted },
+            { key: "closed" as const, label: "Closed", value: counts.closed },
+          ] as const
+        ).map((item) => (
+          <button
+            key={item.key}
+            type="button"
+            onClick={() => setFilter(item.key)}
+            className={cn(
+              "rounded-xl border px-3 py-2.5 text-left transition-colors",
+              filter === item.key
+                ? "border-primary/40 bg-primary/5 ring-1 ring-primary/20"
+                : "border-border bg-card hover:bg-muted/50",
+            )}
+          >
+            <p className="text-xs font-medium text-muted-foreground">{item.label}</p>
+            <p className="text-xl font-semibold tabular-nums">{item.value}</p>
+          </button>
+        ))}
+      </div>
+
+      <Tabs value={filter} onValueChange={(value) => setFilter(value as StatusFilter)}>
+        <TabsList className="w-full justify-start overflow-x-auto sm:w-auto">
+          <TabsTrigger value="all">All ({counts.all})</TabsTrigger>
+          <TabsTrigger value="new">New ({counts.new})</TabsTrigger>
+          <TabsTrigger value="contacted">Contacted ({counts.contacted})</TabsTrigger>
+          <TabsTrigger value="closed">Closed ({counts.closed})</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      <ul className="grid gap-4 lg:grid-cols-2">
+        {visible.map((lead) => (
           <li key={lead.id}>
-            <Card className="h-full border-border/70 shadow-none">
-              <CardContent className="flex h-full flex-col gap-3 p-4">
-                <div className="flex flex-wrap items-start justify-between gap-2">
+            <Card className="overflow-hidden border-border/80 shadow-sm transition-shadow hover:shadow-md">
+              <CardContent className="space-y-3 p-5">
+                <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0 space-y-1">
-                    <p className="font-heading text-base font-semibold text-foreground">{lead.name}</p>
-                    <p className="font-mono text-xs text-muted-foreground">{lead.id}</p>
+                    <h3 className="text-base font-semibold text-foreground">{lead.name}</h3>
+                    <p className="font-mono text-xs text-muted-foreground">#{lead.id}</p>
                   </div>
-                  <select
-                    className="h-9 shrink-0 rounded-md border border-input bg-background px-2 text-sm"
-                    value={lead.status}
-                    onChange={(event) => setStatus(lead.id, event.target.value as LeadStatus)}
-                    aria-label={`Status for ${lead.name}`}
-                  >
-                    {STATUSES.map((status) => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="w-36 shrink-0 space-y-1">
+                    <span className="text-xs text-muted-foreground">Status</span>
+                    <Select value={lead.status} onValueChange={(value) => setStatus(lead.id, value as LeadStatus)}>
+                      <SelectTrigger className="h-9 w-full" aria-label={`Status for ${lead.name}`}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {STATUSES.map((status) => (
+                          <SelectItem key={status} value={status}>
+                            {statusLabel(status)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 <div className="flex flex-wrap gap-1.5">
@@ -100,36 +186,45 @@ export function AdminLeads({
                   </Badge>
                 </div>
 
-                <dl className="grid gap-2 text-sm">
-                  <div>
-                    <dt className="text-xs text-muted-foreground">Contact</dt>
-                    <dd className="text-foreground">
-                      {lead.email}
-                      {lead.phone ? ` · ${lead.phone}` : ""}
-                    </dd>
-                  </div>
-                  {lead.comment ? (
-                    <div>
-                      <dt className="text-xs text-muted-foreground">Comment</dt>
-                      <dd className="line-clamp-3 text-foreground">{lead.comment}</dd>
-                    </div>
+                <div className="grid gap-2 text-sm">
+                  <a
+                    href={`mailto:${lead.email}`}
+                    className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
+                  >
+                    <MailIcon className="size-4 shrink-0" aria-hidden />
+                    {lead.email}
+                  </a>
+                  {lead.phone ? (
+                    <a
+                      href={`tel:${lead.phone}`}
+                      className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
+                    >
+                      <PhoneIcon className="size-4 shrink-0" aria-hidden />
+                      {lead.phone}
+                    </a>
                   ) : null}
-                  {lead.detail ? (
-                    <div>
-                      <dt className="text-xs text-muted-foreground">Detail</dt>
-                      <dd className="line-clamp-4 text-foreground">{lead.detail}</dd>
-                    </div>
-                  ) : null}
-                  {emailCodes[lead.id] ? (
-                    <div>
-                      <dt className="text-xs text-muted-foreground">OTP (demo)</dt>
-                      <dd className="font-mono text-xs text-muted-foreground">{emailCodes[lead.id]}</dd>
-                    </div>
-                  ) : null}
-                </dl>
+                  <span className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+                    <CalendarIcon className="size-4 shrink-0" aria-hidden />
+                    {formatWhen(lead.createdAt)}
+                  </span>
+                </div>
 
-                <div className="mt-auto flex justify-end">
-                  <Button type="button" variant="outline" size="sm" onClick={() => remove(lead.id)}>
+                {lead.comment || lead.detail ? (
+                  <div className="rounded-lg bg-muted/40 px-3 py-2 text-sm">
+                    {lead.comment ? <p>{lead.comment}</p> : null}
+                    {lead.detail ? <p className="mt-1 text-muted-foreground">{lead.detail}</p> : null}
+                  </div>
+                ) : null}
+
+                {emailCodes[lead.id] ? (
+                  <p className="text-xs text-muted-foreground">
+                    Latest email code: <span className="font-mono font-medium text-foreground">{emailCodes[lead.id]}</span>
+                  </p>
+                ) : null}
+
+                <div className="flex justify-end border-t border-border/60 pt-3">
+                  <Button type="button" variant="outline" size="sm" className="gap-1.5 text-destructive hover:text-destructive" onClick={() => remove(lead.id)}>
+                    <Trash2Icon className="size-3.5" aria-hidden />
                     Delete
                   </Button>
                 </div>

@@ -13,10 +13,10 @@ export function AdminUserChip() {
         aria-hidden
         className="flex size-7 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary"
       >
-        SA
+        AD
       </span>
-      <span className="hidden xl:inline">Super Admin</span>
-      <span className="sr-only">Signed in as platform super admin.</span>
+      <span className="hidden xl:inline">Admin</span>
+      <span className="sr-only">Signed in as platform admin.</span>
     </span>
   )
 }
