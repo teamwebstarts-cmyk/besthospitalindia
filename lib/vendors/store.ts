@@ -76,6 +76,22 @@ export function toPublic(vendor: Vendor): VendorPublic {
   return rest
 }
 
+function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase()
+}
+
+function emailInUse(vendors: Vendor[], email: string, exceptId?: string): boolean {
+  const normalized = normalizeEmail(email)
+  return vendors.some((item) => item.id !== exceptId && item.email === normalized)
+}
+
+export class VendorStoreError extends Error {
+  constructor(public readonly code: "EMAIL_TAKEN" | "NOT_FOUND") {
+    super(code)
+    this.name = "VendorStoreError"
+  }
+}
+
 export function listVendors(): Promise<VendorPublic[]> {
   return withLock(async () => (await readAll()).map(toPublic))
 }
@@ -115,11 +131,14 @@ function keepOneActiveDesk(vendors: Vendor[], city: LeadCity, keepId: string, no
 export function createVendor(input: VendorInput): Promise<VendorPublic> {
   return withLock(async () => {
     const vendors = await readAll()
+    if (emailInUse(vendors, input.email)) {
+      throw new VendorStoreError("EMAIL_TAKEN")
+    }
     const now = new Date().toISOString()
     const vendor: Vendor = {
       id: `vendor-${input.city}-${Math.floor(1000 + Math.random() * 9000)}`,
       name: input.name.trim(),
-      email: input.email.trim().toLowerCase(),
+      email: normalizeEmail(input.email),
       password: input.password,
       city: input.city,
       active: true,
@@ -141,9 +160,14 @@ export function updateVendor(
     const vendors = await readAll()
     const vendor = vendors.find((item) => item.id === id)
     if (!vendor) return null
+    if (patch.email !== undefined && emailInUse(vendors, patch.email, id)) {
+      throw new VendorStoreError("EMAIL_TAKEN")
+    }
     if (patch.name !== undefined) vendor.name = patch.name.trim()
-    if (patch.email !== undefined) vendor.email = patch.email.trim().toLowerCase()
-    if (patch.password) vendor.password = patch.password
+    if (patch.email !== undefined) vendor.email = normalizeEmail(patch.email)
+    if (typeof patch.password === "string" && patch.password.length > 0) {
+      vendor.password = patch.password
+    }
     if (patch.city) vendor.city = patch.city
     if (patch.active !== undefined) vendor.active = patch.active
     const now = new Date().toISOString()

@@ -185,6 +185,8 @@ export interface UrlPaginationProps {
   values: DiscoveryFilterValues
   /** Current sort value; preserved across page changes. */
   sort?: string
+  /** Cards per page (`?per=`); default 9 when omitted. */
+  pageSize?: number
   className?: string
 }
 
@@ -202,7 +204,7 @@ export function readFilterValues(
 ): DiscoveryFilterValues {
   const values: DiscoveryFilterValues = {}
   for (const [key, raw] of Object.entries(searchParams)) {
-    if (key === "page" || key === "sort") continue
+    if (key === "page" || key === "sort" || key === "per") continue
     if (typeof raw === "string") {
       if (raw !== "") values[key] = [raw]
     } else if (Array.isArray(raw)) {

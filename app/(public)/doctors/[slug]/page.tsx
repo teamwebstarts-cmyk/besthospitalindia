@@ -17,9 +17,11 @@ import { getDoctorBySlug, getHospitalById, getTreatmentById } from "@/lib/search
 import { DoctorProfilePageView } from "@/features/providers/components/doctor-profile-page"
 
 async function resolveDoctor(slug: string) {
+  const published = await publishedDoctorBySlug(slug)
+  if (published) return published
   const fixture = getDoctorBySlug(slug)
   if (fixture) return (await isCataloguePublic("doctor", fixture.id)) ? fixture : undefined
-  return await publishedDoctorBySlug(slug)
+  return undefined
 }
 
 interface DoctorProfilePageProps {

@@ -11,6 +11,7 @@
  */
 
 import { Pagination } from "@/components/shared/pagination"
+import { DIRECTORY_DEFAULT_PAGE_SIZE } from "@/features/discovery/directory-page-size"
 import { buildFilterQueryString } from "@/features/discovery/types"
 import type { UrlPaginationProps } from "@/features/discovery/types"
 
@@ -20,11 +21,13 @@ export function UrlPagination({
   basePath,
   values,
   sort,
+  pageSize = DIRECTORY_DEFAULT_PAGE_SIZE,
   className,
 }: UrlPaginationProps) {
   const buildHref = (targetPage: number) =>
     `${basePath}${buildFilterQueryString(values, {
       ...(sort ? { sort } : {}),
+      ...(pageSize !== DIRECTORY_DEFAULT_PAGE_SIZE ? { per: String(pageSize) } : {}),
       page: String(targetPage),
     })}`
 

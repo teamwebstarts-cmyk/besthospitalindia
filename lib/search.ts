@@ -231,8 +231,19 @@ export function searchHospitals(
   sort: SearchSort = 'relevance',
   options?: SearchOptions,
 ): Hospital[] {
+  return searchHospitalsIn(hospitals, query, filters, sort, options);
+}
+
+/** Filter + sort an arbitrary hospital list (admin catalogue on the public site). */
+export function searchHospitalsIn(
+  items: readonly Hospital[],
+  query: string | SearchFilters | undefined,
+  filters?: SearchFilters,
+  sort: SearchSort = 'relevance',
+  options?: SearchOptions,
+): Hospital[] {
   const merged = mergeArgs(query, filters);
-  const matched = filterHospitals(hospitals, merged);
+  const matched = filterHospitals(items, merged);
   return applySort(matched, sort, options?.ratingKind);
 }
 
@@ -269,8 +280,19 @@ export function searchDoctors(
   sort: SearchSort = 'relevance',
   options?: SearchOptions,
 ): Doctor[] {
+  return searchDoctorsIn(doctors, query, filters, sort, options);
+}
+
+/** Filter + sort an arbitrary doctor list (admin catalogue on the public site). */
+export function searchDoctorsIn(
+  items: readonly Doctor[],
+  query: string | SearchFilters | undefined,
+  filters?: SearchFilters,
+  sort: SearchSort = 'relevance',
+  options?: SearchOptions,
+): Doctor[] {
   const merged = mergeArgs(query, filters);
-  const matched = filterDoctors(doctors, merged);
+  const matched = filterDoctors(items, merged);
   return applySort(matched, sort, options?.ratingKind);
 }
 
@@ -304,8 +326,19 @@ export function searchFacilities(
   sort: SearchSort = 'relevance',
   options?: SearchOptions,
 ): Facility[] {
+  return searchFacilitiesIn(facilities, query, filters, sort, options);
+}
+
+/** Filter + sort an arbitrary facility list (admin catalogue on the public site). */
+export function searchFacilitiesIn(
+  items: readonly Facility[],
+  query: string | SearchFilters | undefined,
+  filters?: SearchFilters,
+  sort: SearchSort = 'relevance',
+  options?: SearchOptions,
+): Facility[] {
   const merged = mergeArgs(query, filters);
-  const matched = filterFacilities(facilities, merged);
+  const matched = filterFacilities(items, merged);
   return applySort(matched, sort, options?.ratingKind);
 }
 

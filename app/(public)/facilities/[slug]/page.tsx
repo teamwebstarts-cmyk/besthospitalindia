@@ -55,9 +55,11 @@ export const dynamicParams = true
 
 /** Fixtures first (publication-gated), then approved admin-submitted facilities. */
 async function resolveFacility(slug: string): Promise<Facility | undefined> {
+  const published = await publishedFacilityBySlug(slug)
+  if (published) return published
   const fixture = getFacilityBySlug(slug)
   if (fixture) return (await isCataloguePublic("facility", fixture.id)) ? fixture : undefined
-  return await publishedFacilityBySlug(slug)
+  return undefined
 }
 
 /** Safe factual fields only — name, category, city, demo-data notice. */

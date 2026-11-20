@@ -30,6 +30,7 @@ export interface SubmissionMapInput {
   cerScore?: number | null
   merScore?: number | null
   doctorIds?: string[]
+  hospitalIds?: string[]
   doctorNames?: string[]
   treatmentNames?: string[]
   accessibility?: string[]
@@ -144,7 +145,7 @@ export function mapSubmissionToDoctor(row: SubmissionMapInput): Doctor {
         ? row.yearsExperience
         : null,
     registration: { authority: "Not listed", numberMasked: "—", status: verified ? "verified" : "pending" },
-    hospitalIds: [],
+    hospitalIds: asTextList(row.hospitalIds),
     treatments: validIds(row.treatments, treatmentById),
     languages: asTextList(row.languages),
     ratings: { per: ratingFrom("PER", row.perScore), mer: ratingFrom("MER", row.merScore) },

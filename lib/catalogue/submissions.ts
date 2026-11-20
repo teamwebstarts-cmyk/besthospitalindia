@@ -3,6 +3,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import path from "node:path"
 
 import { readArray, writeArray } from "@/lib/db/adapters"
+import { buildMissingFixtureSeeds } from "@/lib/catalogue/seed-fixtures"
 import type { CatalogueKind, CatalogueStatus } from "@/lib/catalogue/store"
 
 /**
@@ -14,6 +15,8 @@ import type { CatalogueKind, CatalogueStatus } from "@/lib/catalogue/store"
  * from approved assessment workflows and always render as "Not yet rated".
  */
 export interface CatalogueProfileFields {
+  /** Stable public URL when seeded from fixtures; otherwise derived from name + id. */
+  slug?: string
   overview?: string
   state?: string
   country?: string
@@ -32,6 +35,7 @@ export interface CatalogueProfileFields {
   cerScore?: number | null
   merScore?: number | null
   doctorIds?: string[]
+  hospitalIds?: string[]
   doctorNames?: string[]
   treatmentNames?: string[]
   accessibility?: string[]
@@ -87,11 +91,31 @@ function writeFile(rows: CatalogueSubmission[]): void {
   writeFileSync(FILE, JSON.stringify({ ...existing, submissions: rows }, null, 2), "utf8")
 }
 
+let seedPass = false
+
 /** All submissions: shared Mongo collection when configured, file otherwise. */
-async function readAll(): Promise<CatalogueSubmission[]> {
+async function readAllRaw(): Promise<CatalogueSubmission[]> {
   const fromMongo = await readArray<CatalogueSubmission>("submissions")
   if (fromMongo) return fromMongo
   return readFile()
+}
+
+async function ensureFixtureSeeds(): Promise<void> {
+  if (seedPass) return
+  const current = await readAllRaw()
+  const insert = buildMissingFixtureSeeds(current)
+  if (insert.length === 0) {
+    seedPass = true
+    return
+  }
+  await persist([...insert, ...current])
+  seedPass = true
+}
+
+/** All submissions: shared Mongo collection when configured, file otherwise. */
+async function readAll(): Promise<CatalogueSubmission[]> {
+  await ensureFixtureSeeds()
+  return readAllRaw()
 }
 
 async function persist(rows: CatalogueSubmission[]): Promise<void> {
@@ -176,7 +200,8 @@ const PATCHABLE_PROFILE_FIELDS: (keyof CatalogueProfileFields)[] = [
   "overview", "state", "country", "imageUrl", "facilityType",
   "specialties", "treatments", "accreditations", "specialization",
   "qualifications", "yearsExperience", "languages", "category", "services",
-  "perScore", "cerScore", "merScore", "doctorIds", "doctorNames", "treatmentNames", "accessibility",
+  "slug",
+  "perScore", "cerScore", "merScore", "doctorIds", "hospitalIds", "doctorNames", "treatmentNames", "accessibility",
 ]
 
 export async function updateSubmission(

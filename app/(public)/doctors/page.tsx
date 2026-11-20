@@ -33,13 +33,14 @@ import { homeSectionInnerClassName } from "@/features/content/home-sections"
 import { NOT_RATED_MESSAGE } from "@/constants/rating"
 import { fullBleedClassName } from "@/lib/full-bleed"
 import { cn } from "@/lib/utils"
-import { doctors as doctorsList, specialties } from "@/data"
-import { matchingPublishedDoctors } from "@/lib/catalogue/published"
-import { isCataloguePublic } from "@/lib/catalogue/store"
+import { specialties } from "@/data"
+import { publishedDoctors } from "@/lib/catalogue/published"
 import { ROUTES } from "@/constants/routes"
-import { paginate, searchDoctors } from "@/lib/search"
+import { paginate, searchDoctorsIn } from "@/lib/search"
 import type { RatingKindForSort, SearchSort } from "@/lib/search"
 import { DirectoryFilterBar } from "@/features/discovery/directory-filter-bar"
+import { DirectoryPageSizeControl } from "@/features/discovery/directory-page-size-control"
+import { parseDirectoryPageSize } from "@/features/discovery/directory-page-size"
 import { LoadingSkeleton } from "@/components/shared/loading-skeleton"
 import { ListingFilters } from "@/features/discovery/listing-filters"
 import { UrlPagination } from "@/features/discovery/url-pagination"
@@ -64,7 +65,6 @@ const SORT_OPTIONS = [
 type SortValue = (typeof SORT_OPTIONS)[number]["value"]
 
 const DEFAULT_SORT: SortValue = "name-asc"
-const PAGE_SIZE = 10
 const BASE_PATH = ROUTES.public.doctors
 
 const doctorDirectoryFaqs = [
@@ -134,15 +134,6 @@ function resolveSort(sortValue: SortValue): { sort: SearchSort; ratingKind?: Rat
   }
 }
 
-const DOCTOR_CITIES = [...new Set(doctorsList.map((doctor) => doctor.city))].sort((a, b) =>
-  a.localeCompare(b),
-)
-const DOCTOR_STATES = [...new Set(doctorsList.map((doctor) => doctor.state))].sort((a, b) =>
-  a.localeCompare(b),
-)
-const DOCTOR_LANGUAGES = [...new Set(doctorsList.flatMap((doctor) => doctor.languages))].sort(
-  (a, b) => a.localeCompare(b),
-)
 
 // ---------------------------------------------------------------------------
 // Page
@@ -170,9 +161,21 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
   const ratingStatus = filterValues["rating-status"]?.[0]
   const sort = parseSort(params.sort)
   const page = parsePage(params.page)
+  const pageSize = parseDirectoryPageSize(params.per)
 
   const { sort: searchSort, ratingKind } = resolveSort(sort)
-  const searchedDoctors = searchDoctors(
+  const catalogueDoctors = await publishedDoctors()
+  const doctorCities = [...new Set(catalogueDoctors.map((doctor) => doctor.city))].sort((a, b) =>
+    a.localeCompare(b),
+  )
+  const doctorStates = [...new Set(catalogueDoctors.map((doctor) => doctor.state))].sort((a, b) =>
+    a.localeCompare(b),
+  )
+  const doctorLanguages = [...new Set(catalogueDoctors.flatMap((doctor) => doctor.languages))].sort((a, b) =>
+    a.localeCompare(b),
+  )
+  const matched = searchDoctorsIn(
+    catalogueDoctors,
     {
       query: q,
       city,
@@ -187,12 +190,6 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
     searchSort,
     ratingKind ? { ratingKind } : undefined,
   )
-  const doctorFlags = await Promise.all(
-    searchedDoctors.map((doctor) => isCataloguePublic("doctor", doctor.id)),
-  )
-  const matched = searchedDoctors
-    .filter((_doctor, index) => doctorFlags[index])
-    .concat(await matchingPublishedDoctors({ query: q, city, specialization }))
 
   const statusFiltered =
     ratingStatus === undefined || ratingStatus === ""
@@ -211,7 +208,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
           return true
         })
 
-  const { items, total, totalPages } = paginate(statusFiltered, page, PAGE_SIZE)
+  const { items, total, totalPages } = paginate(statusFiltered, page, pageSize)
   const paginationPage = Math.min(Math.max(1, page), totalPages)
 
   // Scalars preserved across facet changes (never page).
@@ -250,7 +247,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                       emptyValue: "",
                       options: [
                         { value: "", label: "All cities" },
-                        ...DOCTOR_CITIES.map((cityName) => ({
+                        ...doctorCities.map((cityName) => ({
                           value: cityName,
                           label: cityName,
                         })),
@@ -264,7 +261,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                       emptyValue: "",
                       options: [
                         { value: "", label: "All states" },
-                        ...DOCTOR_STATES.map((stateName) => ({
+                        ...doctorStates.map((stateName) => ({
                           value: stateName,
                           label: stateName,
                         })),
@@ -328,7 +325,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                           kind: "multi-select",
                           param: "language",
                           label: "Languages spoken",
-                          options: DOCTOR_LANGUAGES.map((language) => ({
+                          options: doctorLanguages.map((language) => ({
                             value: language,
                             label: language,
                           })),
@@ -384,13 +381,19 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                     </ul>
                   )}
 
-                  <UrlPagination
-                    page={paginationPage}
-                    totalPages={totalPages}
-                    basePath={BASE_PATH}
-                    values={filterValues}
-                    sort={sort}
-                  />
+                  <div className="flex flex-col gap-3 border-t border-border/60 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                    <Suspense fallback={null}>
+                      <DirectoryPageSizeControl basePath={BASE_PATH} value={pageSize} />
+                    </Suspense>
+                    <UrlPagination
+                      page={paginationPage}
+                      totalPages={totalPages}
+                      basePath={BASE_PATH}
+                      values={filterValues}
+                      sort={sort}
+                      pageSize={pageSize}
+                    />
+                  </div>
                 </>
               )}
           </div>

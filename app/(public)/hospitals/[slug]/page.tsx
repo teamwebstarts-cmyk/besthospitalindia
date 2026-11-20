@@ -60,9 +60,11 @@ export async function generateStaticParams() {
 }
 
 async function resolveHospital(slug: string) {
+  const published = await publishedHospitalBySlug(slug)
+  if (published) return published
   const fixture = getHospitalBySlug(slug)
   if (fixture) return (await isCataloguePublic("hospital", fixture.id)) ? fixture : undefined
-  return await publishedHospitalBySlug(slug)
+  return undefined
 }
 
 type HospitalProfilePageProps = {

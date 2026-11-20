@@ -17,10 +17,9 @@
 import type { Metadata } from "next"
 import { Suspense } from "react"
 
-import { facilities, specialties } from "@/data"
-import { isCataloguePublic } from "@/lib/catalogue/store"
-import { matchingPublishedFacilities, publishedFacilities } from "@/lib/catalogue/published"
-import { getSpecialtyBySlug, paginate, searchFacilities } from "@/lib/search"
+import { specialties } from "@/data"
+import { publishedFacilities } from "@/lib/catalogue/published"
+import { getSpecialtyBySlug, paginate, searchFacilitiesIn } from "@/lib/search"
 import { DirectoryPageIntro } from "@/components/shared/directory-page-intro"
 import { EmptyState } from "@/components/shared/empty-state"
 import { SectionHeading } from "@/components/shared/section-heading"
@@ -28,6 +27,8 @@ import { FacilityListingCard } from "@/features/content/facility-listing/facilit
 import { FaqList } from "@/features/content/faq-list"
 import { FACILITY_CATEGORY_LABELS } from "@/features/discovery/facility-meta"
 import { DirectoryFilterBar } from "@/features/discovery/directory-filter-bar"
+import { DirectoryPageSizeControl } from "@/features/discovery/directory-page-size-control"
+import { parseDirectoryPageSize } from "@/features/discovery/directory-page-size"
 import { LoadingSkeleton } from "@/components/shared/loading-skeleton"
 import { ListingFilters } from "@/features/discovery/listing-filters"
 import { UrlPagination } from "@/features/discovery/url-pagination"
@@ -38,7 +39,6 @@ import { fullBleedClassName } from "@/lib/full-bleed"
 import { cn } from "@/lib/utils"
 import type { FacilityCategory } from "@/types"
 
-const PAGE_SIZE = 10
 const BASE_PATH = ROUTES.public.facilities
 const FACILITY_LABEL = "facility"
 const FACILITY_PLURAL_LABEL = "facilities"
@@ -115,9 +115,6 @@ function getCategoryOptions() {
 /** Distinct, alphabetically sorted city facet from fixtures + approved listings. */
 async function getCityOptions() {
   const cities = new Set<string>()
-  for (const facility of facilities) {
-    cities.add(facility.city)
-  }
   for (const facility of await publishedFacilities()) cities.add(facility.city)
   return [...cities]
     .sort((cityA, cityB) => cityA.localeCompare(cityB))
@@ -130,7 +127,7 @@ async function getCityOptions() {
 /** Distinct service facet from fixtures + approved listings. */
 async function getServiceOptions() {
   const byLabel = new Map<string, string>()
-  for (const facility of [...facilities, ...(await publishedFacilities())]) {
+  for (const facility of await publishedFacilities()) {
     for (const service of facility.services) {
       if (!byLabel.has(service)) byLabel.set(service, service)
     }
@@ -164,6 +161,7 @@ export default async function FacilitiesPage({
   const service = firstParam(params.service)
   const sortParam = firstParam(params.sort)
   const page = parsePage(params.page)
+  const pageSize = parseDirectoryPageSize(params.per)
 
   const category: FacilityCategory | undefined = FACILITY_CATEGORIES.find(
     (candidate) => candidate === categoryParam,
@@ -174,7 +172,9 @@ export default async function FacilitiesPage({
     : DEFAULT_SORT
 
   // --- Pure selector pipeline (AND-composed) ------------------------------
-  const searchedFacilities = searchFacilities(
+  const catalogueFacilities = await publishedFacilities()
+  const results = searchFacilitiesIn(
+    catalogueFacilities,
     q === "" ? undefined : q,
     {
       categories: category ? [category] : undefined,
@@ -184,21 +184,9 @@ export default async function FacilitiesPage({
     },
     sort,
   )
-  const facilityFlags = await Promise.all(
-    searchedFacilities.map((facility) => isCataloguePublic("facility", facility.id)),
-  )
-  const results = searchedFacilities
-    .filter((_facility, index) => facilityFlags[index])
-    .concat(await matchingPublishedFacilities({
-      query: q === "" ? undefined : q,
-      city,
-      category,
-      specialties: selectedSpecialty ? [selectedSpecialty.id] : undefined,
-      services: service,
-    }))
   const cityOptions = await getCityOptions()
   const serviceOptions = await getServiceOptions()
-  const { items, total, totalPages } = paginate(results, page, PAGE_SIZE)
+  const { items, total, totalPages } = paginate(results, page, pageSize)
   const paginationPage = Math.min(Math.max(1, page), totalPages)
 
   // --- Discovery shell state (URL is the single source of truth) ----------
@@ -362,13 +350,19 @@ export default async function FacilitiesPage({
                 </ul>
               )}
 
-              <UrlPagination
-                page={paginationPage}
-                totalPages={totalPages}
-                basePath={BASE_PATH}
-                values={filterValues}
-                sort={sort !== DEFAULT_SORT ? sort : undefined}
-              />
+              <div className="flex flex-col gap-3 border-t border-border/60 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                <Suspense fallback={null}>
+                  <DirectoryPageSizeControl basePath={BASE_PATH} value={pageSize} />
+                </Suspense>
+                <UrlPagination
+                  page={paginationPage}
+                  totalPages={totalPages}
+                  basePath={BASE_PATH}
+                  values={filterValues}
+                  sort={sort !== DEFAULT_SORT ? sort : undefined}
+                  pageSize={pageSize}
+                />
+              </div>
             </>
           )}
           </section>

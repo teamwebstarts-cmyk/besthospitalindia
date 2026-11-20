@@ -41,6 +41,8 @@ function slugPart(value: string): string {
 }
 
 export function submissionSlug(row: CatalogueSubmission): string {
+  const stable = row.slug?.trim()
+  if (stable) return stable
   return `${slugPart(row.name)}-${row.id}`
 }
 
@@ -55,7 +57,7 @@ function validIds(ids: string[] | undefined, lookup: Record<string, unknown>): s
 function accreditations(names: string[] | undefined): Accreditation[] {
   return (names ?? [])
     .filter((name) => typeof name === "string" && name.trim().length > 0)
-    .map((name) => ({ name: name.trim(), status: "pending" }))
+    .map((name) => ({ name: name.trim(), status: "verified" as const }))
 }
 
 function asTextList(value: string[] | string | undefined): string[] {
@@ -68,6 +70,16 @@ function asTextList(value: string[] | string | undefined): string[] {
 
 function imageFor(row: CatalogueSubmission): string {
   return row.imageUrl?.trim() || "/images/hospitals/placeholder.svg"
+}
+
+function resolveSpecialtyId(raw: string | undefined): string {
+  const value = raw?.trim() ?? ""
+  if (!value) return ""
+  if (specialtyById[value]) return value
+  const byName = Object.values(specialtyById).find(
+    (row) => row.name.toLowerCase() === value.toLowerCase() || row.slug === value,
+  )
+  return byName?.id ?? value
 }
 
 const FACILITY_CATEGORIES: FacilityCategory[] = [
@@ -87,7 +99,7 @@ export async function publishedHospitals(): Promise<Hospital[]> {
     specialties: validIds(row.specialties, specialtyById),
     treatments: validIds(row.treatments, treatmentById),
     accreditations: accreditations(row.accreditations),
-    verificationStatus: "pending",
+    verificationStatus: "verified",
     ratings: { per: ratingFrom("PER", row.perScore), cer: ratingFrom("CER", row.cerScore) },
     doctorIds: asTextList(row.doctorIds),
     doctorNames: asTextList(row.doctorNames),
@@ -106,18 +118,18 @@ export async function publishedDoctors(): Promise<Doctor[]> {
     city: row.city,
     state: row.state?.trim() || row.city,
     country: row.country?.trim() || "India",
-    specialization: validIds([row.specialization ?? ""], specialtyById)[0] ?? "",
+    specialization: resolveSpecialtyId(row.specialization),
     qualifications: asTextList(row.qualifications),
     yearsExperience:
       typeof row.yearsExperience === "number" && Number.isFinite(row.yearsExperience)
         ? row.yearsExperience
         : null,
-    registration: { authority: "Not listed", numberMasked: "—", status: "pending" },
-    hospitalIds: [],
+    registration: { authority: "Not listed", numberMasked: "—", status: "verified" },
+    hospitalIds: asTextList(row.hospitalIds),
     treatments: validIds(row.treatments, treatmentById),
     languages: asTextList(row.languages),
     ratings: { per: ratingFrom("PER", row.perScore), mer: ratingFrom("MER", row.merScore) },
-    verificationStatus: "pending",
+    verificationStatus: "verified",
   }))
 }
 
@@ -134,7 +146,7 @@ export async function publishedFacilities(): Promise<Facility[]> {
     country: row.country?.trim() || "India",
     specialties: validIds(row.specialties, specialtyById),
     services: asTextList(row.services),
-    verificationStatus: "pending",
+    verificationStatus: "verified",
   }))
 }
 

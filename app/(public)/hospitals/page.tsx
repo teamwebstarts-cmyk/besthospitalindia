@@ -32,22 +32,22 @@ import {
 } from "@/features/discovery/listing-filters"
 import { UrlPagination } from "@/features/discovery/url-pagination"
 import { DirectoryFilterBar } from "@/features/discovery/directory-filter-bar"
+import { DirectoryPageSizeControl } from "@/features/discovery/directory-page-size-control"
+import { parseDirectoryPageSize } from "@/features/discovery/directory-page-size"
 import { LoadingSkeleton } from "@/components/shared/loading-skeleton"
 import {
   buildFilterQueryString,
   readFilterValues,
 } from "@/features/discovery/types"
-import { hospitals, specialties } from "@/data"
-import { matchingPublishedHospitals, publishedHospitals } from "@/lib/catalogue/published"
-import { isCataloguePublic } from "@/lib/catalogue/store"
-import { paginate, searchHospitals, type SearchSort } from "@/lib/search"
+import { specialties } from "@/data"
+import { publishedHospitals } from "@/lib/catalogue/published"
+import { paginate, searchHospitalsIn, type SearchSort } from "@/lib/search"
 import { ROUTES } from "@/constants/routes"
 import { NOT_RATED_MESSAGE } from "@/constants/rating"
 import { homeSectionInnerClassName } from "@/features/content/home-sections"
 import { fullBleedClassName } from "@/lib/full-bleed"
 import { cn } from "@/lib/utils"
 
-const PAGE_SIZE = 10
 const BASE_PATH = ROUTES.public.hospitals
 
 const hospitalDirectoryFaqs = [
@@ -128,6 +128,7 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
   const rawSort = typeof params.sort === "string" ? params.sort : undefined
   const rawPage = typeof params.page === "string" ? Number.parseInt(params.page, 10) : NaN
   const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1
+  const pageSize = parseDirectoryPageSize(params.per)
   const { sort, ratingKind } = resolveSort(rawSort)
 
   // URL param names align with the SearchFilters contract; values compose AND.
@@ -139,18 +140,14 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
   const accreditation = filterValues.accreditation?.[0]
   const ratingStatus = filterValues["rating-status"]?.[0]
 
-  const searchedHospitals = searchHospitals(
+  const catalogueHospitals = await publishedHospitals()
+  const results = searchHospitalsIn(
+    catalogueHospitals,
     { query: q, city, state, specialties: specialtyIds },
     undefined,
     sort,
     ratingKind ? { ratingKind } : undefined,
   )
-  const publicFlags = await Promise.all(
-    searchedHospitals.map((hospital) => isCataloguePublic("hospital", hospital.id)),
-  )
-  const results = searchedHospitals
-    .filter((_hospital, index) => publicFlags[index])
-    .concat(await matchingPublishedHospitals({ query: q, city, state, specialties: specialtyIds }))
 
   // Facet-local refinements handled page-side (rating status is display-only
   // metadata, so it filters on the rendered RatingSummary rather than lib/search).
@@ -177,17 +174,13 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
         )
 
   const filtered = accreditationFiltered
-  const { items, total, totalPages } = paginate(filtered, page, PAGE_SIZE)
+  const { items, total, totalPages } = paginate(filtered, page, pageSize)
   const paginationPage = Math.min(Math.max(1, page), totalPages)
 
   // Facet options derived from fixtures — no hardcoded arrays in JSX.
-  const fixtureFlags = await Promise.all(
-    hospitals.map((hospital) => isCataloguePublic("hospital", hospital.id)),
+  const cities = [...new Set(catalogueHospitals.map((hospital) => hospital.city))].sort((a, b) =>
+    a.localeCompare(b),
   )
-  const cities = [...new Set([
-    ...hospitals.filter((_hospital, index) => fixtureFlags[index]).map((hospital) => hospital.city),
-    ...(await publishedHospitals()).map((hospital) => hospital.city),
-  ])].sort((a, b) => a.localeCompare(b))
 
   const facetValues: Record<string, string[]> = {
     ...(q ? { q: [q] } : {}),
@@ -349,13 +342,19 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
                 </ul>
               )}
 
-              <UrlPagination
-                page={paginationPage}
-                totalPages={totalPages}
-                basePath={BASE_PATH}
-                values={filterValues}
-                sort={rawSort}
-              />
+              <div className="flex flex-col gap-3 border-t border-border/60 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                <Suspense fallback={null}>
+                  <DirectoryPageSizeControl basePath={BASE_PATH} value={pageSize} />
+                </Suspense>
+                <UrlPagination
+                  page={paginationPage}
+                  totalPages={totalPages}
+                  basePath={BASE_PATH}
+                  values={filterValues}
+                  sort={rawSort}
+                  pageSize={pageSize}
+                />
+              </div>
             </>
           )}
           </div>

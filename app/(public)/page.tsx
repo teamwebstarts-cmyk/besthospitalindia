@@ -25,10 +25,8 @@ import { homeMedicalDestinationStates } from "@/features/content/medical-destina
 import { FeaturedHospitalsSection } from "@/features/content/featured-hospitals/featured-hospitals-section"
 import { FindDoctorsSection } from "@/features/content/find-doctors/find-doctors-section"
 import { FACILITY_CATEGORY_LABELS } from "@/features/discovery/facility-meta"
-import { doctorById, facilities, hospitals, specialties } from "@/data"
-import { isCataloguePublic } from "@/lib/catalogue/store"
-import { publishedHospitals } from "@/lib/catalogue/published"
-import { searchDoctors, searchHospitals } from "@/lib/search"
+import { specialties } from "@/data"
+import { publishedDoctors, publishedFacilities, publishedHospitals } from "@/lib/catalogue/published"
 import { ROUTES } from "@/constants/routes"
 
 export const metadata: Metadata = {
@@ -36,23 +34,6 @@ export const metadata: Metadata = {
   description:
     "Discover hospitals, doctors and facilities in India, compare independent PER, CER and MER ratings, and send enquiries for coordinated follow-up.",
 }
-
-/** Home featured band — six demo cards (3 × 2 grid). */
-const FEATURED_HOSPITAL_IDS = [
-  "hosp-sunrise-delhi",
-  "hosp-tranquilvalley-kochi",
-  "hosp-silverlake-bengaluru",
-  "hosp-goldenpeak-jaipur",
-  "hosp-sunrise-mumbai",
-  "hosp-metropulse-ahmedabad",
-] as const
-
-/** Demo doctor rotation for the discovery section (fixture ids, stable order). */
-const FEATURED_DOCTOR_IDS = [
-  "doc-aarav-mehta",
-  "doc-meera-joshi",
-  "doc-priya-nair",
-] as const
 
 const facilityCategoryDescriptions: Record<string, string> = {
   hospital: "Multispeciality and single-specialty hospital listings",
@@ -64,35 +45,13 @@ const facilityCategoryDescriptions: Record<string, string> = {
 }
 
 export default async function HomePage() {
-  const featuredCandidates = FEATURED_HOSPITAL_IDS.map((id) => hospitals.find((h) => h.id === id))
-  const featuredHospitalFlags = await Promise.all(
-    featuredCandidates.map((hospital) =>
-      hospital ? isCataloguePublic("hospital", hospital.id) : Promise.resolve(false),
-    ),
-  )
-  const featuredFixtures = featuredCandidates.filter(
-    (hospital, index): hospital is NonNullable<typeof hospital> =>
-      hospital !== undefined && featuredHospitalFlags[index],
-  )
-  const featuredHospitals = [
-    ...(await publishedHospitals()),
-    ...featuredFixtures,
-  ].slice(0, 6)
+  const catalogueHospitals = await publishedHospitals()
+  const catalogueDoctors = await publishedDoctors()
+  const catalogueFacilities = await publishedFacilities()
 
-  const doctorCandidates = FEATURED_DOCTOR_IDS.map((id) => doctorById[id])
-  const doctorFlags = await Promise.all(
-    doctorCandidates.map((doctor) =>
-      doctor ? isCataloguePublic("doctor", doctor.id) : Promise.resolve(false),
-    ),
-  )
-  const featuredDoctors = doctorCandidates.filter(
-    (doctor, index): doctor is NonNullable<typeof doctor> =>
-      doctor !== undefined && doctorFlags[index],
-  )
+  const featuredHospitals = catalogueHospitals.slice(0, 6)
+  const featuredDoctors = catalogueDoctors.slice(0, 3)
 
-  const facilityPublicFlags = await Promise.all(
-    facilities.map((facility) => isCataloguePublic("facility", facility.id)),
-  )
   const facilityCategories = (
     Object.keys(FACILITY_CATEGORY_LABELS) as (keyof typeof FACILITY_CATEGORY_LABELS)[]
   ).map((category) => ({
@@ -100,21 +59,12 @@ export default async function HomePage() {
     label: FACILITY_CATEGORY_LABELS[category],
     description: facilityCategoryDescriptions[category] ?? "",
     href: `${ROUTES.public.facilities}?category=${encodeURIComponent(category)}`,
-    count: facilities.filter(
-      (facility, index) => facility.category === category && facilityPublicFlags[index],
-    ).length,
+    count: catalogueFacilities.filter((facility) => facility.category === category).length,
   }))
 
-  const hospitalCount = searchHospitals(undefined, undefined).length
-  const doctorCount = searchDoctors(undefined, undefined).length
-  const hospitalPublicFlags = await Promise.all(
-    hospitals.map((hospital) => isCataloguePublic("hospital", hospital.id)),
-  )
-  const stateCount = [
-    ...new Set(
-      hospitals.filter((_hospital, index) => hospitalPublicFlags[index]).map((hospital) => hospital.state),
-    ),
-  ].length
+  const hospitalCount = catalogueHospitals.length
+  const doctorCount = catalogueDoctors.length
+  const stateCount = [...new Set(catalogueHospitals.map((hospital) => hospital.state))].length
 
   const faqItems = [
     {

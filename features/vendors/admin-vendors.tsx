@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, type FormEvent } from "react"
+import { useRef, useState, type FormEvent } from "react"
 import { MapPinIcon, PencilIcon, Trash2Icon } from "lucide-react"
 
 import { AdminFormSheet } from "@/features/admin/components/admin-form-sheet"
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { PendingButton } from "@/features/portal/pending-button"
 import type { LeadCity } from "@/lib/leads/types"
 import type { VendorPublic } from "@/lib/vendors/types"
 
@@ -25,25 +26,50 @@ export function AdminVendors({ initialVendors }: { initialVendors: VendorPublic[
   const [city, setCity] = useState<LeadCity>("delhi")
   const [editName, setEditName] = useState("")
   const [editEmail, setEditEmail] = useState("")
+  const [editPassword, setEditPassword] = useState("")
+  const [creating, setCreating] = useState(false)
+  const [savingEdit, setSavingEdit] = useState(false)
+  const createGuard = useRef(false)
+
+  function mergeVendorRow(next: VendorPublic) {
+    setVendors((current) => {
+      const index = current.findIndex((row) => row.id === next.id)
+      if (index >= 0) {
+        const copy = [...current]
+        copy[index] = next
+        return copy
+      }
+      return [...current, next]
+    })
+  }
 
   async function create(event: FormEvent) {
     event.preventDefault()
+    if (creating || createGuard.current) return
+    createGuard.current = true
+    setCreating(true)
     setError(null)
-    const response = await fetch("/api/vendors", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ name, email, password, city }),
-    })
-    const payload = (await response.json().catch(() => null)) as { vendor?: VendorPublic; error?: string } | null
-    if (!response.ok || !payload?.vendor) {
-      setError(payload?.error ?? "Could not add the vendor.")
-      return
+    try {
+      const response = await fetch("/api/vendors", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ name, email, password, city }),
+      })
+      const payload = (await response.json().catch(() => null)) as { vendor?: VendorPublic; error?: string } | null
+      if (!response.ok || !payload?.vendor) {
+        setError(payload?.error ?? "Could not add the vendor.")
+        return
+      }
+      mergeVendorRow(payload.vendor)
+      setName("")
+      setEmail("")
+      setPassword("")
+      setCity("delhi")
+      setAddOpen(false)
+    } finally {
+      setCreating(false)
+      createGuard.current = false
     }
-    setVendors((current) => [...current, payload.vendor!])
-    setName("")
-    setEmail("")
-    setPassword("")
-    setAddOpen(false)
   }
 
   async function patch(id: string, body: Record<string, unknown>) {
@@ -56,9 +82,9 @@ export function AdminVendors({ initialVendors }: { initialVendors: VendorPublic[
     const payload = (await response.json().catch(() => null)) as { vendor?: VendorPublic; error?: string } | null
     if (!response.ok || !payload?.vendor) {
       setError(payload?.error ?? "Could not update the vendor.")
-      return
+      return null
     }
-    setVendors((current) => current.map((vendor) => (vendor.id === id ? payload.vendor! : vendor)))
+    mergeVendorRow(payload.vendor)
     return payload.vendor
   }
 
@@ -77,28 +103,56 @@ export function AdminVendors({ initialVendors }: { initialVendors: VendorPublic[
     setEditVendor(vendor)
     setEditName(vendor.name)
     setEditEmail(vendor.email)
+    setEditPassword("")
+    setError(null)
   }
 
   async function saveEdit(event: FormEvent) {
     event.preventDefault()
-    if (!editVendor) return
-    const updated = await patch(editVendor.id, { name: editName, email: editEmail })
-    if (updated) setEditVendor(null)
+    if (!editVendor || savingEdit) return
+    const passwordTrim = editPassword.trim()
+    if (passwordTrim.length > 0 && passwordTrim.length < 6) {
+      setError("Password must be at least 6 characters, or leave blank to keep the current one.")
+      return
+    }
+    setSavingEdit(true)
+    setError(null)
+    try {
+      const body: Record<string, unknown> = { name: editName, email: editEmail }
+      if (passwordTrim.length >= 6) body.password = passwordTrim
+      const updated = await patch(editVendor.id, body)
+      if (updated) {
+        setEditVendor(null)
+        setEditPassword("")
+      }
+    } finally {
+      setSavingEdit(false)
+    }
   }
 
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">One active desk per city receives new patient queries.</p>
+        <p className="text-sm text-muted-foreground">
+          One active desk per city receives new patient queries. Each login email can only be used once.
+        </p>
         <AdminFormSheet title="Add city desk" triggerLabel="Add vendor" open={addOpen} onOpenChange={setAddOpen}>
           <form className="grid gap-3 sm:grid-cols-2" onSubmit={create}>
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="vendor-name">Desk name</Label>
-              <Input id="vendor-name" value={name} onChange={(event) => setName(event.target.value)} required />
+              <Input id="vendor-name" value={name} onChange={(event) => setName(event.target.value)} required disabled={creating} />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="vendor-email">Login email</Label>
-              <Input id="vendor-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
+              <Input
+                id="vendor-email"
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+                disabled={creating}
+                autoComplete="off"
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="vendor-password">Password</Label>
@@ -109,19 +163,27 @@ export function AdminVendors({ initialVendors }: { initialVendors: VendorPublic[
                 onChange={(event) => setPassword(event.target.value)}
                 minLength={6}
                 required
+                disabled={creating}
+                autoComplete="new-password"
               />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="vendor-city">City</Label>
-              <select id="vendor-city" className={fieldClass} value={city} onChange={(event) => setCity(event.target.value as LeadCity)}>
+              <select
+                id="vendor-city"
+                className={fieldClass}
+                value={city}
+                onChange={(event) => setCity(event.target.value as LeadCity)}
+                disabled={creating}
+              >
                 <option value="delhi">Delhi</option>
                 <option value="indore">Indore</option>
               </select>
             </div>
             <div className="sm:col-span-2">
-              <Button type="submit" className="w-full sm:w-auto">
+              <PendingButton type="submit" pending={creating} pendingLabel="Saving…" className="w-full sm:w-auto">
                 Save vendor
-              </Button>
+              </PendingButton>
             </div>
           </form>
         </AdminFormSheet>
@@ -161,17 +223,6 @@ export function AdminVendors({ initialVendors }: { initialVendors: VendorPublic[
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => {
-                      const next = window.prompt("New password (at least 6 characters)")
-                      if (next) patch(vendor.id, { password: next })
-                    }}
-                  >
-                    Reset password
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
                     className="gap-1 text-destructive hover:text-destructive"
                     onClick={() => remove(vendor.id)}
                   >
@@ -188,22 +239,50 @@ export function AdminVendors({ initialVendors }: { initialVendors: VendorPublic[
       {editVendor ? (
         <AdminFormSheet
           title={`Edit ${editVendor.name}`}
+          description="Login email and password apply immediately for vendor sign-in."
           hideTrigger
           open={editVendor !== null}
           onOpenChange={(open) => {
-            if (!open) setEditVendor(null)
+            if (!open) {
+              setEditVendor(null)
+              setEditPassword("")
+            }
           }}
         >
-          <form className="space-y-3" onSubmit={saveEdit}>
+          <form className="space-y-4" onSubmit={saveEdit}>
             <div className="space-y-1.5">
               <Label htmlFor="edit-vendor-name">Desk name</Label>
-              <Input id="edit-vendor-name" value={editName} onChange={(e) => setEditName(e.target.value)} required />
+              <Input id="edit-vendor-name" value={editName} onChange={(e) => setEditName(e.target.value)} required disabled={savingEdit} />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="edit-vendor-email">Login email</Label>
-              <Input id="edit-vendor-email" type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} required />
+              <Input
+                id="edit-vendor-email"
+                type="email"
+                value={editEmail}
+                onChange={(e) => setEditEmail(e.target.value)}
+                required
+                disabled={savingEdit}
+                autoComplete="off"
+              />
+              <p className="text-xs text-muted-foreground">Vendors sign in with this email after you save.</p>
             </div>
-            <Button type="submit">Save changes</Button>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-vendor-password">New password</Label>
+              <Input
+                id="edit-vendor-password"
+                type="password"
+                value={editPassword}
+                onChange={(e) => setEditPassword(e.target.value)}
+                minLength={6}
+                disabled={savingEdit}
+                autoComplete="new-password"
+                placeholder="Leave blank to keep current"
+              />
+            </div>
+            <PendingButton type="submit" pending={savingEdit} pendingLabel="Saving…">
+              Save changes
+            </PendingButton>
           </form>
         </AdminFormSheet>
       ) : null}

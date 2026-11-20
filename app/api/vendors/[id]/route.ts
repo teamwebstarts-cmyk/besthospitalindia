@@ -4,7 +4,7 @@ import { adminDenied } from "@/lib/admin/session"
 
 import type { LeadCity } from "@/lib/leads/types"
 import { ensureSingleActiveDesk } from "@/lib/vendors/single-desk"
-import { deleteVendor, updateVendor } from "@/lib/vendors/store"
+import { deleteVendor, updateVendor, VendorStoreError } from "@/lib/vendors/store"
 
 const CITIES = new Set<LeadCity>(["delhi", "indore"])
 
@@ -27,10 +27,20 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   if (typeof body.city === "string" && CITIES.has(body.city as LeadCity)) patch.city = body.city as LeadCity
   if (typeof body.active === "boolean") patch.active = body.active
 
-  const vendor = await updateVendor(id, patch)
-  if (!vendor) return NextResponse.json({ error: "Vendor not found." }, { status: 404 })
-  if (vendor.active) await ensureSingleActiveDesk(vendor.city, vendor.id)
-  return NextResponse.json({ vendor })
+  try {
+    const vendor = await updateVendor(id, patch)
+    if (!vendor) return NextResponse.json({ error: "Vendor not found." }, { status: 404 })
+    if (vendor.active) await ensureSingleActiveDesk(vendor.city, vendor.id)
+    return NextResponse.json({ vendor })
+  } catch (error) {
+    if (error instanceof VendorStoreError && error.code === "EMAIL_TAKEN") {
+      return NextResponse.json(
+        { error: "That login email is already used by another city desk." },
+        { status: 409 },
+      )
+    }
+    throw error
+  }
 }
 
 export async function DELETE(_request: Request, context: { params: Promise<{ id: string }> }) {

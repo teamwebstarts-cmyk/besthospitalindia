@@ -4,7 +4,7 @@ import { adminDenied } from "@/lib/admin/session"
 
 import type { LeadCity } from "@/lib/leads/types"
 import { ensureSingleActiveDesk } from "@/lib/vendors/single-desk"
-import { createVendor, listVendors } from "@/lib/vendors/store"
+import { createVendor, listVendors, VendorStoreError } from "@/lib/vendors/store"
 import type { VendorInput } from "@/lib/vendors/types"
 
 const CITIES = new Set<LeadCity>(["delhi", "indore"])
@@ -35,7 +35,17 @@ export async function POST(request: Request) {
   if (denied) return denied
   const parsed = parseInput(await request.json().catch(() => null))
   if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 })
-  const vendor = await createVendor(parsed.value)
-  await ensureSingleActiveDesk(vendor.city, vendor.id)
-  return NextResponse.json({ vendor }, { status: 201 })
+  try {
+    const vendor = await createVendor(parsed.value)
+    await ensureSingleActiveDesk(vendor.city, vendor.id)
+    return NextResponse.json({ vendor }, { status: 201 })
+  } catch (error) {
+    if (error instanceof VendorStoreError && error.code === "EMAIL_TAKEN") {
+      return NextResponse.json(
+        { error: "That login email is already used by another city desk." },
+        { status: 409 },
+      )
+    }
+    throw error
+  }
 }
