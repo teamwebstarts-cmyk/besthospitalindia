@@ -50,13 +50,6 @@ export function AdminLogin() {
         "Catalogue approval for partners and facilities",
         "Vendor desk oversight and lead routing",
       ]}
-      footer={
-        <p className="text-xs leading-relaxed text-muted-foreground">
-          Test sign-in: <span className="font-medium text-foreground">admin@besthospitalindian.com</span>
-          {" · "}
-          password <span className="font-medium text-foreground">admin-demo</span>
-        </p>
-      }
     >
       <form className="space-y-4" onSubmit={submit}>
         <div className="space-y-2">

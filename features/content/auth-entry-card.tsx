@@ -172,9 +172,6 @@ export function AuthEntryCard({ className, defaultRole = "hospital" }: AuthEntry
             <PendingButton type="submit" pending={pending} pendingLabel="Checking…" className="w-full">
               {`Sign in as ${role}`}
             </PendingButton>
-            <p className="text-xs text-muted-foreground">
-              Example email: {role === "hospital" ? "hospital@besthospitalindian.com" : "doctor@besthospitalindian.com"}
-            </p>
           </form>
         </section>
       ) : (

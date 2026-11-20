@@ -468,9 +468,6 @@ export function PartnerAccountsManager({ partnerUsers, className }: PartnerAccou
                     <dd>{formatDate(staffUser.createdAt)}</dd>
                   </div>
                 </dl>
-                <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-1.5 text-xs text-warning">
-                  {staffUser.mockLoginHint}
-                </p>
               </section>
               <Separator />
               <section aria-label="Staff management scope" className="space-y-2">

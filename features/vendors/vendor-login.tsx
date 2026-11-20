@@ -50,16 +50,6 @@ export function VendorLogin() {
         "Contact details and notes in one list",
         "Mark progress: new → contacted → closed",
       ]}
-      footer={
-        <div className="space-y-2 text-xs leading-relaxed text-muted-foreground">
-          <p>
-            <span className="font-medium text-foreground">Delhi:</span> delhi@besthospitalindian.com · delhi-demo
-          </p>
-          <p>
-            <span className="font-medium text-foreground">Indore:</span> indore@besthospitalindian.com · indore-demo
-          </p>
-        </div>
-      }
     >
       <form className="space-y-4" onSubmit={submit}>
         <div className="space-y-2">
