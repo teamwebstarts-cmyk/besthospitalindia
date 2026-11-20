@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic"
 
 export default async function AdminHospitalsPage() {
   if (!(await hasAdminSession())) return null
-  const snapshot = catalogueSnapshot()
+  const snapshot = await catalogueSnapshot()
   const emailCodes = Object.fromEntries((await listOutbox()).map((message) => [message.leadId, message.code]))
   const catalogueItems: AdminCatalogueItem[] = hospitals.map((hospital) => ({
     kind: "hospital",
@@ -25,7 +25,7 @@ export default async function AdminHospitalsPage() {
     hospital,
     status: snapshot.hospital[hospital.id] ?? "approved",
   }))
-  const linkableDoctorNames = listSubmissions("doctor")
+  const linkableDoctorNames = (await listSubmissions("doctor"))
     .filter((row) => row.status === "approved")
     .map((row) => row.name)
 
@@ -35,7 +35,7 @@ export default async function AdminHospitalsPage() {
       kind="hospital"
       emailCodes={emailCodes}
       linkableDoctorNames={linkableDoctorNames}
-      initialRows={listSubmissions("hospital").map((row) => ({ ...row }))}
+      initialRows={(await listSubmissions("hospital")).map((row) => ({ ...row }))}
       catalogueItems={catalogueItems}
     />
   )

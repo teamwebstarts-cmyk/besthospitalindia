@@ -1,0 +1,26 @@
+# BestHospitalIndia — full Next.js on Render (optional mirror of Vercel).
+# Shared state: set the same MONGODB_URI on Render and Vercel so CRUD / leads /
+# catalogue changes stay in sync (MongoDB Atlas M0 free tier).
+services:
+  - type: web
+    name: besthospitalindia
+    runtime: node
+    repo: https://github.com/teamwebstarts-cmyk/besthospitalindia
+    branch: main
+    plan: free
+    region: singapore
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DB
+        value: besthospitalindia
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false

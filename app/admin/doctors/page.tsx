@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic"
 
 export default async function AdminDoctorsPage() {
   if (!(await hasAdminSession())) return null
-  const snapshot = catalogueSnapshot()
+  const snapshot = await catalogueSnapshot()
   const emailCodes = Object.fromEntries((await listOutbox()).map((message) => [message.leadId, message.code]))
   const catalogueItems: AdminCatalogueItem[] = doctors.map((doctor) => ({
     kind: "doctor",
@@ -31,7 +31,7 @@ export default async function AdminDoctorsPage() {
       title="Doctors"
       kind="doctor"
       emailCodes={emailCodes}
-      initialRows={listSubmissions("doctor").map((row) => ({ ...row }))}
+      initialRows={(await listSubmissions("doctor")).map((row) => ({ ...row }))}
       catalogueItems={catalogueItems}
     />
   )

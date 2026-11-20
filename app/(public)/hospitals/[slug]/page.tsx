@@ -59,10 +59,10 @@ export async function generateStaticParams() {
   return hospitals.map((hospital) => ({ slug: hospital.slug }))
 }
 
-function resolveHospital(slug: string) {
+async function resolveHospital(slug: string) {
   const fixture = getHospitalBySlug(slug)
-  if (fixture) return isCataloguePublic("hospital", fixture.id) ? fixture : undefined
-  return publishedHospitalBySlug(slug)
+  if (fixture) return (await isCataloguePublic("hospital", fixture.id)) ? fixture : undefined
+  return await publishedHospitalBySlug(slug)
 }
 
 type HospitalProfilePageProps = {
@@ -71,7 +71,7 @@ type HospitalProfilePageProps = {
 
 export async function generateMetadata({ params }: HospitalProfilePageProps): Promise<Metadata> {
   const { slug } = await params
-  const hospital = resolveHospital(slug)
+  const hospital = await resolveHospital(slug)
   if (!hospital) {
     return { title: "Hospital not found" }
   }
@@ -84,17 +84,21 @@ export async function generateMetadata({ params }: HospitalProfilePageProps): Pr
 
 export default async function HospitalProfilePage({ params }: HospitalProfilePageProps) {
   const { slug } = await params
-  const hospital = resolveHospital(slug)
+  const hospital = await resolveHospital(slug)
   if (!hospital) {
     notFound()
   }
 
-  const seenDoctors = new Set<string>()
-  const doctors = [
+  const candidateDoctors = [
     ...getRelatedDoctors(hospital.id),
     ...hospital.doctorIds.map((id) => doctorById[id]).filter((doctor) => doctor !== undefined),
-  ].filter((doctor) => {
-    if (seenDoctors.has(doctor.id) || !isCataloguePublic("doctor", doctor.id)) return false
+  ]
+  const doctorPublicFlags = await Promise.all(
+    candidateDoctors.map((doctor) => isCataloguePublic("doctor", doctor.id)),
+  )
+  const seenDoctors = new Set<string>()
+  const doctors = candidateDoctors.filter((doctor, index) => {
+    if (seenDoctors.has(doctor.id) || !doctorPublicFlags[index]) return false
     seenDoctors.add(doctor.id)
     return true
   })

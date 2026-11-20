@@ -113,12 +113,12 @@ function getCategoryOptions() {
 }
 
 /** Distinct, alphabetically sorted city facet from fixtures + approved listings. */
-function getCityOptions() {
+async function getCityOptions() {
   const cities = new Set<string>()
   for (const facility of facilities) {
     cities.add(facility.city)
   }
-  for (const facility of publishedFacilities()) cities.add(facility.city)
+  for (const facility of await publishedFacilities()) cities.add(facility.city)
   return [...cities]
     .sort((cityA, cityB) => cityA.localeCompare(cityB))
     .map((city) => ({
@@ -128,9 +128,9 @@ function getCityOptions() {
 }
 
 /** Distinct service facet from fixtures + approved listings. */
-function getServiceOptions() {
+async function getServiceOptions() {
   const byLabel = new Map<string, string>()
-  for (const facility of [...facilities, ...publishedFacilities()]) {
+  for (const facility of [...facilities, ...(await publishedFacilities())]) {
     for (const service of facility.services) {
       if (!byLabel.has(service)) byLabel.set(service, service)
     }
@@ -174,7 +174,7 @@ export default async function FacilitiesPage({
     : DEFAULT_SORT
 
   // --- Pure selector pipeline (AND-composed) ------------------------------
-  const results = searchFacilities(
+  const searchedFacilities = searchFacilities(
     q === "" ? undefined : q,
     {
       categories: category ? [category] : undefined,
@@ -183,14 +183,21 @@ export default async function FacilitiesPage({
       services: service ? [service] : undefined,
     },
     sort,
-  ).filter((facility) => isCataloguePublic("facility", facility.id))
-    .concat(matchingPublishedFacilities({
+  )
+  const facilityFlags = await Promise.all(
+    searchedFacilities.map((facility) => isCataloguePublic("facility", facility.id)),
+  )
+  const results = searchedFacilities
+    .filter((_facility, index) => facilityFlags[index])
+    .concat(await matchingPublishedFacilities({
       query: q === "" ? undefined : q,
       city,
       category,
       specialties: selectedSpecialty ? [selectedSpecialty.id] : undefined,
       services: service,
     }))
+  const cityOptions = await getCityOptions()
+  const serviceOptions = await getServiceOptions()
   const { items, total, totalPages } = paginate(results, page, PAGE_SIZE)
   const paginationPage = Math.min(Math.max(1, page), totalPages)
 
@@ -249,7 +256,7 @@ export default async function FacilitiesPage({
                   emptyValue: "__all__",
                   options: [
                     { value: "__all__", label: "All cities" },
-                    ...getCityOptions(),
+                    ...cityOptions,
                   ],
                 },
                 {
@@ -274,7 +281,7 @@ export default async function FacilitiesPage({
                   emptyValue: "__all__",
                   options: [
                     { value: "__all__", label: "All services" },
-                    ...getServiceOptions(),
+                    ...serviceOptions,
                   ],
                 },
               ]}

@@ -172,7 +172,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
   const page = parsePage(params.page)
 
   const { sort: searchSort, ratingKind } = resolveSort(sort)
-  const matched = searchDoctors(
+  const searchedDoctors = searchDoctors(
     {
       query: q,
       city,
@@ -186,8 +186,13 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
     undefined,
     searchSort,
     ratingKind ? { ratingKind } : undefined,
-  ).filter((doctor) => isCataloguePublic("doctor", doctor.id))
-    .concat(matchingPublishedDoctors({ query: q, city, specialization }))
+  )
+  const doctorFlags = await Promise.all(
+    searchedDoctors.map((doctor) => isCataloguePublic("doctor", doctor.id)),
+  )
+  const matched = searchedDoctors
+    .filter((_doctor, index) => doctorFlags[index])
+    .concat(await matchingPublishedDoctors({ query: q, city, specialization }))
 
   const statusFiltered =
     ratingStatus === undefined || ratingStatus === ""

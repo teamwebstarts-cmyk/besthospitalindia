@@ -4,6 +4,8 @@ import path from "node:path"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 
+import { readDoc, writeDoc } from "@/lib/db/adapters"
+
 const FILE = path.join(process.cwd(), "data", "runtime", "admin.json")
 export const ADMIN_COOKIE = "bhi_admin"
 
@@ -20,15 +22,20 @@ function defaultAccount(): AdminAccount {
 }
 
 async function persistAccount(account: AdminAccount): Promise<void> {
+  if (await writeDoc("admin", "main", account)) return
   try {
     await mkdir(path.dirname(FILE), { recursive: true })
     await writeFile(FILE, JSON.stringify(account, null, 2), "utf8")
   } catch {
-    // Serverless bundles (e.g. Vercel) are read-only — defaults still work.
+    // Read-only deploy fs — defaults still work.
   }
 }
 
 async function readAccount(): Promise<AdminAccount> {
+  const fromMongo = await readDoc<AdminAccount>("admin", "main", defaultAccount())
+  if (fromMongo?.email && fromMongo.password) {
+    return { email: fromMongo.email, password: fromMongo.password }
+  }
   try {
     const parsed = JSON.parse(await readFile(FILE, "utf8")) as Partial<AdminAccount>
     if (parsed.email && parsed.password) {

@@ -1,6 +1,8 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises"
 import path from "node:path"
 
+import { readArray, writeArray } from "@/lib/db/adapters"
+
 import type { LeadCity } from "@/lib/leads/types"
 
 import type { Vendor, VendorInput, VendorPublic } from "./types"
@@ -45,6 +47,8 @@ function seed(): Vendor[] {
 }
 
 async function readAll(): Promise<Vendor[]> {
+  const fromMongo = await readArray<Vendor>("vendors")
+  if (fromMongo && fromMongo.length > 0) return fromMongo
   try {
     const raw = await readFile(FILE, "utf8")
     const parsed = JSON.parse(raw) as unknown
@@ -58,6 +62,7 @@ async function readAll(): Promise<Vendor[]> {
 }
 
 async function writeAll(vendors: Vendor[]): Promise<void> {
+  if (await writeArray("vendors", vendors)) return
   try {
     await mkdir(path.dirname(FILE), { recursive: true })
     await writeFile(FILE, JSON.stringify(vendors, null, 2), "utf8")

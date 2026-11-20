@@ -1,6 +1,8 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises"
 import path from "node:path"
 
+import { readArray, writeArray } from "@/lib/db/adapters"
+
 import { mailProvider, sendTransactionalMail } from "./sender"
 
 /** Local / outbox-only testing — digits 1–6. Disabled when Resend or SMTP is configured. */
@@ -35,6 +37,8 @@ function withLock<T>(task: () => Promise<T>): Promise<T> {
 }
 
 async function readAll(): Promise<OutboxMessage[]> {
+  const fromMongo = await readArray<OutboxMessage>("outbox")
+  if (fromMongo) return fromMongo
   try {
     const parsed = JSON.parse(await readFile(FILE, "utf8")) as unknown
     return Array.isArray(parsed) ? (parsed as OutboxMessage[]) : []
@@ -44,6 +48,7 @@ async function readAll(): Promise<OutboxMessage[]> {
 }
 
 async function writeAll(messages: OutboxMessage[]): Promise<void> {
+  if (await writeArray("outbox", messages)) return
   await mkdir(path.dirname(FILE), { recursive: true })
   await writeFile(FILE, JSON.stringify(messages, null, 2), "utf8")
 }
@@ -67,7 +72,6 @@ export function recordLeadCode(leadId: string, email: string, purpose: "query" |
     }
     const next = [message, ...messages.filter((item) => item.leadId !== leadId)]
     await writeAll(next)
-    // Real delivery when configured; outbox remains the source of truth for verification.
     await sendTransactionalMail({ to: email, subject, text: body })
     return code
   })

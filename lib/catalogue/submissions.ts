@@ -2,6 +2,7 @@ import "server-only"
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import path from "node:path"
 
+import { readArray, writeArray } from "@/lib/db/adapters"
 import type { CatalogueKind, CatalogueStatus } from "@/lib/catalogue/store"
 
 /**
@@ -13,38 +14,26 @@ import type { CatalogueKind, CatalogueStatus } from "@/lib/catalogue/store"
  * from approved assessment workflows and always render as "Not yet rated".
  */
 export interface CatalogueProfileFields {
-  /** Free-text summary shown as the profile overview / "About". */
   overview?: string
   state?: string
   country?: string
   imageUrl?: string
-  /** Hospital only. */
   facilityType?: string
-  /** Hospital / facility: comma-separated specialty ids, selected in the form. */
   specialties?: string[]
-  /** Hospital only: comma-separated treatment ids. */
   treatments?: string[]
-  /** Hospital only: accreditation names. */
   accreditations?: string[]
-  /** Doctor only. */
   specialization?: string
   qualifications?: string[]
   yearsExperience?: number | null
   languages?: string[]
-  /** Facility only. */
   category?: string
   services?: string[]
-  /** Optional public-card scores. Blank means the site shows "Not yet rated". */
   perScore?: number | null
   cerScore?: number | null
   merScore?: number | null
-  /** Hospital only: doctor ids linked on the public profile. */
   doctorIds?: string[]
-  /** Hospital only: plain-text doctor names when no profile is linked. */
   doctorNames?: string[]
-  /** Hospital / facility: free-text treatment or service lines for the detail page. */
   treatmentNames?: string[]
-  /** Hospital only: access notes shown under the overview. */
   accessibility?: string[]
 }
 
@@ -62,13 +51,6 @@ export interface CatalogueSubmission extends CatalogueProfileFields {
   updatedAt: string
 }
 
-type CatalogueFile = {
-  hospital: Record<string, CatalogueStatus>
-  doctor: Record<string, CatalogueStatus>
-  facility: Record<string, CatalogueStatus>
-  submissions: CatalogueSubmission[]
-}
-
 const FILE = path.join(process.cwd(), "data", "runtime", "catalogue.json")
 const FREE_EMAIL_DOMAINS = new Set([
   "gmail.com",
@@ -82,25 +64,39 @@ const FREE_EMAIL_DOMAINS = new Set([
   "icloud.com",
 ])
 
-function readFile(): CatalogueFile {
+function readFile(): CatalogueSubmission[] {
   try {
-    const parsed = JSON.parse(readFileSync(FILE, "utf8")) as Partial<CatalogueFile>
-    return {
-      hospital: parsed.hospital ?? {},
-      doctor: parsed.doctor ?? {},
-      facility: parsed.facility ?? {},
-      submissions: Array.isArray(parsed.submissions)
-        ? parsed.submissions.map((row) => ({ ...row, emailVerified: row.emailVerified ?? false }))
-        : [],
+    const parsed = JSON.parse(readFileSync(FILE, "utf8")) as { submissions?: unknown }
+    if (Array.isArray(parsed.submissions)) {
+      return (parsed.submissions as CatalogueSubmission[]).map((row) => ({ ...row, emailVerified: row.emailVerified ?? false }))
     }
   } catch {
-    return { hospital: {}, doctor: {}, facility: {}, submissions: [] }
+    // empty
   }
+  return []
 }
 
-function writeFile(next: CatalogueFile) {
+function writeFile(rows: CatalogueSubmission[]): void {
   mkdirSync(path.dirname(FILE), { recursive: true })
-  writeFileSync(FILE, JSON.stringify(next, null, 2), "utf8")
+  let existing: Record<string, unknown> = {}
+  try {
+    existing = JSON.parse(readFileSync(FILE, "utf8")) as Record<string, unknown>
+  } catch {
+    // new file
+  }
+  writeFileSync(FILE, JSON.stringify({ ...existing, submissions: rows }, null, 2), "utf8")
+}
+
+/** All submissions: shared Mongo collection when configured, file otherwise. */
+async function readAll(): Promise<CatalogueSubmission[]> {
+  const fromMongo = await readArray<CatalogueSubmission>("submissions")
+  if (fromMongo) return fromMongo
+  return readFile()
+}
+
+async function persist(rows: CatalogueSubmission[]): Promise<void> {
+  if (await writeArray("submissions", rows)) return
+  writeFile(rows)
 }
 
 export function isOfficialEmail(email: string): boolean {
@@ -108,16 +104,16 @@ export function isOfficialEmail(email: string): boolean {
   return domain.length > 0 && !FREE_EMAIL_DOMAINS.has(domain)
 }
 
-export function listSubmissions(kind?: CatalogueKind): CatalogueSubmission[] {
-  const rows = readFile().submissions
+export async function listSubmissions(kind?: CatalogueKind): Promise<CatalogueSubmission[]> {
+  const rows = await readAll()
   return kind ? rows.filter((row) => row.kind === kind) : rows
 }
 
-export function createSubmission(
+export async function createSubmission(
   input: Omit<CatalogueSubmission, "id" | "status" | "emailVerified" | "createdAt" | "updatedAt">,
-): CatalogueSubmission {
+): Promise<CatalogueSubmission> {
   if (!isOfficialEmail(input.email)) throw new Error("FREE_EMAIL")
-  const file = readFile()
+  const rows = await readAll()
   const now = new Date().toISOString()
   const submission: CatalogueSubmission = {
     ...input,
@@ -132,22 +128,22 @@ export function createSubmission(
     createdAt: now,
     updatedAt: now,
   }
-  file.submissions.unshift(submission)
-  writeFile(file)
+  rows.unshift(submission)
+  await persist(rows)
   return submission
 }
 
-export function markSubmissionEmailVerified(id: string): CatalogueSubmission | null {
-  const file = readFile()
-  const submission = file.submissions.find((row) => row.id === id)
+export async function markSubmissionEmailVerified(id: string): Promise<CatalogueSubmission | null> {
+  const rows = await readAll()
+  const submission = rows.find((row) => row.id === id)
   if (!submission) return null
   submission.emailVerified = true
   submission.updatedAt = new Date().toISOString()
-  writeFile(file)
+  await persist(rows)
   return submission
 }
 
-export function setSubmissionStatus(id: string, status: CatalogueStatus): CatalogueSubmission | null {
+export async function setSubmissionStatus(id: string, status: CatalogueStatus): Promise<CatalogueSubmission | null> {
   return updateSubmission(id, { status })
 }
 
@@ -159,12 +155,12 @@ const PATCHABLE_PROFILE_FIELDS: (keyof CatalogueProfileFields)[] = [
   "perScore", "cerScore", "merScore", "doctorIds", "doctorNames", "treatmentNames", "accessibility",
 ]
 
-export function updateSubmission(
+export async function updateSubmission(
   id: string,
   patch: Partial<Pick<CatalogueSubmission, "name" | "email" | "phone" | "city" | "note" | "status"> & CatalogueProfileFields>,
-): CatalogueSubmission | null {
-  const file = readFile()
-  const submission = file.submissions.find((row) => row.id === id)
+): Promise<CatalogueSubmission | null> {
+  const rows = await readAll()
+  const submission = rows.find((row) => row.id === id)
   if (!submission) return null
   if (patch.email !== undefined && !isOfficialEmail(patch.email)) throw new Error("FREE_EMAIL")
   if (patch.name !== undefined) submission.name = patch.name.trim()
@@ -179,15 +175,14 @@ export function updateSubmission(
     }
   }
   submission.updatedAt = new Date().toISOString()
-  writeFile(file)
+  await persist(rows)
   return submission
 }
 
-export function deleteSubmission(id: string): boolean {
-  const file = readFile()
-  const next = file.submissions.filter((row) => row.id !== id)
-  if (next.length === file.submissions.length) return false
-  file.submissions = next
-  writeFile(file)
+export async function deleteSubmission(id: string): Promise<boolean> {
+  const rows = await readAll()
+  const next = rows.filter((row) => row.id !== id)
+  if (next.length === rows.length) return false
+  await persist(next)
   return true
 }

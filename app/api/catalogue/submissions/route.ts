@@ -56,7 +56,7 @@ export async function GET(request: Request) {
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json({ error: "Enter the official email used on the form." }, { status: 400 })
   }
-  const submissions = listSubmissions().filter((row) => row.email === email)
+  const submissions = (await listSubmissions()).filter((row) => row.email === email)
   return NextResponse.json({
     submissions: submissions.map((row) => ({
       id: row.id,
@@ -83,7 +83,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Enter the name, official email, and city." }, { status: 400 })
   }
   try {
-    const submission = createSubmission({ kind, name, email, phone, city, note, ...profileFrom(body) })
+    const submission = await createSubmission({ kind, name, email, phone, city, note, ...profileFrom(body) })
     await recordLeadCode(submission.id, submission.email, "application")
     return NextResponse.json({ submission }, { status: 201 })
   } catch (error) {
@@ -113,12 +113,12 @@ export async function PATCH(request: Request) {
   const accountEmail = str(body, "accountEmail").toLowerCase()
   if (typeof body?.otp === "string") {
     if (!accountEmail) return NextResponse.json({ error: "Use the official email from the application." }, { status: 400 })
-    const existing = listSubmissions().find((row) => row.id === id && row.email === accountEmail)
+    const existing = (await listSubmissions()).find((row) => row.id === id && row.email === accountEmail)
     if (!existing) return NextResponse.json({ error: "Submission not found." }, { status: 404 })
     if (!(await verifyLeadCode(id, body.otp))) {
       return NextResponse.json({ error: "That code does not match." }, { status: 400 })
     }
-    const submission = markSubmissionEmailVerified(id)
+    const submission = await markSubmissionEmailVerified(id)
     if (!submission) return NextResponse.json({ error: "Submission not found." }, { status: 404 })
     return NextResponse.json({ submission })
   }
@@ -127,7 +127,7 @@ export async function PATCH(request: Request) {
     if (denied) return denied
   }
   if (accountEmail) {
-    const existing = listSubmissions().find((row) => row.id === id)
+    const existing = (await listSubmissions()).find((row) => row.id === id)
     if (!existing || existing.email !== accountEmail) {
       return NextResponse.json({ error: "Submission not found." }, { status: 404 })
     }
@@ -150,7 +150,7 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Enter the city." }, { status: 400 })
   }
   try {
-    const submission = updateSubmission(id, patch)
+    const submission = await updateSubmission(id, patch)
     if (!submission) return NextResponse.json({ error: "Submission not found." }, { status: 404 })
     return NextResponse.json({ submission })
   } catch (error) {
@@ -166,7 +166,7 @@ export async function DELETE(request: Request) {
   if (denied) return denied
   const body = (await request.json().catch(() => null)) as { id?: unknown } | null
   const id = typeof body?.id === "string" ? body.id : ""
-  if (!id || !deleteSubmission(id)) {
+  if (!id || !(await deleteSubmission(id))) {
     return NextResponse.json({ error: "Submission not found." }, { status: 404 })
   }
   await forgetLeadCode(id)

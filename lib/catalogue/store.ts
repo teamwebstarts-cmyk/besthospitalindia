@@ -2,12 +2,14 @@ import "server-only"
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import path from "node:path"
 
+import { readDoc, writeDoc } from "@/lib/db/adapters"
 import { doctorById, facilityById, hospitalById } from "@/data"
 
 export type CatalogueKind = "hospital" | "doctor" | "facility"
 export type CatalogueStatus = "approved" | "pending" | "rejected"
 
-type CatalogueFile = Record<CatalogueKind, Record<string, CatalogueStatus>> & {
+type StatusMap = Record<string, CatalogueStatus>
+type CatalogueFile = Record<CatalogueKind, StatusMap> & {
   submissions?: unknown
 }
 
@@ -38,8 +40,31 @@ function writeFile(next: CatalogueFile) {
   writeFileSync(FILE, JSON.stringify(next, null, 2), "utf8")
 }
 
-export function catalogueSnapshot(): CatalogueFile {
+/** Mongo-backed status map, or the legacy JSON file as fallback. */
+async function readSnapshot(): Promise<CatalogueFile> {
+  const fromMongo = await readDoc<CatalogueFile>("catalogue", "statuses", emptyFile())
+  if (fromMongo) {
+    return {
+      hospital: fromMongo.hospital ?? {},
+      doctor: fromMongo.doctor ?? {},
+      facility: fromMongo.facility ?? {},
+    }
+  }
   return readFile()
+}
+
+async function writeSnapshot(next: CatalogueFile): Promise<void> {
+  const saved = await writeDoc("catalogue", "statuses", {
+    hospital: next.hospital,
+    doctor: next.doctor,
+    facility: next.facility,
+  })
+  if (saved) return
+  writeFile(next)
+}
+
+export async function catalogueSnapshot(): Promise<CatalogueFile> {
+  return readSnapshot()
 }
 
 export function isCatalogueKind(value: string): value is CatalogueKind {
@@ -57,21 +82,21 @@ export function catalogueRecordExists(kind: CatalogueKind, id: string): boolean 
 }
 
 /** Missing rows stay public so the current catalogue does not disappear. */
-export function catalogueStatus(kind: CatalogueKind, id: string): CatalogueStatus {
-  return readFile()[kind][id] ?? "approved"
+export async function catalogueStatus(kind: CatalogueKind, id: string): Promise<CatalogueStatus> {
+  return (await readSnapshot())[kind][id] ?? "approved"
 }
 
-export function isCataloguePublic(kind: CatalogueKind, id: string): boolean {
-  return catalogueStatus(kind, id) === "approved"
+export async function isCataloguePublic(kind: CatalogueKind, id: string): Promise<boolean> {
+  return (await catalogueStatus(kind, id)) === "approved"
 }
 
-export function setCatalogueStatus(kind: CatalogueKind, id: string, status: CatalogueStatus): CatalogueStatus {
-  const file = readFile()
+export async function setCatalogueStatus(kind: CatalogueKind, id: string, status: CatalogueStatus): Promise<CatalogueStatus> {
+  const file = await readSnapshot()
   if (status === "approved") {
     delete file[kind][id]
   } else {
     file[kind][id] = status
   }
-  writeFile(file)
+  await writeSnapshot(file)
   return status
 }

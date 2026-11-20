@@ -54,10 +54,10 @@ export function generateStaticParams(): { slug: string }[] {
 export const dynamicParams = true
 
 /** Fixtures first (publication-gated), then approved admin-submitted facilities. */
-function resolveFacility(slug: string): Facility | undefined {
+async function resolveFacility(slug: string): Promise<Facility | undefined> {
   const fixture = getFacilityBySlug(slug)
-  if (fixture) return isCataloguePublic("facility", fixture.id) ? fixture : undefined
-  return publishedFacilityBySlug(slug)
+  if (fixture) return (await isCataloguePublic("facility", fixture.id)) ? fixture : undefined
+  return await publishedFacilityBySlug(slug)
 }
 
 /** Safe factual fields only — name, category, city, demo-data notice. */
@@ -65,7 +65,7 @@ export async function generateMetadata({
   params,
 }: FacilityPageProps): Promise<Metadata> {
   const { slug } = await params
-  const facility = resolveFacility(slug)
+  const facility = await resolveFacility(slug)
   if (!facility) return {}
 
   const categoryLabel = FACILITY_CATEGORY_LABELS[facility.category].toLowerCase()
@@ -85,7 +85,7 @@ function getFacilitySpecialties(facility: Facility) {
 
 export default async function FacilityDetailPage({ params }: FacilityPageProps) {
   const { slug } = await params
-  const facility = resolveFacility(slug)
+  const facility = await resolveFacility(slug)
   if (!facility) notFound()
 
   const facilitySpecialties = getFacilitySpecialties(facility)

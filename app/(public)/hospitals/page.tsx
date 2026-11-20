@@ -139,13 +139,18 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
   const accreditation = filterValues.accreditation?.[0]
   const ratingStatus = filterValues["rating-status"]?.[0]
 
-  const results = searchHospitals(
+  const searchedHospitals = searchHospitals(
     { query: q, city, state, specialties: specialtyIds },
     undefined,
     sort,
     ratingKind ? { ratingKind } : undefined,
-  ).filter((hospital) => isCataloguePublic("hospital", hospital.id))
-    .concat(matchingPublishedHospitals({ query: q, city, state, specialties: specialtyIds }))
+  )
+  const publicFlags = await Promise.all(
+    searchedHospitals.map((hospital) => isCataloguePublic("hospital", hospital.id)),
+  )
+  const results = searchedHospitals
+    .filter((_hospital, index) => publicFlags[index])
+    .concat(await matchingPublishedHospitals({ query: q, city, state, specialties: specialtyIds }))
 
   // Facet-local refinements handled page-side (rating status is display-only
   // metadata, so it filters on the rendered RatingSummary rather than lib/search).
@@ -176,9 +181,12 @@ export default async function HospitalsPage({ searchParams }: HospitalsPageProps
   const paginationPage = Math.min(Math.max(1, page), totalPages)
 
   // Facet options derived from fixtures — no hardcoded arrays in JSX.
+  const fixtureFlags = await Promise.all(
+    hospitals.map((hospital) => isCataloguePublic("hospital", hospital.id)),
+  )
   const cities = [...new Set([
-    ...hospitals.filter((hospital) => isCataloguePublic("hospital", hospital.id)).map((hospital) => hospital.city),
-    ...publishedHospitals().map((hospital) => hospital.city),
+    ...hospitals.filter((_hospital, index) => fixtureFlags[index]).map((hospital) => hospital.city),
+    ...(await publishedHospitals()).map((hospital) => hospital.city),
   ])].sort((a, b) => a.localeCompare(b))
 
   const facetValues: Record<string, string[]> = {

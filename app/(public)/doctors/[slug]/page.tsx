@@ -16,10 +16,10 @@ import { isCataloguePublic } from "@/lib/catalogue/store"
 import { getDoctorBySlug, getHospitalById, getTreatmentById } from "@/lib/search"
 import { DoctorProfilePageView } from "@/features/providers/components/doctor-profile-page"
 
-function resolveDoctor(slug: string) {
+async function resolveDoctor(slug: string) {
   const fixture = getDoctorBySlug(slug)
-  if (fixture) return isCataloguePublic("doctor", fixture.id) ? fixture : undefined
-  return publishedDoctorBySlug(slug)
+  if (fixture) return (await isCataloguePublic("doctor", fixture.id)) ? fixture : undefined
+  return await publishedDoctorBySlug(slug)
 }
 
 interface DoctorProfilePageProps {
@@ -34,7 +34,7 @@ export const dynamicParams = true
 
 export async function generateMetadata({ params }: DoctorProfilePageProps): Promise<Metadata> {
   const { slug } = await params
-  const doctor = resolveDoctor(slug)
+  const doctor = await resolveDoctor(slug)
   if (!doctor) {
     return { title: "Doctor not found" }
   }
@@ -52,15 +52,19 @@ export async function generateMetadata({ params }: DoctorProfilePageProps): Prom
 
 export default async function DoctorProfilePage({ params }: DoctorProfilePageProps) {
   const { slug } = await params
-  const doctor = resolveDoctor(slug)
+  const doctor = await resolveDoctor(slug)
   if (!doctor) {
     notFound()
   }
 
   const specializationName = specialtyById[doctor.specialization]?.name
-  const hospitals = doctor.hospitalIds
+  const linkedHospitals = doctor.hospitalIds
     .map((hospitalId) => getHospitalById(hospitalId))
-    .filter((hospital): hospital is NonNullable<typeof hospital> => hospital !== undefined && isCataloguePublic("hospital", hospital.id))
+    .filter((hospital): hospital is NonNullable<typeof hospital> => hospital !== undefined)
+  const hospitalPublicFlags = await Promise.all(
+    linkedHospitals.map((hospital) => isCataloguePublic("hospital", hospital.id)),
+  )
+  const hospitals = linkedHospitals.filter((_hospital, index) => hospitalPublicFlags[index])
   const treatments = doctor.treatments
     .map((treatmentId) => getTreatmentById(treatmentId))
     .filter((treatment): treatment is NonNullable<typeof treatment> => treatment !== undefined)

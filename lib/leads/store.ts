@@ -1,6 +1,8 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises"
 import path from "node:path"
 
+import { readArray, writeArray } from "@/lib/db/adapters"
+import { getDb, nextNumericId } from "@/lib/db/mongo"
 import { forgetLeadCode, recordLeadCode, recordLeadConfirmation } from "@/lib/mail/outbox"
 import { activeVendorId } from "@/lib/vendors/store"
 
@@ -19,35 +21,54 @@ function withLock<T>(task: () => Promise<T>): Promise<T> {
   return run
 }
 
+function normalize(lead: Lead): Lead {
+  return {
+    ...lead,
+    track: lead.track ?? null,
+    detail: lead.detail ?? null,
+    emailVerified: lead.emailVerified ?? false,
+    vendorId: lead.vendorId ?? null,
+  }
+}
+
 async function readAll(): Promise<Lead[]> {
+  const fromMongo = await readArray<Lead>("leads")
+  if (fromMongo) return fromMongo.map(normalize)
   try {
     const raw = await readFile(FILE, "utf8")
     const parsed = JSON.parse(raw) as unknown
     if (!Array.isArray(parsed)) return []
-    return (parsed as Lead[]).map((lead) => ({
-      ...lead,
-      track: lead.track ?? null,
-      detail: lead.detail ?? null,
-      emailVerified: lead.emailVerified ?? false,
-      vendorId: lead.vendorId ?? null,
-    }))
+    return (parsed as Lead[]).map(normalize)
   } catch {
     return []
   }
 }
 
 async function writeAll(leads: Lead[]): Promise<void> {
+  if (await writeArray("leads", leads)) return
   await mkdir(path.dirname(FILE), { recursive: true })
   await writeFile(FILE, JSON.stringify(leads, null, 2), "utf8")
 }
 
-function nextId(leads: Lead[]): string {
+async function nextId(leads: Lead[]): Promise<string> {
   const used = new Set(leads.map((lead) => lead.id))
+  const fromMongo = await nextNumericIdSafe()
+  if (fromMongo && !used.has(fromMongo)) return fromMongo
   let id = ""
   do {
     id = String(Math.floor(100000 + Math.random() * 900000))
   } while (used.has(id))
   return id
+}
+
+async function nextNumericIdSafe(): Promise<string | null> {
+  try {
+    const db = await getDb()
+    if (!db) return null
+    return await nextNumericId(db, "leadId")
+  } catch {
+    return null
+  }
 }
 
 export function assignOpenLeads(city: Lead["preferredCity"], vendorId: string): Promise<number> {
@@ -80,7 +101,7 @@ export function createLead(input: LeadInput): Promise<Lead> {
     const leads = await readAll()
     const now = new Date().toISOString()
     const lead: Lead = {
-      id: nextId(leads),
+      id: await nextId(leads),
       name: input.name.trim(),
       email: input.email.trim(),
       phone: input.phone?.trim() || null,

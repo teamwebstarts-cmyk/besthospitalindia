@@ -44,11 +44,10 @@ export function submissionSlug(row: CatalogueSubmission): string {
   return `${slugPart(row.name)}-${row.id}`
 }
 
-function approved(kind: CatalogueSubmission["kind"]): CatalogueSubmission[] {
-  return listSubmissions(kind).filter((row) => row.status === "approved")
+async function approved(kind: CatalogueSubmission["kind"]): Promise<CatalogueSubmission[]> {
+  return (await listSubmissions(kind)).filter((row) => row.status === "approved")
 }
 
-/** Keep only ids that resolve against the frozen taxonomies — no broken lookups. */
 function validIds(ids: string[] | undefined, lookup: Record<string, unknown>): string[] {
   return (ids ?? []).filter((id) => typeof id === "string" && lookup[id] !== undefined)
 }
@@ -75,8 +74,8 @@ const FACILITY_CATEGORIES: FacilityCategory[] = [
   "hospital", "specialty_centre", "diagnostic_lab", "rehabilitation", "wellness", "medical_tourism",
 ]
 
-export function publishedHospitals(): Hospital[] {
-  return approved("hospital").map((row) => ({
+export async function publishedHospitals(): Promise<Hospital[]> {
+  return (await approved("hospital")).map((row) => ({
     id: row.id,
     slug: submissionSlug(row),
     name: row.name,
@@ -98,8 +97,8 @@ export function publishedHospitals(): Hospital[] {
   }))
 }
 
-export function publishedDoctors(): Doctor[] {
-  return approved("doctor").map((row) => ({
+export async function publishedDoctors(): Promise<Doctor[]> {
+  return (await approved("doctor")).map((row) => ({
     id: row.id,
     slug: submissionSlug(row),
     name: row.name,
@@ -122,8 +121,8 @@ export function publishedDoctors(): Doctor[] {
   }))
 }
 
-export function publishedFacilities(): Facility[] {
-  return approved("facility").map((row) => ({
+export async function publishedFacilities(): Promise<Facility[]> {
+  return (await approved("facility")).map((row) => ({
     id: row.id,
     slug: submissionSlug(row),
     name: row.name,
@@ -139,16 +138,16 @@ export function publishedFacilities(): Facility[] {
   }))
 }
 
-export function publishedHospitalBySlug(slug: string): Hospital | undefined {
-  return publishedHospitals().find((hospital) => hospital.slug === slug)
+export async function publishedHospitalBySlug(slug: string): Promise<Hospital | undefined> {
+  return (await publishedHospitals()).find((hospital) => hospital.slug === slug)
 }
 
-export function publishedDoctorBySlug(slug: string): Doctor | undefined {
-  return publishedDoctors().find((doctor) => doctor.slug === slug)
+export async function publishedDoctorBySlug(slug: string): Promise<Doctor | undefined> {
+  return (await publishedDoctors()).find((doctor) => doctor.slug === slug)
 }
 
-export function publishedFacilityBySlug(slug: string): Facility | undefined {
-  return publishedFacilities().find((facility) => facility.slug === slug)
+export async function publishedFacilityBySlug(slug: string): Promise<Facility | undefined> {
+  return (await publishedFacilities()).find((facility) => facility.slug === slug)
 }
 
 function includesQuery(query: string | undefined, parts: string[]): boolean {
@@ -157,13 +156,13 @@ function includesQuery(query: string | undefined, parts: string[]): boolean {
   return parts.join(" ").toLowerCase().includes(needle)
 }
 
-export function matchingPublishedHospitals(filters: {
+export async function matchingPublishedHospitals(filters: {
   query?: string
   city?: string
   state?: string
   specialties?: string[]
-}): Hospital[] {
-  return publishedHospitals().filter((hospital) => {
+}): Promise<Hospital[]> {
+  return (await publishedHospitals()).filter((hospital) => {
     if (filters.city && hospital.city.toLowerCase() !== filters.city.toLowerCase()) return false
     if (filters.state && hospital.state.toLowerCase() !== filters.state.toLowerCase()) return false
     if (filters.specialties && filters.specialties.length > 0) {
@@ -173,32 +172,32 @@ export function matchingPublishedHospitals(filters: {
   })
 }
 
-export function matchingPublishedDoctors(filters: {
+export async function matchingPublishedDoctors(filters: {
   query?: string
   city?: string
   specialization?: string
-}): Doctor[] {
-  return publishedDoctors().filter((doctor) => {
+}): Promise<Doctor[]> {
+  return (await publishedDoctors()).filter((doctor) => {
     if (filters.city && doctor.city.toLowerCase() !== filters.city.toLowerCase()) return false
     if (filters.specialization && doctor.specialization !== filters.specialization) return false
     return includesQuery(filters.query, [doctor.name, doctor.city, doctor.qualifications.join(" ")])
   })
 }
 
-export function matchingPublishedFacilities(filters: {
+export async function matchingPublishedFacilities(filters: {
   query?: string
   city?: string
   category?: string
   specialties?: string[]
   services?: string
-}): Facility[] {
-  return publishedFacilities().filter((facility) => {
+}): Promise<Facility[]> {
+  return (await publishedFacilities()).filter((facility) => {
     if (filters.city && facility.city.toLowerCase() !== filters.city.toLowerCase()) return false
     if (filters.category && facility.category !== filters.category) return false
     if (filters.specialties && filters.specialties.length > 0) {
       if (!filters.specialties.some((id) => facility.specialties.includes(id))) return false
     }
     if (filters.services && !facility.services.join(" ").toLowerCase().includes(filters.services.toLowerCase())) return false
-    return includesQuery(filters.query, [facility.name, facility.city, facility.services.join(" ")])
+    return includesQuery(filters.query, [facility.name, facility.services.join(" ")])
   })
 }

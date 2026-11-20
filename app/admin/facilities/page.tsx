@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic"
 
 export default async function AdminFacilitiesPage() {
   if (!(await hasAdminSession())) return null
-  const snapshot = catalogueSnapshot()
+  const snapshot = await catalogueSnapshot()
   const catalogueItems: AdminCatalogueItem[] = facilities.map((facility) => ({
     kind: "facility",
     id: facility.id,
@@ -28,7 +28,7 @@ export default async function AdminFacilitiesPage() {
     <AdminKindPage
       title="Facilities"
       kind="facility"
-      initialRows={listSubmissions("facility").map((row) => ({ ...row }))}
+      initialRows={(await listSubmissions("facility")).map((row) => ({ ...row }))}
       catalogueItems={catalogueItems}
     />
   )

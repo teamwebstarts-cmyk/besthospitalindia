@@ -63,41 +63,58 @@ const facilityCategoryDescriptions: Record<string, string> = {
   medical_tourism: "Medical-tourism facilitator listings",
 }
 
-export default function HomePage() {
-  // Featured selections resolve typed fixture records from @/data by id; no
-  // record arrays are hardcoded here and ordering stays deterministic.
-  const featuredFixtures = FEATURED_HOSPITAL_IDS.map((id) =>
-    hospitals.find((h) => h.id === id)
-  ).filter((h): h is NonNullable<typeof h> => h !== undefined && isCataloguePublic("hospital", h.id))
-  // Approved admin-added hospitals take priority in the featured rail so a
-  // newly published listing is immediately visible on the home page. Curated
-  // fixtures fill the remaining slots. Cap the band at six for a balanced grid.
+export default async function HomePage() {
+  const featuredCandidates = FEATURED_HOSPITAL_IDS.map((id) => hospitals.find((h) => h.id === id))
+  const featuredHospitalFlags = await Promise.all(
+    featuredCandidates.map((hospital) =>
+      hospital ? isCataloguePublic("hospital", hospital.id) : Promise.resolve(false),
+    ),
+  )
+  const featuredFixtures = featuredCandidates.filter(
+    (hospital, index): hospital is NonNullable<typeof hospital> =>
+      hospital !== undefined && featuredHospitalFlags[index],
+  )
   const featuredHospitals = [
-    ...publishedHospitals(),
+    ...(await publishedHospitals()),
     ...featuredFixtures,
   ].slice(0, 6)
-  const featuredDoctors = FEATURED_DOCTOR_IDS.map(
-    (id) => doctorById[id]
-  ).filter((d): d is NonNullable<typeof d> => d !== undefined && isCataloguePublic("doctor", d.id))
 
-  // Category counts from the frozen facility fixtures (per-category filter).
+  const doctorCandidates = FEATURED_DOCTOR_IDS.map((id) => doctorById[id])
+  const doctorFlags = await Promise.all(
+    doctorCandidates.map((doctor) =>
+      doctor ? isCataloguePublic("doctor", doctor.id) : Promise.resolve(false),
+    ),
+  )
+  const featuredDoctors = doctorCandidates.filter(
+    (doctor, index): doctor is NonNullable<typeof doctor> =>
+      doctor !== undefined && doctorFlags[index],
+  )
+
+  const facilityPublicFlags = await Promise.all(
+    facilities.map((facility) => isCataloguePublic("facility", facility.id)),
+  )
   const facilityCategories = (
-    Object.keys(
-      FACILITY_CATEGORY_LABELS
-    ) as (keyof typeof FACILITY_CATEGORY_LABELS)[]
+    Object.keys(FACILITY_CATEGORY_LABELS) as (keyof typeof FACILITY_CATEGORY_LABELS)[]
   ).map((category) => ({
     category,
     label: FACILITY_CATEGORY_LABELS[category],
     description: facilityCategoryDescriptions[category] ?? "",
     href: `${ROUTES.public.facilities}?category=${encodeURIComponent(category)}`,
-    count: facilities.filter((facility) => facility.category === category && isCataloguePublic("facility", facility.id))
-      .length,
+    count: facilities.filter(
+      (facility, index) => facility.category === category && facilityPublicFlags[index],
+    ).length,
   }))
 
-  // Trust bar figures derived from fixtures (counts only, no invented claims).
   const hospitalCount = searchHospitals(undefined, undefined).length
   const doctorCount = searchDoctors(undefined, undefined).length
-  const stateCount = [...new Set(hospitals.filter((hospital) => isCataloguePublic("hospital", hospital.id)).map((hospital) => hospital.state))].length
+  const hospitalPublicFlags = await Promise.all(
+    hospitals.map((hospital) => isCataloguePublic("hospital", hospital.id)),
+  )
+  const stateCount = [
+    ...new Set(
+      hospitals.filter((_hospital, index) => hospitalPublicFlags[index]).map((hospital) => hospital.state),
+    ),
+  ].length
 
   const faqItems = [
     {

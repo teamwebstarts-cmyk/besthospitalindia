@@ -11,7 +11,7 @@ import {
 } from "@/lib/catalogue/store"
 
 export async function GET() {
-  return NextResponse.json(catalogueSnapshot())
+  return NextResponse.json(await catalogueSnapshot())
 }
 
 export async function PATCH(request: Request) {
@@ -24,6 +24,6 @@ export async function PATCH(request: Request) {
   if (!isCatalogueKind(kind) || !isCatalogueStatus(status) || !catalogueRecordExists(kind, id)) {
     return NextResponse.json({ error: "Choose a catalogue record and a status." }, { status: 400 })
   }
-  const saved = setCatalogueStatus(kind, id, status)
+  const saved = await setCatalogueStatus(kind, id, status)
   return NextResponse.json({ kind, id, status: saved })
 }
