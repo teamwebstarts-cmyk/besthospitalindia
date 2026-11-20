@@ -3,6 +3,12 @@
 import { useRef, useState, type FormEvent } from "react"
 import { MapPinIcon, PencilIcon, Trash2Icon } from "lucide-react"
 
+import {
+  adminEqualHeightCardBodyClass,
+  adminEqualHeightCardClass,
+  adminEqualHeightGridClass,
+  adminEqualHeightListItemClass,
+} from "@/features/admin/admin-card-grid"
 import { AdminFormSheet } from "@/features/admin/components/admin-form-sheet"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -12,6 +18,7 @@ import { Label } from "@/components/ui/label"
 import { PendingButton } from "@/features/portal/pending-button"
 import type { LeadCity } from "@/lib/leads/types"
 import type { VendorPublic } from "@/lib/vendors/types"
+import { cn } from "@/lib/utils"
 
 const fieldClass = "h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
 
@@ -195,11 +202,11 @@ export function AdminVendors({ initialVendors }: { initialVendors: VendorPublic[
         </p>
       ) : null}
 
-      <ul className="grid gap-4 sm:grid-cols-2">
+      <ul className={adminEqualHeightGridClass}>
         {vendors.map((vendor) => (
-          <li key={vendor.id}>
-            <Card className="h-full overflow-hidden border-border/80 shadow-sm transition-shadow hover:shadow-md">
-              <CardContent className="flex h-full flex-col gap-4 p-5">
+          <li key={vendor.id} className={adminEqualHeightListItemClass}>
+            <Card className={adminEqualHeightCardClass}>
+              <CardContent className={cn(adminEqualHeightCardBodyClass, "gap-4")}>
                 <div className="space-y-2">
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="text-lg font-semibold text-foreground">{vendor.name}</h3>

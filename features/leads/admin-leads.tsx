@@ -14,6 +14,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  adminEqualHeightCardBodyClass,
+  adminEqualHeightCardClass,
+  adminEqualHeightGridClass,
+  adminEqualHeightListItemClass,
+} from "@/features/admin/admin-card-grid"
 import type { Lead, LeadStatus } from "@/lib/leads/types"
 import { cn } from "@/lib/utils"
 
@@ -150,17 +156,17 @@ export function AdminLeads({
         </TabsList>
       </Tabs>
 
-      <ul className="grid gap-4 lg:grid-cols-2">
+      <ul className={adminEqualHeightGridClass}>
         {visible.map((lead) => (
-          <li key={lead.id}>
-            <Card className="overflow-hidden border-border/80 shadow-sm transition-shadow hover:shadow-md">
-              <CardContent className="space-y-3 p-5">
-                <div className="flex flex-wrap items-start justify-between gap-3">
+          <li key={lead.id} className={adminEqualHeightListItemClass}>
+            <Card className={adminEqualHeightCardClass}>
+              <CardContent className={adminEqualHeightCardBodyClass}>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0 space-y-1">
                     <h3 className="text-base font-semibold text-foreground">{lead.name}</h3>
                     <p className="font-mono text-xs text-muted-foreground">#{lead.id}</p>
                   </div>
-                  <div className="w-36 shrink-0 space-y-1">
+                  <div className="w-full shrink-0 space-y-1 sm:w-36">
                     <span className="text-xs text-muted-foreground">Status</span>
                     <Select value={lead.status} onValueChange={(value) => setStatus(lead.id, value as LeadStatus)}>
                       <SelectTrigger className="h-9 w-full" aria-label={`Status for ${lead.name}`}>
@@ -189,10 +195,10 @@ export function AdminLeads({
                 <div className="grid gap-2 text-sm">
                   <a
                     href={`mailto:${lead.email}`}
-                    className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
+                    className="inline-flex min-w-0 items-start gap-2 break-all text-muted-foreground hover:text-foreground"
                   >
-                    <MailIcon className="size-4 shrink-0" aria-hidden />
-                    {lead.email}
+                    <MailIcon className="mt-0.5 size-4 shrink-0" aria-hidden />
+                    <span className="min-w-0">{lead.email}</span>
                   </a>
                   {lead.phone ? (
                     <a
@@ -209,12 +215,14 @@ export function AdminLeads({
                   </span>
                 </div>
 
-                {lead.comment || lead.detail ? (
-                  <div className="rounded-lg bg-muted/40 px-3 py-2 text-sm">
-                    {lead.comment ? <p>{lead.comment}</p> : null}
-                    {lead.detail ? <p className="mt-1 text-muted-foreground">{lead.detail}</p> : null}
-                  </div>
-                ) : null}
+                <div className="flex min-h-0 flex-1 flex-col justify-start gap-2">
+                  {lead.comment || lead.detail ? (
+                    <div className="rounded-lg bg-muted/40 px-3 py-2 text-sm">
+                      {lead.comment ? <p className="wrap-break-word">{lead.comment}</p> : null}
+                      {lead.detail ? <p className="mt-1 wrap-break-word text-muted-foreground">{lead.detail}</p> : null}
+                    </div>
+                  ) : null}
+                </div>
 
                 {emailCodes[lead.id] ? (
                   <p className="text-xs text-muted-foreground">
@@ -222,7 +230,7 @@ export function AdminLeads({
                   </p>
                 ) : null}
 
-                <div className="flex justify-end border-t border-border/60 pt-3">
+                <div className="mt-auto flex justify-end border-t border-border/60 pt-3">
                   <Button type="button" variant="outline" size="sm" className="gap-1.5 text-destructive hover:text-destructive" onClick={() => remove(lead.id)}>
                     <Trash2Icon className="size-3.5" aria-hidden />
                     Delete
