@@ -6,7 +6,7 @@ import { ArrowLeftIcon, SparklesIcon } from "lucide-react"
 export const metadata: Metadata = {
   title: "Sign in",
   description:
-    "Sign in or register on BestHospitalIndia. Demo authentication only — no real accounts are created.",
+    "Sign in or apply as a hospital or doctor partner on BestHospitalIndia.",
 }
 
 /**

@@ -15,10 +15,8 @@ export function AdminUserChip() {
       >
         SA
       </span>
-      <span className="hidden xl:inline">Super Admin (demo)</span>
-      <span className="sr-only">
-        Demo session — signed in as a mock super admin. No real authentication exists.
-      </span>
+      <span className="hidden xl:inline">Super Admin</span>
+      <span className="sr-only">Signed in as platform super admin.</span>
     </span>
   )
 }

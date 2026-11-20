@@ -29,10 +29,6 @@ export function PortalPageHeader({
   return (
     <div className={cn("pb-1", className)}>
       <SectionHeading as="h1" title={title} description={description} action={action} />
-      <p className="mt-2 text-xs text-muted-foreground">
-        Demo portal — all records, names and outcomes on this page are fictional
-        fixture data. Nothing here connects to a real practice.
-      </p>
     </div>
   )
 }

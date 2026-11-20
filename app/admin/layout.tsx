@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     template: "%s | Admin Portal",
   },
   description:
-    "BestHospitalIndia admin portal (demo): platform dashboard plus hospital, doctor, facility, patient and partner management with verification queues. Mock data only.",
+    "BestHospitalIndia admin portal: platform dashboard, queries, hospital and doctor listings, and city desk coordination.",
   robots: { index: false, follow: false },
 }
 

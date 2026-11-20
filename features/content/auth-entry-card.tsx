@@ -10,7 +10,11 @@ import { SubmissionStatus } from "@/features/catalogue/submission-status"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { AsyncWaitBanner } from "@/features/portal/async-wait-banner"
+import { PendingButton } from "@/features/portal/pending-button"
+import { useAsyncAction } from "@/features/portal/use-async-action"
 import { ROUTES } from "@/constants/routes"
+import { fetchResilient } from "@/lib/http/fetch-resilient"
 import { cn } from "@/lib/utils"
 
 type PartnerRole = "hospital" | "doctor"
@@ -38,18 +42,26 @@ export function AuthEntryCard({ className, defaultRole = "hospital" }: AuthEntry
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
-  const [pending, setPending] = useState(false)
+  const { pending, slow, run } = useAsyncAction()
 
   async function signIn(event: FormEvent) {
     event.preventDefault()
-    setPending(true)
     setError(null)
-    const response = await fetch(`/api/catalogue/submissions?email=${encodeURIComponent(email)}`)
-    const payload = (await response.json().catch(() => null)) as {
+    type SubmissionsPayload = {
       submissions?: { kind: string; status: string }[]
       error?: string
-    } | null
-    setPending(false)
+    }
+    let payload: SubmissionsPayload | null = null
+    let response: Response
+    try {
+      response = await run(async () =>
+        fetchResilient(`/api/catalogue/submissions?email=${encodeURIComponent(email)}`),
+      )
+      payload = (await response.json().catch(() => null)) as SubmissionsPayload | null
+    } catch {
+      setError("Server is waking up—please wait and try again.")
+      return
+    }
     if (!response.ok) {
       setError(payload?.error ?? "Could not check that email.")
       return
@@ -155,12 +167,13 @@ export function AuthEntryCard({ className, defaultRole = "hospital" }: AuthEntry
                 required
               />
             </div>
+            <AsyncWaitBanner visible={pending} slow={slow} />
             {error ? <p className="text-sm text-destructive">{error}</p> : null}
-            <Button type="submit" className="w-full" disabled={pending}>
-              {pending ? "Checking…" : `Sign in as ${role}`}
-            </Button>
+            <PendingButton type="submit" pending={pending} pendingLabel="Checking…" className="w-full">
+              {`Sign in as ${role}`}
+            </PendingButton>
             <p className="text-xs text-muted-foreground">
-              Demo: {role === "hospital" ? "hospital@besthospitalindian.com" : "doctor@besthospitalindian.com"}
+              Example email: {role === "hospital" ? "hospital@besthospitalindian.com" : "doctor@besthospitalindian.com"}
             </p>
           </form>
         </section>

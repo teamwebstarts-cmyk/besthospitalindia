@@ -2,61 +2,102 @@
 
 import { useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
+import { MapPinIcon } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { AsyncWaitBanner } from "@/features/portal/async-wait-banner"
+import { PendingButton } from "@/features/portal/pending-button"
+import { PortalSignInShell } from "@/features/portal/sign-in-shell"
+import { useAsyncAction } from "@/features/portal/use-async-action"
+import { fetchResilient } from "@/lib/http/fetch-resilient"
 
 export function VendorLogin() {
   const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
-  const [pending, setPending] = useState(false)
+  const { pending, slow, run } = useAsyncAction()
 
   async function submit(event: FormEvent) {
     event.preventDefault()
-    setPending(true)
     setError(null)
-    const response = await fetch("/api/vendor/session", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ email, password }),
+    await run(async () => {
+      const response = await fetchResilient("/api/vendor/session", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      })
+      const payload = (await response.json().catch(() => null)) as { error?: string } | null
+      if (!response.ok) {
+        setError(payload?.error ?? "Could not sign in.")
+        return
+      }
+      router.refresh()
+    }).catch(() => {
+      setError("The server took too long to respond. Wait a moment and try again.")
     })
-    const payload = (await response.json().catch(() => null)) as { error?: string } | null
-    setPending(false)
-    if (!response.ok) {
-      setError(payload?.error ?? "Could not sign in.")
-      return
-    }
-    router.refresh()
   }
 
   return (
-    <div className="mx-auto flex min-h-[70vh] max-w-md items-center px-4 py-10">
-      <Card className="w-full">
-        <CardContent className="space-y-4 p-5">
-          <div>
-            <h1 className="text-xl font-semibold tracking-tight">City desk</h1>
-            <p className="text-sm text-muted-foreground">Sign in to see queries for your city only.</p>
-          </div>
-          <form className="space-y-3" onSubmit={submit}>
-            <div className="space-y-1.5">
-              <Label htmlFor="vendor-login-email">Email</Label>
-              <Input id="vendor-login-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="vendor-login-password">Password</Label>
-              <Input id="vendor-login-password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} required />
-            </div>
-            {error ? <p className="text-sm text-destructive">{error}</p> : null}
-            <Button type="submit" className="w-full" disabled={pending}>
-              {pending ? "Signing in…" : "Sign in"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+    <PortalSignInShell
+      icon={MapPinIcon}
+      eyebrow="City desk"
+      title="Your city’s patient enquiries"
+      description="Sign in to see queries routed to your desk only—Delhi or Indore. Update status as you contact patients."
+      highlights={[
+        "Only enquiries for your assigned city",
+        "Contact details and notes in one list",
+        "Mark progress: new → contacted → closed",
+      ]}
+      footer={
+        <div className="space-y-2 text-xs leading-relaxed text-muted-foreground">
+          <p>
+            <span className="font-medium text-foreground">Delhi:</span> delhi@besthospitalindian.com · delhi-demo
+          </p>
+          <p>
+            <span className="font-medium text-foreground">Indore:</span> indore@besthospitalindian.com · indore-demo
+          </p>
+        </div>
+      }
+    >
+      <form className="space-y-4" onSubmit={submit}>
+        <div className="space-y-2">
+          <Label htmlFor="vendor-login-email">Desk email</Label>
+          <Input
+            id="vendor-login-email"
+            type="email"
+            autoComplete="username"
+            placeholder="city@besthospitalindian.com"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            required
+            className="h-11"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="vendor-login-password">Password</Label>
+          <Input
+            id="vendor-login-password"
+            type="password"
+            autoComplete="current-password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            required
+            className="h-11"
+          />
+        </div>
+        <AsyncWaitBanner visible={pending} slow={slow} />
+        {error ? (
+          <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">
+            {error}
+          </p>
+        ) : null}
+        <PendingButton type="submit" pending={pending} pendingLabel="Signing in…" className="h-11 w-full text-base">
+          Open city desk
+        </PendingButton>
+      </form>
+    </PortalSignInShell>
   )
 }

@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     default: "Hospital Portal",
     template: "%s | Hospital Portal",
   },
-  description: "Hospital partner demo workspace (mock data only).",
+  description: "Hospital partner workspace for listings, enquiries, and team settings.",
   robots: { index: false, follow: false },
 }
 

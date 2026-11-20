@@ -8,6 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { AsyncWaitBanner } from "@/features/portal/async-wait-banner"
+import { PendingButton } from "@/features/portal/pending-button"
+import { useAsyncAction } from "@/features/portal/use-async-action"
+import { fetchResilient } from "@/lib/http/fetch-resilient"
 import type { Lead, LeadAudience, LeadCity, LeadEmbassy, LeadTrack } from "@/lib/leads/types"
 import { cn } from "@/lib/utils"
 
@@ -61,7 +65,10 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
   const [embassy, setEmbassy] = useState<LeadEmbassy | "">("")
   const [preferredCity, setPreferredCity] = useState<LeadCity | "">("")
   const [error, setError] = useState<string | null>(null)
-  const [pending, setPending] = useState(false)
+  const submitAction = useAsyncAction()
+  const otpAction = useAsyncAction()
+  const detailAction = useAsyncAction()
+  const trackAction = useAsyncAction()
   const [lead, setLead] = useState<Lead | null>(null)
   const [trackError, setTrackError] = useState<string | null>(null)
   const [detail, setDetail] = useState("")
@@ -72,17 +79,19 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
   async function chooseTrack(track: LeadTrack) {
     if (!lead) return
     setTrackError(null)
-    const response = await fetch(`/api/leads/${lead.id}`, {
-      method: "PATCH",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ track }),
-    })
-    const payload = (await response.json().catch(() => null)) as { lead?: Lead; error?: string } | null
-    if (!response.ok || !payload?.lead) {
-      setTrackError(payload?.error ?? "Could not save that choice.")
-      return
-    }
-    setLead(payload.lead)
+    await trackAction.run(async () => {
+      const response = await fetchResilient(`/api/leads/${lead.id}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ track }),
+      })
+      const payload = (await response.json().catch(() => null)) as { lead?: Lead; error?: string } | null
+      if (!response.ok || !payload?.lead) {
+        setTrackError(payload?.error ?? "Could not save that choice.")
+        return
+      }
+      setLead(payload.lead)
+    }).catch(() => setTrackError("Server is slow to respond. Try again in a moment."))
   }
 
   function resetIntake() {
@@ -103,32 +112,36 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
     setOtpNote(null)
   }
 
+  const anyPending =
+    submitAction.pending || otpAction.pending || detailAction.pending || trackAction.pending
+  const anySlow = submitAction.slow || otpAction.slow || detailAction.slow || trackAction.slow
+
   async function onSubmit(event: FormEvent) {
     event.preventDefault()
-    if (pending) return
-    setPending(true)
+    if (anyPending) return
     setError(null)
-    const response = await fetch("/api/leads", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        name,
-        email,
-        phone,
-        comment,
-        audience,
-        state: stateName,
-        embassy,
-        preferredCity,
-      }),
-    })
-    const payload = (await response.json().catch(() => null)) as { lead?: Lead; error?: string } | null
-    setPending(false)
-    if (!response.ok || !payload?.lead) {
-      setError(payload?.error ?? "Could not save your request.")
-      return
-    }
-    setLead(payload.lead)
+    await submitAction.run(async () => {
+      const response = await fetchResilient("/api/leads", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          comment,
+          audience,
+          state: stateName,
+          embassy,
+          preferredCity,
+        }),
+      })
+      const payload = (await response.json().catch(() => null)) as { lead?: Lead; error?: string } | null
+      if (!response.ok || !payload?.lead) {
+        setError(payload?.error ?? "Could not save your request.")
+        return
+      }
+      setLead(payload.lead)
+    }).catch(() => setError("Server is waking up—please wait and try again."))
   }
 
   if (lead) {
@@ -146,6 +159,7 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
             !submitted && !isHero && "pt-0",
           )}
         >
+          <AsyncWaitBanner visible={anyPending && !submitted} slow={anySlow} />
           {submitted ? (
             <div
               className={cn(
@@ -217,24 +231,29 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
                   onSubmit={async (event) => {
                     event.preventDefault()
                     setOtpNote(null)
-                    const response = await fetch(`/api/leads/${lead.id}`, {
-                      method: "PATCH",
-                      headers: { "content-type": "application/json" },
-                      body: JSON.stringify({ otp }),
-                    })
-                    const payload = (await response.json().catch(() => null)) as { lead?: Lead; error?: string } | null
-                    if (!response.ok || !payload?.lead) {
-                      setOtpNote(payload?.error ?? "That code does not match.")
-                      return
-                    }
-                    setLead(payload.lead)
-                    setOtpNote("Email checked.")
+                    await otpAction.run(async () => {
+                      const response = await fetchResilient(`/api/leads/${lead.id}`, {
+                        method: "PATCH",
+                        headers: { "content-type": "application/json" },
+                        body: JSON.stringify({ otp }),
+                      })
+                      const payload = (await response.json().catch(() => null)) as { lead?: Lead; error?: string } | null
+                      if (!response.ok || !payload?.lead) {
+                        setOtpNote(payload?.error ?? "That code does not match.")
+                        return
+                      }
+                      setLead(payload.lead)
+                      setOtpNote("Email checked.")
+                    }).catch(() => setOtpNote("Server is slow—wait and try verifying again."))
                   }}
                 >
+                  <AsyncWaitBanner visible={otpAction.pending} slow={otpAction.slow} className="mb-1" />
                   <Label htmlFor="lead-otp" className={cn(isHero && "text-primary-foreground")}>Email code</Label>
                   <Input id="lead-otp" inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={(event) => setOtp(event.target.value)} placeholder="6-digit code" />
-                  <Button
+                  <PendingButton
                     type="submit"
+                    pending={otpAction.pending}
+                    pendingLabel="Verifying…"
                     variant={isHero ? "secondary" : "outline"}
                     className={cn(
                       "w-full rounded-lg font-semibold",
@@ -242,7 +261,7 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
                     )}
                   >
                     Verify code
-                  </Button>
+                  </PendingButton>
                 </form>
               ) : null}
               {otpNote && otpNote !== "Email checked." ? (
@@ -279,18 +298,20 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
                   onSubmit={async (event) => {
                     event.preventDefault()
                     setTrackError(null)
-                    const response = await fetch(`/api/leads/${lead.id}`, {
-                      method: "PATCH",
-                      headers: { "content-type": "application/json" },
-                      body: JSON.stringify({ detail }),
-                    })
-                    const payload = (await response.json().catch(() => null)) as { lead?: Lead; error?: string } | null
-                    if (!response.ok || !payload?.lead) {
-                      setTrackError(payload?.error ?? "Could not save that detail.")
-                      return
-                    }
-                    setLead(payload.lead)
-                    setSubmitted(true)
+                    await detailAction.run(async () => {
+                      const response = await fetchResilient(`/api/leads/${lead.id}`, {
+                        method: "PATCH",
+                        headers: { "content-type": "application/json" },
+                        body: JSON.stringify({ detail }),
+                      })
+                      const payload = (await response.json().catch(() => null)) as { lead?: Lead; error?: string } | null
+                      if (!response.ok || !payload?.lead) {
+                        setTrackError(payload?.error ?? "Could not save that detail.")
+                        return
+                      }
+                      setLead(payload.lead)
+                      setSubmitted(true)
+                    }).catch(() => setTrackError("Server is slow—please try submitting again."))
                   }}
                 >
                   <Label htmlFor="lead-detail" className={cn(isHero && "text-primary-foreground")}>
@@ -304,8 +325,10 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
                     placeholder={TRACKS.find((item) => item.id === lead.track)?.placeholder}
                     required
                   />
-                  <Button
+                  <PendingButton
                     type="submit"
+                    pending={detailAction.pending}
+                    pendingLabel="Sending…"
                     variant={isHero ? "secondary" : "outline"}
                     className={cn(
                       "h-10 w-full rounded-lg font-semibold",
@@ -313,7 +336,7 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
                     )}
                   >
                     Submit request
-                  </Button>
+                  </PendingButton>
                 </form>
               ) : null}
             </>
@@ -495,9 +518,12 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
             />
           </div>
 
+          <AsyncWaitBanner visible={anyPending} slow={anySlow} />
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
-          <Button
+          <PendingButton
             type="submit"
+            pending={submitAction.pending}
+            pendingLabel="Submitting…"
             variant={isHero ? "secondary" : "cta"}
             className={cn(
               "font-semibold",
@@ -505,10 +531,9 @@ export function LeadIntakeForm({ variant = "card" }: { variant?: "card" | "hero"
                 ? "w-full rounded-lg border-0 bg-white px-6 text-cta shadow-md hover:bg-secondary"
                 : "rounded-full",
             )}
-            disabled={pending}
           >
-            {pending ? "Submitting…" : isHero ? "Continue →" : "Submit"}
-          </Button>
+            {isHero ? "Continue →" : "Submit"}
+          </PendingButton>
         </form>
       </CardContent>
     </Card>

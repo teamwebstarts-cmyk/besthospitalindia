@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     template: "%s | Doctor Portal",
   },
   description:
-    "BestHospitalIndia doctor partner portal (demo): manage your demo profile, hospital associations, availability, appointment requests, consultations, credentials, reviews and settings. Mock data only.",
+    "BestHospitalIndia doctor partner portal: profile, hospital associations, availability, and listing management.",
   robots: { index: false, follow: false },
 }
 

@@ -23,7 +23,7 @@ export function ProviderPreviewSelect({
   return (
     <label className="flex min-w-0 flex-col gap-1.5 text-sm sm:min-w-64">
       <span className="text-xs font-medium text-muted-foreground">
-        Preview {providerType === "doctor" ? "doctor account" : "hospital account"}
+        Switch {providerType === "doctor" ? "doctor profile" : "hospital profile"}
       </span>
       <select
         value={value}

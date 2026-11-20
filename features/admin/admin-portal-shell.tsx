@@ -50,6 +50,7 @@ export function AdminPortalShell({ children }: AdminPortalShellProps) {
       items={adminNavGroups}
       title="Admin Portal"
       portalHomeHref="/admin"
+      description="Queries, listings, and city desks"
       actions={
         <>
           <AdminSignOut />

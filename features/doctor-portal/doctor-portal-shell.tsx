@@ -29,7 +29,7 @@ export function DoctorPortalShell({ children }: DoctorPortalShellProps) {
       items={items}
       title="Doctor Portal"
       portalHomeHref="/doctor-portal"
-      description="Demo partner workspace — selected doctor preview"
+      description="Partner workspace — manage your profile and listing"
       actions={<PortalUserChip />}
     >
       {children}

@@ -42,12 +42,12 @@ export function AdminPageHeader({
       <SectionHeading as="h1" title={title} description={description} action={action} />
       {showDemoNote ? (
         compact ? (
-          <p className="mt-2 text-xs text-muted-foreground">Demo workspace — mock data only.</p>
+          <p className="mt-2 text-xs text-muted-foreground">Platform workspace</p>
         ) : (
           <DemoNotice
             className="mt-4"
-            title="Demo admin workspace — mock data only"
-            message="Every record on this page is fictional fixture data. Status changes are local demo state: nothing is sent, published, verified or notified, and no real provider, patient or partner exists behind any row."
+            title="Admin workspace"
+            message="Changes here update the live catalogue and query records shared with city desks."
           />
         )
       ) : null}

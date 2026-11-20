@@ -1,7 +1,6 @@
 import type { ReactNode } from "react"
 
 import { SectionHeading } from "@/components/shared/section-heading"
-import { DemoNotice } from "@/features/content/demo-notice"
 import { cn } from "@/lib/utils"
 
 /**
@@ -19,7 +18,7 @@ export interface PortalPageHeaderProps {
   description?: string
   /** Optional page-level action (rendered right of the heading). */
   action?: ReactNode
-  /** When false, skips the page-level DemoNotice (shell topbar already states demo scope). */
+  /** Reserved for future in-page notices (unused). */
   showDemoNotice?: boolean
   className?: string
 }
@@ -28,20 +27,11 @@ export function PortalPageHeader({
   label,
   description,
   action,
-  showDemoNotice = true,
   className,
 }: PortalPageHeaderProps) {
   return (
     <header className={cn("space-y-4 pb-1", className)}>
       <SectionHeading as="h1" title={label} description={description} action={action} />
-      {showDemoNotice ? (
-        <DemoNotice
-          title="Demo portal — mock data only"
-          message="Fictional fixture data only — nothing here is sent or stored."
-        />
-      ) : (
-        <p className="text-xs text-muted-foreground lg:hidden">Demo — fixture data only.</p>
-      )}
     </header>
   )
 }

@@ -50,8 +50,13 @@ async function readAccount(): Promise<AdminAccount> {
 }
 
 export async function authenticateAdmin(email: string, password: string): Promise<boolean> {
+  const normalized = email.trim().toLowerCase()
+  const configured = defaultAccount()
+  if (configured.email === normalized && configured.password === password) {
+    return true
+  }
   const account = await readAccount()
-  return account.email.toLowerCase() === email.trim().toLowerCase() && account.password === password
+  return account.email.toLowerCase() === normalized && account.password === password
 }
 
 export async function hasAdminSession(): Promise<boolean> {

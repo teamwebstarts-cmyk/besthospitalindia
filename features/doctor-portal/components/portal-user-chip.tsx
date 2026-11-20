@@ -18,11 +18,11 @@ export function PortalUserChip() {
     <div className="flex items-center gap-2">
       <Badge variant="outline" className="gap-1 text-muted-foreground">
         <ShieldCheckIcon aria-hidden className="size-3" />
-        Doctor partner (demo)
+        Doctor partner
       </Badge>
       <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
         <UserRoundIcon aria-hidden className="size-4 text-muted-foreground" />
-        {doctor ? doctor.name : "Demo doctor (fictional)"}
+        {doctor ? doctor.name : "Doctor partner"}
       </span>
     </div>
   )

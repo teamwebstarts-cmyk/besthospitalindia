@@ -30,7 +30,7 @@ export function HospitalPortalShell({ children }: HospitalPortalShellProps) {
       items={items}
       title="Hospital Portal"
       portalHomeHref="/hospital-portal"
-      description="Demo hospital workspace — selected hospital preview"
+      description="Hospital workspace — manage your listing and team"
       actions={
         <span className="flex items-center gap-2 text-sm text-muted-foreground">
           <span
@@ -40,9 +40,9 @@ export function HospitalPortalShell({ children }: HospitalPortalShellProps) {
             {initials(hospital.name)}
           </span>
           <span className="hidden xl:inline">
-            {hospital.name} · Hospital (demo)
+            {hospital.name} · Hospital partner
           </span>
-          <span className="sr-only">Previewing demo hospital {hospital.name}</span>
+          <span className="sr-only">Signed in as hospital partner {hospital.name}</span>
         </span>
       }
     >
