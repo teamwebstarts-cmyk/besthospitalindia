@@ -19,6 +19,15 @@ export interface MailMessage {
   to: string
   subject: string
   text: string
+  html?: string
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
 }
 
 function hasResend(): boolean {
@@ -42,6 +51,7 @@ async function sendViaResend(message: MailMessage): Promise<boolean> {
         to: [message.to],
         subject: message.subject,
         text: message.text,
+        html: message.html ?? `<p style="font-family:sans-serif;line-height:1.5">${escapeHtml(message.text).replace(/\n/g, "<br>")}</p>`,
       }),
     })
     if (!response.ok) {

@@ -59,8 +59,9 @@ export function recordLeadCode(leadId: string, email: string, purpose: "query" |
     const code = issueOtpCode()
     const subject = purpose === "application" ? `Your listing application ${leadId}` : `Your query id is ${leadId}`
     const body = purpose === "application"
-      ? `Your application id is ${leadId}. Your email code is ${code}. This is not a patient query and is not sent to a city desk.`
-      : `Your unique id is ${leadId}. Your email code is ${code}. Return to the site and enter this code to continue.`
+      ? `Your application id is ${leadId}.\n\nYour 6-digit email code: ${code}\n\nEnter this code on the site to continue. This is not a patient query and is not sent to a city desk.`
+      : `Your reference is ${leadId}.\n\nYour 6-digit email code: ${code}\n\nEnter this code on the site to continue your enquiry.`
+    const html = `<div style="font-family:sans-serif;line-height:1.6;max-width:480px"><p>Your reference is <strong>${leadId}</strong>.</p><p style="font-size:28px;letter-spacing:0.2em;margin:24px 0"><strong>${code}</strong></p><p>Use this 6-digit code on Best Hospital India to continue.</p></div>`
     const message: OutboxMessage = {
       leadId,
       to: email,
@@ -72,7 +73,7 @@ export function recordLeadCode(leadId: string, email: string, purpose: "query" |
     }
     const next = [message, ...messages.filter((item) => item.leadId !== leadId)]
     await writeAll(next)
-    await sendTransactionalMail({ to: email, subject, text: body })
+    await sendTransactionalMail({ to: email, subject, text: body, html })
     return code
   })
 }
