@@ -41,6 +41,8 @@ export interface CatalogueProfileFields {
   accessibility?: string[]
 }
 
+export type CatalogueSubmissionSource = "admin" | "partner" | "seed"
+
 export interface CatalogueSubmission extends CatalogueProfileFields {
   id: string
   kind: CatalogueKind
@@ -51,6 +53,8 @@ export interface CatalogueSubmission extends CatalogueProfileFields {
   note: string
   status: CatalogueStatus
   emailVerified: boolean
+  /** Who created the row — partner self-serve stays pending until admin approves. */
+  source?: CatalogueSubmissionSource
   createdAt: string
   updatedAt: string
 }
@@ -149,6 +153,7 @@ export async function createAdminSubmission(
     id: `sub-${Math.floor(100000 + Math.random() * 900000)}`,
     status: "approved",
     emailVerified: true,
+    source: "admin",
     createdAt: now,
     updatedAt: now,
   }
@@ -159,6 +164,7 @@ export async function createAdminSubmission(
 
 export async function createSubmission(
   input: Omit<CatalogueSubmission, "id" | "status" | "emailVerified" | "createdAt" | "updatedAt">,
+  options?: { emailVerified?: boolean },
 ): Promise<CatalogueSubmission> {
   if (!isOfficialEmail(input.email)) throw new Error("FREE_EMAIL")
   const rows = await readAll()
@@ -172,7 +178,8 @@ export async function createSubmission(
     note: input.note.trim(),
     id: `sub-${Math.floor(100000 + Math.random() * 900000)}`,
     status: "pending",
-    emailVerified: false,
+    emailVerified: options?.emailVerified ?? false,
+    source: "partner",
     createdAt: now,
     updatedAt: now,
   }

@@ -2,13 +2,21 @@
 
 import type { ReactNode } from "react"
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import type { CatalogueStatus } from "@/lib/catalogue/store"
 import { cn } from "@/lib/utils"
 
-const STATUSES: CatalogueStatus[] = ["approved", "pending", "rejected"]
-
-const fieldClass =
-  "h-8 rounded-md border border-input bg-background px-2 text-xs shadow-sm sm:text-sm"
+const STATUS_OPTIONS: { value: CatalogueStatus; label: string }[] = [
+  { value: "approved", label: "Approved" },
+  { value: "pending", label: "Pending review" },
+  { value: "rejected", label: "Rejected" },
+]
 
 export function AdminCatalogueStatusBar({
   name,
@@ -29,23 +37,38 @@ export function AdminCatalogueStatusBar({
     <div
       className={cn(
         isOverlay
-          ? "pointer-events-none absolute top-2 right-2 z-[5] [&_select]:pointer-events-auto"
+          ? "pointer-events-none absolute top-2 right-2 z-[5] [&_button]:pointer-events-auto"
           : "flex flex-wrap items-center gap-2 rounded-lg border border-border/70 bg-muted/30 px-3 py-2",
       )}
     >
-      <select
-        className={cn(fieldClass, isOverlay && "max-w-[7.5rem] bg-background/95 backdrop-blur")}
+      <Select
         value={status}
-        aria-label={`Publication for ${name}`}
-        onClick={(event) => event.stopPropagation()}
-        onChange={(event) => onStatusChange(event.target.value as CatalogueStatus)}
+        onValueChange={(next) => {
+          if (next) onStatusChange(next as CatalogueStatus)
+        }}
       >
-        {STATUSES.map((item) => (
-          <option key={item} value={item}>
-            {item}
-          </option>
-        ))}
-      </select>
+        <SelectTrigger
+          size="sm"
+          aria-label={`Publication status for ${name}`}
+          className={cn(
+            "pointer-events-auto h-8 w-[10.5rem] text-xs shadow-sm",
+            isOverlay && "border-border/80 bg-background/95 backdrop-blur",
+            status === "pending" && "border-amber-500/50",
+            status === "approved" && "border-primary/30",
+            status === "rejected" && "border-destructive/40",
+          )}
+          onClick={(event) => event.stopPropagation()}
+        >
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent align="end">
+          {STATUS_OPTIONS.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
       {children && !isOverlay ? children : null}
     </div>
   )

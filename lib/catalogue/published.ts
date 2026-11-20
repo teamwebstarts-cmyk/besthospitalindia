@@ -69,7 +69,10 @@ function asTextList(value: string[] | string | undefined): string[] {
 }
 
 function imageFor(row: CatalogueSubmission): string {
-  return row.imageUrl?.trim() || "/images/hospitals/placeholder.svg"
+  const url = row.imageUrl?.trim()
+  if (url) return url
+  if (row.kind === "doctor") return "/images/doctors/doctor-portrait-demo.png"
+  return "/images/hospitals/placeholder.svg"
 }
 
 function resolveSpecialtyId(raw: string | undefined): string {

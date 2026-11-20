@@ -14,11 +14,8 @@ import {
 import type { CatalogueKind, CatalogueStatus } from "@/lib/catalogue/store"
 import type { CatalogueProfileFields } from "@/lib/catalogue/submissions"
 
-import {
-  adminCatalogueGridClass,
-  AdminCatalogueCardActions,
-  AdminCatalogueCardFrame,
-} from "./admin-catalogue-card-frame"
+import { AdminListingTabs, type AdminListingTab } from "./admin-listing-tabs"
+import { adminCatalogueGridClass, AdminCatalogueCardFrame } from "./admin-catalogue-card-frame"
 import {
   AdminListingForm,
   initialListingForm,
@@ -36,6 +33,7 @@ export interface SubmissionRow extends CatalogueProfileFields {
   city: string
   note: string
   status: CatalogueStatus
+  source?: "admin" | "partner" | "seed"
 }
 
 interface AdminSubmissionsProps {
@@ -59,6 +57,22 @@ export function AdminSubmissions({
   const [createOpen, setCreateOpen] = useState(false)
   const [editId, setEditId] = useState<string | null>(null)
   const [editForms, setEditForms] = useState<Record<string, ListingFormState>>({})
+  const [listingTab, setListingTab] = useState<AdminListingTab>("all")
+
+  const listingCounts = useMemo(
+    () => ({
+      all: rows.length,
+      pending: rows.filter((row) => row.status === "pending").length,
+      approved: rows.filter((row) => row.status === "approved").length,
+      rejected: rows.filter((row) => row.status === "rejected").length,
+    }),
+    [rows],
+  )
+
+  const visibleRows = useMemo(() => {
+    if (listingTab === "all") return rows
+    return rows.filter((row) => row.status === listingTab)
+  }, [listingTab, rows])
 
   const linkableDoctorNames = useMemo(() => {
     const fromRows = rows.filter((row) => row.kind === "doctor" && row.status === "approved").map((row) => row.name)
@@ -143,7 +157,7 @@ export function AdminSubmissions({
 
   return (
     <section className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <h2 className="text-base font-semibold tracking-tight text-foreground">Your listings</h2>
         <AdminFormSheet
           title={`New ${noun}`}
@@ -164,12 +178,18 @@ export function AdminSubmissions({
         </AdminFormSheet>
       </div>
 
+      <AdminListingTabs value={listingTab} onChange={setListingTab} counts={listingCounts} />
+
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
-      {rows.length === 0 ? <p className="text-sm text-muted-foreground">None yet.</p> : null}
+      {rows.length === 0 ? (
+        <p className="text-sm text-muted-foreground">None yet.</p>
+      ) : visibleRows.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No listings in this tab. Try &quot;All&quot; or another status.</p>
+      ) : null}
 
       <ul className={adminCatalogueGridClass}>
-        {rows.map((row) => (
+        {visibleRows.map((row) => (
           <AdminCatalogueCardFrame
             key={row.id}
             name={row.name}
@@ -184,12 +204,8 @@ export function AdminSubmissions({
             }}
             openLabel={`Open ${row.name} details`}
             onOpen={() => setEditId(row.id)}
-            footer={
-              <AdminCatalogueCardActions
-                onEdit={() => setEditId(row.id)}
-                onDelete={() => removeRow(row.id)}
-              />
-            }
+            onEdit={() => setEditId(row.id)}
+            onDelete={() => removeRow(row.id)}
           >
             {row.kind === "hospital" ? (
                 <HospitalCard

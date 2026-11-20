@@ -1,6 +1,9 @@
 "use client"
 
+import { useState } from "react"
+
 import { EnquiryForm } from "@/features/content/enquiry-form"
+import { PartnerEmailOtpInline } from "@/features/partner/partner-email-otp-inline"
 import type {
   EnquiryFormField,
   EnquiryFormTextField,
@@ -19,12 +22,26 @@ export interface PartnerInterestFormProps {
   kind: "hospital" | "doctor"
   className?: string
   compact?: boolean
+  /** Signed-in partner: email is fixed and register OTP is skipped. */
+  sessionEmail?: string
+  skipRegisterOtp?: boolean
+  onSubmitted?: () => void
 }
 
 const consentLabel = "I confirm these details are for listing review, not a patient query."
 
+function photoUrlField(kind: "hospital" | "doctor"): EnquiryFormTextField {
+  return {
+    kind: "text",
+    name: "imageUrl",
+    label: kind === "doctor" ? "Profile photo URL (optional)" : "Facility image URL (optional)",
+    placeholder: "https://… public link to your photo or logo",
+    required: false,
+  }
+}
+
 /** Shared base fields for both partner forms (explicitly typed). */
-function baseFields(kind: "hospital" | "doctor", compact: boolean): EnquiryFormTextField[] {
+function baseFields(kind: "hospital" | "doctor"): EnquiryFormTextField[] {
   const isHospital = kind === "hospital"
   const organisationField: EnquiryFormTextField = {
     kind: "text",
@@ -55,7 +72,7 @@ function baseFields(kind: "hospital" | "doctor", compact: boolean): EnquiryFormT
       name: "email",
       label: "Work email",
       type: "email",
-      placeholder: "name@example.com",
+      placeholder: "name@hospital.com",
       required: true,
       autoComplete: "email",
     },
@@ -70,20 +87,9 @@ function baseFields(kind: "hospital" | "doctor", compact: boolean): EnquiryFormT
       kind: "text",
       name: "state",
       label: "State",
-      placeholder: "e.g. Kerala",
+      placeholder: "e.g. Madhya Pradesh",
       required: false,
     },
-    ...(compact
-      ? []
-      : [
-          {
-            kind: "text" as const,
-            name: "imageUrl",
-            label: "Photo URL (optional)",
-            placeholder: "https://…",
-            required: false,
-          } satisfies EnquiryFormTextField,
-        ]),
     {
       kind: "text",
       name: "phone",
@@ -97,32 +103,39 @@ function baseFields(kind: "hospital" | "doctor", compact: boolean): EnquiryFormT
 }
 
 /**
- * Mock partner interest form for /for-hospitals and /for-doctors. Validates
- * with lib/validation and resolves through a local async submit that mirrors
- * the lib/mock-actions result contract ({ ok, reference } | { ok, errors }).
+ * Partner interest form for /for-hospitals, /for-doctors, and /auth apply.
+ * Submissions stay pending until an admin approves them on the portal.
  */
 export function PartnerInterestForm({
   kind,
   className,
   compact = false,
+  sessionEmail,
+  skipRegisterOtp = false,
+  onSubmitted,
 }: PartnerInterestFormProps) {
   const isHospital = kind === "hospital"
+  const [emailGate, setEmailGate] = useState({ email: "", otp: "" })
+  const [emailVerifiedUi, setEmailVerifiedUi] = useState(false)
+  const lockedEmail = sessionEmail?.trim().toLowerCase() ?? ""
 
   const handleSubmit = async (values: FieldValues) => {
     const name = isHospital ? values.organisation : values.fullName
+    const submitEmail = lockedEmail || String(values.email ?? "").trim().toLowerCase()
     const response = await fetch("/api/catalogue/submissions", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         kind,
         name,
-        email: values.email,
+        email: submitEmail,
         phone: values.phone,
         city: values.city,
         state: values.state,
         imageUrl: values.imageUrl,
         overview: values.message,
         note: values.message,
+        ...(skipRegisterOtp ? {} : { otp: emailGate.otp }),
       }),
     })
     const payload = (await response.json().catch(() => null)) as { submission?: { id: string }; error?: string } | null
@@ -152,12 +165,11 @@ export function PartnerInterestForm({
     kind: "textarea",
     name: "message",
     label: isHospital
-      ? "About the facility (specialties, accreditations, city)"
+      ? "About the facility (specialties, accreditations, services)"
       : "About your practice (specialty, qualifications, hospital associations)",
-    placeholder:
-      "A short summary helps our partnerships team route your request.",
+    placeholder: "Helps our team verify your listing before it goes live.",
     required: true,
-    rows: 5,
+    rows: compact ? 3 : 5,
   }
   const consentField: EnquiryFormConsentField = {
     kind: "consent",
@@ -166,9 +178,13 @@ export function PartnerInterestForm({
   }
 
   const extraField = isHospital ? sizeField : experienceField
-  const fields: readonly EnquiryFormField[] = compact
-    ? [...baseFields(kind, true), extraField, consentField]
-    : [...baseFields(kind, false), extraField, messageField, consentField]
+  const fields: readonly EnquiryFormField[] = [
+    photoUrlField(kind),
+    ...baseFields(kind),
+    extraField,
+    messageField,
+    consentField,
+  ]
 
   const schema: ValidationSchema = {
     [isHospital ? "organisation" : "fullName"]: [
@@ -184,25 +200,29 @@ export function PartnerInterestForm({
     email: [required("Email is required"), email()],
     city: [required("City is required"), minLength(2), maxLength(80)],
     phone: [required("Phone is required"), phone()],
+    message: [required(), minLength(10), maxLength(2000)],
     [isHospital ? "bedCapacity" : "experience"]: [required()],
-    ...(compact ? {} : { message: [required(), minLength(10), maxLength(2000)] }),
     consent: [required()],
   }
 
   const fieldRows = compact
     ? isHospital
       ? [
+          ["imageUrl"],
           ["organisation", "contactName"],
           ["email", "phone"],
           ["city", "state"],
           ["bedCapacity"],
+          ["message"],
           ["consent"],
         ]
       : [
+          ["imageUrl"],
           ["fullName", "contactName"],
           ["email", "phone"],
           ["city", "state"],
           ["experience"],
+          ["message"],
           ["consent"],
         ]
     : undefined
@@ -215,10 +235,42 @@ export function PartnerInterestForm({
       schema={schema}
       onSubmit={handleSubmit}
       submitLabel="Submit for approval"
-      successNote="Admin will review this listing. It goes live only after approval."
+      successNote="Our team will review this listing. It appears on the website only after admin approval."
       className={className}
       embedded={compact}
       fieldRows={fieldRows}
+      initialValues={lockedEmail ? { email: lockedEmail } : undefined}
+      readOnlyFields={lockedEmail ? ["email"] : undefined}
+      onSuccess={onSubmitted}
+      hintWhenSubmitBlocked="Verify the work email with the code we sent, then submit."
+      canSubmit={
+        skipRegisterOtp
+          ? undefined
+          : (values) => {
+              const email = String(values.email ?? "").trim().toLowerCase()
+              return email.length > 3 && email === emailGate.email && emailGate.otp.length >= 6
+            }
+      }
+      renderBeforeSubmit={
+        skipRegisterOtp
+          ? undefined
+          : (values) => (
+              <PartnerEmailOtpInline
+                email={String(values.email ?? "")}
+                purpose="register"
+                verified={emailVerifiedUi && emailGate.email === String(values.email ?? "").trim().toLowerCase()}
+                onVerifiedChange={(next) => {
+                  setEmailVerifiedUi(next)
+                  if (!next) setEmailGate({ email: "", otp: "" })
+                }}
+                onOtpConfirmed={(otp) => {
+                  const email = String(values.email ?? "").trim().toLowerCase()
+                  setEmailGate({ email, otp })
+                  setEmailVerifiedUi(true)
+                }}
+              />
+            )
+      }
     />
   )
 }

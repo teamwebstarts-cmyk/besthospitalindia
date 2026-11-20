@@ -13,7 +13,7 @@ function issueOtpCode(): string {
 }
 
 const FILE = path.join(process.cwd(), "data", "runtime", "outbox.json")
-const FROM = "info@wispr.hospital"
+const FROM = process.env.MAIL_FROM?.match(/<([^>]+)>/)?.[1] ?? process.env.MAIL_FROM ?? "info@besthospitalsindia.com"
 
 export interface OutboxMessage {
   leadId: string

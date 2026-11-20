@@ -65,6 +65,8 @@ export function AdminCatalogue({
               onStatusChange={(status) => void setStatus(item.id, status)}
               openLabel={`Preview ${name}`}
               onOpen={() => setPreviewId(item.id)}
+              onEdit={() => setPreviewId(item.id)}
+              onDelete={() => undefined}
             >
               {item.kind === "hospital" ? (
                 <HospitalCard hospital={item.hospital} layout="stacked" showCta={false} disableProfileLink compact />

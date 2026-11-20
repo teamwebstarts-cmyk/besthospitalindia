@@ -3,17 +3,21 @@
 import type { ReactNode } from "react"
 
 /** Opens admin detail edit when the preview card is clicked; blocks navigation to the public site. */
+import { cn } from "@/lib/utils"
+
 export function AdminListingCardShell({
   label,
   onOpen,
   children,
+  className,
 }: {
   label: string
   onOpen: () => void
   children: ReactNode
+  className?: string
 }) {
   return (
-    <div className="relative">
+    <div className={cn("relative", className)}>
       <div className="[&_a]:pointer-events-none">{children}</div>
       <button
         type="button"

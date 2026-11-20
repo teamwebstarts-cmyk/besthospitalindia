@@ -104,6 +104,16 @@ export interface EnquiryFormProps {
    * Rows with two names use a two-column grid on `sm+`.
    */
   fieldRows?: readonly (readonly string[])[]
+  /** Extra block above submit (e.g. inline email OTP). */
+  renderBeforeSubmit?: (values: FieldValues) => ReactNode
+  /** When false, submit stays disabled after validation passes. */
+  canSubmit?: (values: FieldValues) => boolean
+  hintWhenSubmitBlocked?: string
+  /** Pre-filled field values (e.g. signed-in partner email). */
+  initialValues?: FieldValues
+  /** Fields shown but not editable. */
+  readOnlyFields?: readonly string[]
+  onSuccess?: () => void
 }
 
 type Values = Record<string, string | boolean | undefined>
@@ -129,10 +139,16 @@ export function EnquiryForm({
   footer,
   fieldRows,
   embedded = false,
+  renderBeforeSubmit,
+  canSubmit,
+  hintWhenSubmitBlocked,
+  initialValues,
+  readOnlyFields,
+  onSuccess,
 }: EnquiryFormProps) {
   const isHero = variant === "hero"
   const reactId = useId()
-  const [values, setValues] = useState<Values>({})
+  const [values, setValues] = useState<Values>(() => ({ ...(initialValues ?? {}) }))
   const [errors, setErrors] = useState<ValidationErrors>({})
   const [feedback, setFeedback] =
     useState<DemoFormFeedbackState>(initialFeedback)
@@ -154,6 +170,14 @@ export function EnquiryForm({
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const validationErrors = validate(schema, values as FieldValues)
+    if (canSubmit && !canSubmit(values as FieldValues)) {
+      setFeedback({
+        kind: "error",
+        headline: hintWhenSubmitBlocked ?? "Complete email verification before submitting.",
+        lines: [],
+      })
+      return
+    }
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors)
       setFeedback({
@@ -170,12 +194,13 @@ export function EnquiryForm({
     try {
       const result = await onSubmit(values)
       if (result.ok) {
-        setValues({})
+        setValues({ ...(initialValues ?? {}) })
         setFeedback({
           kind: "success",
           headline: `Request received — reference ${result.reference}`,
           lines: [successNote],
         })
+        onSuccess?.()
       } else {
         setErrors(result.errors)
         setFeedback({
@@ -405,6 +430,7 @@ export function EnquiryForm({
                 autoComplete={field.autoComplete}
                 value={textValue(field.name)}
                 onChange={(event) => setValue(field.name, event.target.value)}
+                disabled={readOnlyFields?.includes(field.name)}
                 aria-invalid={error ? true : undefined}
                 aria-describedby={describedBy(field.name)}
               />
@@ -435,6 +461,8 @@ export function EnquiryForm({
           return <Fragment key={rowKey}>{rowBody}</Fragment>
         })}
 
+        {renderBeforeSubmit ? renderBeforeSubmit(values as FieldValues) : null}
+
         <div className="space-y-3">
           <Button
             type="submit"
@@ -445,7 +473,7 @@ export function EnquiryForm({
                 ? "w-full rounded-lg border-0 bg-white px-6 text-cta shadow-md hover:bg-secondary hover:text-cta focus-visible:ring-white/40"
                 : "rounded-full px-6 shadow-sm"
             )}
-            disabled={isSubmitting}
+            disabled={isSubmitting || (canSubmit ? !canSubmit(values as FieldValues) : false)}
           >
             {!isHero ? <SendIcon aria-hidden /> : null}
             {isSubmitting ? "Submitting…" : submitLabel}

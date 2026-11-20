@@ -1,19 +1,17 @@
 "use client"
 
-import { useState, type FormEvent } from "react"
+import { useEffect, useState, type FormEvent } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { BuildingIcon, StethoscopeIcon } from "lucide-react"
 
 import { PartnerInterestForm } from "@/features/content/partner-forms"
-import { SubmissionStatus } from "@/features/catalogue/submission-status"
-import { Button } from "@/components/ui/button"
+import { PartnerEmailOtpInline } from "@/features/partner/partner-email-otp-inline"
+import { PartnerDashboard } from "@/features/partner/partner-dashboard"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { AsyncWaitBanner } from "@/features/portal/async-wait-banner"
 import { PendingButton } from "@/features/portal/pending-button"
 import { useAsyncAction } from "@/features/portal/use-async-action"
-import { ROUTES } from "@/constants/routes"
 import { fetchResilient } from "@/lib/http/fetch-resilient"
 import { cn } from "@/lib/utils"
 
@@ -36,55 +34,84 @@ export interface AuthEntryCardProps {
 }
 
 export function AuthEntryCard({ className, defaultRole = "hospital" }: AuthEntryCardProps) {
-  const router = useRouter()
   const [role, setRole] = useState<PartnerRole>(defaultRole)
   const [mode, setMode] = useState<Mode>("signin")
   const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [signInOtp, setSignInOtp] = useState("")
+  const [emailVerified, setEmailVerified] = useState(false)
+  const [hasSession, setHasSession] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { pending, slow, run } = useAsyncAction()
+
+  useEffect(() => {
+    let cancelled = false
+    void fetchResilient("/api/partner/session")
+      .then(async (response) => {
+        const payload = (await response.json().catch(() => null)) as { session?: { email: string; kind: string } | null }
+        if (!cancelled && payload?.session) {
+          setHasSession(true)
+          setEmail(payload.session.email)
+          if (payload.session.kind === "hospital" || payload.session.kind === "doctor") {
+            setRole(payload.session.kind)
+          }
+        }
+      })
+      .catch(() => undefined)
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   async function signIn(event: FormEvent) {
     event.preventDefault()
     setError(null)
-    type SubmissionsPayload = {
-      submissions?: { kind: string; status: string }[]
-      error?: string
+    if (!emailVerified || signInOtp.trim().length < 6) {
+      setError("Verify your email with the code we sent.")
+      return
     }
-    let payload: SubmissionsPayload | null = null
-    let response: Response
     try {
-      response = await run(async () =>
-        fetchResilient(`/api/catalogue/submissions?email=${encodeURIComponent(email)}`),
+      const response = await run(async () =>
+        fetchResilient("/api/partner/session", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ email: email.trim(), kind: role, otp: signInOtp.trim() }),
+        }),
       )
-      payload = (await response.json().catch(() => null)) as SubmissionsPayload | null
+      const payload = (await response.json().catch(() => null)) as { error?: string } | null
+      if (!response.ok) {
+        setError(payload?.error ?? "Could not sign in.")
+        return
+      }
+      setHasSession(true)
+      setSignInOtp("")
     } catch {
       setError("Server is waking up—please wait and try again.")
-      return
     }
-    if (!response.ok) {
-      setError(payload?.error ?? "Could not check that email.")
-      return
-    }
-    const mine = (payload?.submissions ?? []).filter((row) => row.kind === role)
-    const demoEmail =
-      role === "hospital" ? "hospital@besthospitalindian.com" : "doctor@besthospitalindian.com"
-    if (mine.some((row) => row.status === "approved") || email.trim().toLowerCase() === demoEmail) {
-      router.push(role === "hospital" ? ROUTES.hospitalPortal.dashboard : ROUTES.doctorPortal.dashboard)
-      return
-    }
-    if (mine.some((row) => row.status === "pending")) {
-      setError("This listing is waiting for admin approval.")
-      setMode("apply")
-      return
-    }
-    if (mine.some((row) => row.status === "rejected")) {
-      setError("This listing was not approved. Submit again if the details changed.")
-      setMode("apply")
-      return
-    }
-    setError("No listing for this email yet. Apply below.")
-    setMode("apply")
+  }
+
+  if (hasSession) {
+    return (
+      <div className={cn("mx-auto w-full max-w-3xl space-y-5", className)}>
+        <div className="space-y-1 text-center">
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Partner access</h1>
+          <p className="text-sm text-muted-foreground">
+            Hospitals and doctors only — check status, add listings, edit details. No appointments dashboard.
+          </p>
+        </div>
+        <PartnerDashboard
+          onSignedOut={() => {
+            setHasSession(false)
+            setEmailVerified(false)
+          }}
+        />
+        <p className="text-center text-xs text-muted-foreground">
+          Patients:{" "}
+          <Link href="/free-consultation" className="text-primary underline-offset-4 hover:underline">
+            request a consultation
+          </Link>
+        </p>
+      </div>
+    )
   }
 
   return (
@@ -106,6 +133,7 @@ export function AuthEntryCard({ className, defaultRole = "hospital" }: AuthEntry
               onClick={() => {
                 setRole(entry.id)
                 setError(null)
+                setEmailVerified(false)
               }}
               className={cn(
                 "flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
@@ -145,45 +173,49 @@ export function AuthEntryCard({ className, defaultRole = "hospital" }: AuthEntry
 
       {mode === "signin" ? (
         <section className="rounded-2xl border bg-card p-5 shadow-xs sm:p-6">
-          <form className="space-y-3" onSubmit={signIn}>
+          <form className="space-y-4" onSubmit={signIn}>
             <div className="space-y-1.5">
               <Label htmlFor="partner-email">Official email</Label>
               <Input
                 id="partner-email"
                 type="email"
                 value={email}
-                onChange={(event) => setEmail(event.target.value)}
+                onChange={(event) => {
+                  setEmail(event.target.value)
+                  setEmailVerified(false)
+                  setSignInOtp("")
+                }}
                 required
               />
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="partner-password">Password</Label>
-              <Input
-                id="partner-password"
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                minLength={6}
-                required
-              />
-            </div>
+            <PartnerEmailOtpInline
+              email={email}
+              purpose="signin"
+              verified={emailVerified}
+              onVerifiedChange={setEmailVerified}
+              onOtpConfirmed={setSignInOtp}
+            />
             <AsyncWaitBanner visible={pending} slow={slow} />
             {error ? <p className="text-sm text-destructive">{error}</p> : null}
-            <PendingButton type="submit" pending={pending} pendingLabel="Checking…" className="w-full">
+            <PendingButton
+              type="submit"
+              pending={pending}
+              pendingLabel="Signing in…"
+              className="w-full"
+              disabled={!emailVerified || signInOtp.trim().length < 6}
+            >
               {`Sign in as ${role}`}
             </PendingButton>
+            <p className="text-xs text-muted-foreground">
+              Sign-in is official email plus a one-time code (no password). After sign-in you can check approval status,
+              add more listings, and edit details — edits to approved listings go back to admin for approval.
+            </p>
           </form>
         </section>
       ) : (
-        <>
-          <section className="rounded-2xl border bg-card p-5 shadow-xs sm:p-6">
-            <PartnerInterestForm key={role} kind={role} compact />
-          </section>
-          <section className="rounded-2xl border bg-card p-5 shadow-xs sm:p-6">
-            <h2 className="mb-3 text-sm font-semibold text-foreground">Check approval</h2>
-            <SubmissionStatus compact />
-          </section>
-        </>
+        <section className="rounded-2xl border bg-card p-5 shadow-xs sm:p-6">
+          <PartnerInterestForm key={role} kind={role} compact />
+        </section>
       )}
 
       <p className="text-center text-xs text-muted-foreground">

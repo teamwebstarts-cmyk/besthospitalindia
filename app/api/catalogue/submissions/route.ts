@@ -12,6 +12,9 @@ import {
   type CatalogueProfileFields,
 } from "@/lib/catalogue/submissions"
 import { forgetLeadCode, recordLeadCode, verifyLeadCode } from "@/lib/mail/outbox"
+import { partnerOtpLeadId } from "@/lib/partner/otp"
+import { partnerPatchNeedsReapproval } from "@/lib/partner/submission-patch"
+import { getPartnerSession } from "@/lib/partner/session"
 
 function str(body: Record<string, unknown> | null, key: string): string {
   const value = body?.[key]
@@ -90,14 +93,31 @@ export async function POST(request: Request) {
   const denied = await adminDenied()
   const isAdmin = denied === null
 
+  const partnerSession = await getPartnerSession()
+  const sessionAddsListing =
+    !isAdmin &&
+    partnerSession !== null &&
+    partnerSession.email === email.toLowerCase() &&
+    partnerSession.kind === kind
+
+  const otp = str(body, "otp")
+  if (!isAdmin && !sessionAddsListing) {
+    if (otp.length < 6 || !(await verifyLeadCode(partnerOtpLeadId(email, "register"), otp))) {
+      return NextResponse.json(
+        { error: "Verify your official email with the code we sent before submitting." },
+        { status: 400 },
+      )
+    }
+  }
+  if (sessionAddsListing && email.toLowerCase() !== partnerSession!.email) {
+    return NextResponse.json({ error: "Use the signed-in official email for new listings." }, { status: 403 })
+  }
+
   try {
     const payload = { kind, name, email, phone, city, note, ...profileFrom(body) }
     const submission = isAdmin
       ? await createAdminSubmission(payload)
-      : await createSubmission(payload)
-    if (!isAdmin) {
-      await recordLeadCode(submission.id, submission.email, "application")
-    }
+      : await createSubmission(payload, { emailVerified: true })
     return NextResponse.json({ submission }, { status: 201 })
   } catch (error) {
     if (error instanceof Error && error.message === "FREE_EMAIL") {
@@ -123,6 +143,7 @@ export async function PATCH(request: Request) {
     }
     patch.status = body.status as "approved" | "pending" | "rejected"
   }
+  const partnerSession = await getPartnerSession()
   const accountEmail = str(body, "accountEmail").toLowerCase()
   if (typeof body?.otp === "string") {
     if (!accountEmail) return NextResponse.json({ error: "Use the official email from the application." }, { status: 400 })
@@ -135,13 +156,18 @@ export async function PATCH(request: Request) {
     if (!submission) return NextResponse.json({ error: "Submission not found." }, { status: 404 })
     return NextResponse.json({ submission })
   }
-  if (!accountEmail) {
+  const partnerEdit = partnerSession && !accountEmail
+  if (!accountEmail && !partnerEdit) {
     const denied = await adminDenied()
     if (denied) return denied
   }
-  if (accountEmail) {
+  if (accountEmail || partnerEdit) {
     const existing = (await listSubmissions()).find((row) => row.id === id)
-    if (!existing || existing.email !== accountEmail) {
+    const ownerEmail = partnerEdit ? partnerSession!.email : accountEmail
+    if (!existing || existing.email !== ownerEmail) {
+      return NextResponse.json({ error: "Submission not found." }, { status: 404 })
+    }
+    if (partnerEdit && existing.kind !== partnerSession!.kind) {
       return NextResponse.json({ error: "Submission not found." }, { status: 404 })
     }
     if (!existing.emailVerified) {
@@ -149,9 +175,17 @@ export async function PATCH(request: Request) {
     }
     delete patch.status
     delete patch.email
-    const nameChanged = patch.name !== undefined && patch.name !== existing.name
-    const cityChanged = patch.city !== undefined && patch.city !== existing.city
-    if (nameChanged || cityChanged) patch.status = "pending"
+    if (existing.status === "approved" && partnerPatchNeedsReapproval(existing, patch)) {
+      patch.status = "pending"
+    } else if (existing.status === "approved" && accountEmail) {
+      const nameChanged = patch.name !== undefined && patch.name !== existing.name
+      const cityChanged = patch.city !== undefined && patch.city !== existing.city
+      if (nameChanged || cityChanged) patch.status = "pending"
+    } else if (existing.status !== "approved") {
+      const nameChanged = patch.name !== undefined && patch.name !== existing.name
+      const cityChanged = patch.city !== undefined && patch.city !== existing.city
+      if (nameChanged || cityChanged) patch.status = "pending"
+    }
   }
   if (!id || Object.keys(patch).length === 0) {
     return NextResponse.json({ error: "Choose a submission and a change." }, { status: 400 })
