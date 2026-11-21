@@ -149,6 +149,8 @@ export const metadata = {
     "Browse doctor profiles by city, specialization and hospital association, with independent patient-experience and medical-expertise ratings.",
 }
 
+export const revalidate = 120
+
 export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
   const params = await searchParams
   const filterValues = readFilterValues(params)

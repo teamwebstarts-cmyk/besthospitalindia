@@ -40,6 +40,9 @@ import { cn } from "@/lib/utils"
 import type { FacilityCategory } from "@/types"
 
 const BASE_PATH = ROUTES.public.facilities
+
+export const revalidate = 120
+
 const FACILITY_LABEL = "facility"
 const FACILITY_PLURAL_LABEL = "facilities"
 const DEFAULT_SORT = "relevance"

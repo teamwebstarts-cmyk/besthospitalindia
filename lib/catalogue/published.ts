@@ -1,9 +1,12 @@
 import "server-only"
 
+import { unstable_cache } from "next/cache"
+
 import { specialtyById, treatmentById } from "@/data"
 import type { Accreditation, Doctor, Facility, FacilityCategory, Hospital, RatingSummary } from "@/types"
 import type { RatingKind } from "@/types/rating"
 
+import { CATALOGUE_PUBLIC_TAG } from "@/lib/catalogue/revalidate-public-catalogue"
 import { listSubmissions, type CatalogueSubmission } from "@/lib/catalogue/submissions"
 
 function unrated(kind: RatingKind): RatingSummary {
@@ -46,8 +49,18 @@ export function submissionSlug(row: CatalogueSubmission): string {
   return `${slugPart(row.name)}-${row.id}`
 }
 
+const getApprovedSubmissionRows = unstable_cache(
+  async () => {
+    const rows = await listSubmissions()
+    return rows.filter((row) => row.status === "approved")
+  },
+  ["catalogue-approved-submission-rows"],
+  { revalidate: 120, tags: [CATALOGUE_PUBLIC_TAG] },
+)
+
 async function approved(kind: CatalogueSubmission["kind"]): Promise<CatalogueSubmission[]> {
-  return (await listSubmissions(kind)).filter((row) => row.status === "approved")
+  const rows = await getApprovedSubmissionRows()
+  return rows.filter((row) => row.kind === kind)
 }
 
 function validIds(ids: string[] | undefined, lookup: Record<string, unknown>): string[] {

@@ -1,6 +1,7 @@
 import "server-only"
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import path from "node:path"
+import { cache } from "react"
 
 import { readArray, writeArray } from "@/lib/db/adapters"
 import { buildMissingFixtureSeeds } from "@/lib/catalogue/seed-fixtures"
@@ -117,10 +118,10 @@ async function ensureFixtureSeeds(): Promise<void> {
 }
 
 /** All submissions: shared Mongo collection when configured, file otherwise. */
-async function readAll(): Promise<CatalogueSubmission[]> {
+const readAll = cache(async (): Promise<CatalogueSubmission[]> => {
   await ensureFixtureSeeds()
   return readAllRaw()
-}
+})
 
 async function persist(rows: CatalogueSubmission[]): Promise<void> {
   if (await writeArray("submissions", rows)) return

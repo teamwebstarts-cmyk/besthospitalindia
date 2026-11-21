@@ -11,6 +11,7 @@ import {
   updateSubmission,
   type CatalogueProfileFields,
 } from "@/lib/catalogue/submissions"
+import { revalidatePublicCatalogue } from "@/lib/catalogue/revalidate-public-catalogue"
 import { forgetLeadCode, recordLeadCode, verifyLeadCode } from "@/lib/mail/outbox"
 import { partnerOtpLeadId } from "@/lib/partner/otp"
 import { partnerPatchNeedsReapproval } from "@/lib/partner/submission-patch"
@@ -118,6 +119,7 @@ export async function POST(request: Request) {
     const submission = isAdmin
       ? await createAdminSubmission(payload)
       : await createSubmission(payload, { emailVerified: true })
+    revalidatePublicCatalogue()
     return NextResponse.json({ submission }, { status: 201 })
   } catch (error) {
     if (error instanceof Error && error.message === "FREE_EMAIL") {
@@ -154,6 +156,7 @@ export async function PATCH(request: Request) {
     }
     const submission = await markSubmissionEmailVerified(id)
     if (!submission) return NextResponse.json({ error: "Submission not found." }, { status: 404 })
+    revalidatePublicCatalogue()
     return NextResponse.json({ submission })
   }
   const partnerEdit = partnerSession && !accountEmail
@@ -199,6 +202,7 @@ export async function PATCH(request: Request) {
   try {
     const submission = await updateSubmission(id, patch)
     if (!submission) return NextResponse.json({ error: "Submission not found." }, { status: 404 })
+    revalidatePublicCatalogue()
     return NextResponse.json({ submission })
   } catch (error) {
     if (error instanceof Error && error.message === "FREE_EMAIL") {
@@ -217,5 +221,6 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "Submission not found." }, { status: 404 })
   }
   await forgetLeadCode(id)
+  revalidatePublicCatalogue()
   return NextResponse.json({ ok: true })
 }

@@ -30,7 +30,7 @@ function GoogleStyleReviewCard({
     >
       <div className="flex items-start gap-3">
         <div className="relative size-10 shrink-0 overflow-hidden rounded-full bg-muted ring-1 ring-border/60">
-          <Image src={photo} alt="" fill sizes="40px" className="object-cover" unoptimized />
+          <Image src={photo} alt="" fill sizes="40px" className="object-cover" />
         </div>
         <div className="min-w-0 flex-1">
           <figcaption className="truncate text-sm font-semibold text-foreground">

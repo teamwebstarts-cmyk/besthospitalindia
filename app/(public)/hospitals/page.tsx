@@ -117,6 +117,8 @@ export const metadata: Metadata = {
   alternates: { canonical: BASE_PATH },
 }
 
+export const revalidate = 120
+
 interface HospitalsPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }

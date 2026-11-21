@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 
 import { adminDenied } from "@/lib/admin/session"
 
+import { revalidatePublicCatalogue } from "@/lib/catalogue/revalidate-public-catalogue"
 import {
   catalogueRecordExists,
   catalogueSnapshot,
@@ -25,5 +26,6 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Choose a catalogue record and a status." }, { status: 400 })
   }
   const saved = await setCatalogueStatus(kind, id, status)
+  revalidatePublicCatalogue()
   return NextResponse.json({ kind, id, status: saved })
 }

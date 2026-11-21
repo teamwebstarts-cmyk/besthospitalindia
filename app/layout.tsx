@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
 import { Geist_Mono, Inter, Manrope } from "next/font/google"
 
-import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
 
 import "./globals.css"
@@ -41,9 +40,7 @@ export default function RootLayout({
         manrope.variable
       )}
     >
-      <body>
-        <ThemeProvider>{children}</ThemeProvider>
-      </body>
+      <body>{children}</body>
     </html>
   )
 }

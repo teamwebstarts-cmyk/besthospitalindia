@@ -1,8 +1,6 @@
 import type { Metadata } from "next"
-import { JourneyStepsAnimated } from "@/features/content/journey-steps-animated"
+import dynamic from "next/dynamic"
 import { ScrollReveal } from "@/components/motion/scroll-reveal"
-import { TestimonialsMarquee } from "@/features/content/testimonials-marquee"
-import { FaqList } from "@/features/content/faq-list"
 import {
   HomeBleedBand,
   homeMobileCardRailClassName,
@@ -22,8 +20,25 @@ import {
   homeTestimonials,
 } from "@/features/content/home-content"
 import { homeMedicalDestinationStates } from "@/features/content/medical-destination-states"
-import { FeaturedHospitalsSection } from "@/features/content/featured-hospitals/featured-hospitals-section"
-import { FindDoctorsSection } from "@/features/content/find-doctors/find-doctors-section"
+const JourneyStepsAnimated = dynamic(() =>
+  import("@/features/content/journey-steps-animated").then((mod) => mod.JourneyStepsAnimated),
+)
+
+const TestimonialsMarquee = dynamic(() =>
+  import("@/features/content/testimonials-marquee").then((mod) => mod.TestimonialsMarquee),
+)
+
+const FaqList = dynamic(() => import("@/features/content/faq-list").then((mod) => mod.FaqList))
+
+const FeaturedHospitalsSection = dynamic(() =>
+  import("@/features/content/featured-hospitals/featured-hospitals-section").then(
+    (mod) => mod.FeaturedHospitalsSection,
+  ),
+)
+
+const FindDoctorsSection = dynamic(() =>
+  import("@/features/content/find-doctors/find-doctors-section").then((mod) => mod.FindDoctorsSection),
+)
 import { FACILITY_CATEGORY_LABELS } from "@/features/discovery/facility-meta"
 import { specialties } from "@/data"
 import { publishedDoctors, publishedFacilities, publishedHospitals } from "@/lib/catalogue/published"
@@ -44,10 +59,15 @@ const facilityCategoryDescriptions: Record<string, string> = {
   medical_tourism: "Medical-tourism facilitator listings",
 }
 
+/** Catalogue-backed slices refresh on a short ISR window in production. */
+export const revalidate = 120
+
 export default async function HomePage() {
-  const catalogueHospitals = await publishedHospitals()
-  const catalogueDoctors = await publishedDoctors()
-  const catalogueFacilities = await publishedFacilities()
+  const [catalogueHospitals, catalogueDoctors, catalogueFacilities] = await Promise.all([
+    publishedHospitals(),
+    publishedDoctors(),
+    publishedFacilities(),
+  ])
 
   const featuredHospitals = catalogueHospitals.slice(0, 6)
   const featuredDoctors = catalogueDoctors.slice(0, 3)

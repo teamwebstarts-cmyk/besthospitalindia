@@ -177,7 +177,9 @@ export default async function HospitalProfilePage({ params }: HospitalProfilePag
               sizes="(max-width: 1024px) 100vw, 1280px"
               className="object-cover"
               priority
-              unoptimized
+              unoptimized={
+                hospital.image.startsWith("http") || hospital.image.endsWith(".svg")
+              }
             />
           </div>
         ) : null}
